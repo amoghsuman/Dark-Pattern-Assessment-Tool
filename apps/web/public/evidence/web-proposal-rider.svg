@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" font-family="Inter, 'Segoe UI', Arial, sans-serif">
+  <title>Proposal form cover options with pre-ticked rider and double-negative consent</title>
+  <rect width="1440" height="900" fill="#f8fafc"/>
+  <rect width="1440" height="72" fill="#ffffff"/>
+  <line x1="0" y1="72" x2="1440" y2="72" stroke="#e2e8f0"/>
+  <circle cx="64" cy="36" r="16" fill="#1d4ed8"/>
+  <path d="M56 36l6 6 10-12" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <text x="92" y="43" font-size="20" font-weight="700" fill="#0f172a">Example Life</text>
+  <text x="1376" y="42" font-size="14" fill="#64748b" text-anchor="end">Proposal no. PRP-26-118204</text>
+
+  <!-- stepper -->
+  <g font-size="14">
+    <circle cx="164" cy="118" r="14" fill="#16a34a"/><text x="164" y="123" fill="#fff" text-anchor="middle">✓</text>
+    <text x="188" y="123" fill="#334155">Personal details</text>
+    <line x1="320" y1="118" x2="380" y2="118" stroke="#cbd5e1" stroke-width="2"/>
+    <circle cx="404" cy="118" r="14" fill="#1d4ed8"/><text x="404" y="123" fill="#fff" text-anchor="middle">2</text>
+    <text x="428" y="123" fill="#0f172a" font-weight="600">Cover options</text>
+    <line x1="550" y1="118" x2="610" y2="118" stroke="#cbd5e1" stroke-width="2"/>
+    <circle cx="634" cy="118" r="14" fill="#e2e8f0"/><text x="634" y="123" fill="#64748b" text-anchor="middle">3</text>
+    <text x="658" y="123" fill="#64748b">Medical questions</text>
+    <line x1="800" y1="118" x2="860" y2="118" stroke="#cbd5e1" stroke-width="2"/>
+    <circle cx="884" cy="118" r="14" fill="#e2e8f0"/><text x="884" y="123" fill="#64748b" text-anchor="middle">4</text>
+    <text x="908" y="123" fill="#64748b">Review</text>
+  </g>
+
+  <text x="150" y="190" font-size="26" font-weight="700" fill="#0f172a">Choose your cover</text>
+  <rect x="150" y="210" width="750" height="100" rx="12" fill="#fff" stroke="#e2e8f0"/>
+  <text x="180" y="252" font-size="17" font-weight="600" fill="#0f172a">Base cover</text>
+  <text x="180" y="282" font-size="15" fill="#64748b">₹1 crore life cover for 30 years</text>
+  <text x="870" y="268" font-size="18" font-weight="700" fill="#0f172a" text-anchor="end">₹1,184/month</text>
+
+  <text x="150" y="338" font-size="15" font-weight="600" fill="#475569">Optional riders</text>
+  <!-- rider 1 (pre-ticked) -->
+  <rect x="150" y="350" width="750" height="55" rx="10" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="172" y="366" width="22" height="22" rx="5" fill="#1d4ed8"/>
+  <path d="M177 377l4 4 8-9" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <text x="212" y="383" font-size="16" font-weight="600" fill="#0f172a">Critical Illness Rider</text>
+  <text x="870" y="383" font-size="15" fill="#334155" text-anchor="end">+ ₹312/month</text>
+  <!-- rider 2 -->
+  <rect x="150" y="415" width="750" height="55" rx="10" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="172" y="431" width="22" height="22" rx="5" fill="#fff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="212" y="448" font-size="16" fill="#0f172a">Accidental Death Benefit</text>
+  <text x="870" y="448" font-size="15" fill="#334155" text-anchor="end">+ ₹48/month</text>
+  <!-- rider 3 -->
+  <rect x="150" y="480" width="750" height="55" rx="10" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="172" y="496" width="22" height="22" rx="5" fill="#fff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="212" y="513" font-size="16" fill="#0f172a">Waiver of Premium</text>
+  <text x="870" y="513" font-size="15" fill="#334155" text-anchor="end">+ ₹36/month</text>
+
+  <!-- summary -->
+  <rect x="980" y="330" width="340" height="120" rx="12" fill="#eef4ff" stroke="#bfdbfe"/>
+  <text x="1004" y="364" font-size="14" fill="#475569">Total premium</text>
+  <text x="1004" y="404" font-size="30" font-weight="800" fill="#0f172a">₹1,496/month</text>
+  <text x="1004" y="432" font-size="13" fill="#64748b">Includes Critical Illness Rider</text>
+
+  <!-- consent -->
+  <text x="150" y="594" font-size="15" font-weight="600" fill="#475569">Consents</text>
+  <rect x="150" y="610" width="950" height="50" rx="10" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="172" y="624" width="22" height="22" rx="5" fill="#1d4ed8"/>
+  <path d="M177 635l4 4 8-9" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <text x="212" y="641" font-size="15" fill="#334155">Untick this box if you do not wish to not receive offers from our partners.</text>
+
+  <rect x="150" y="720" width="300" height="56" rx="10" fill="#1d4ed8"/>
+  <text x="300" y="754" font-size="17" font-weight="600" fill="#fff" text-anchor="middle">Continue to medical questions</text>
+  <text x="480" y="754" font-size="15" fill="#64748b">Back</text>
+</svg>

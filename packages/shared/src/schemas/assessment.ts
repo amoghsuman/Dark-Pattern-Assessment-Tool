@@ -145,6 +145,20 @@ export const AssessmentSchema = z.object({
   stageIds: z.array(IdSchema).min(1),
   /** Rule pack set the assessment ran against, e.g. "ccpa-2023@0.1.0-draft". */
   rulePackSetVersion: z.string().min(1),
+  /**
+   * Parts of the scope deliberately not assessed yet (for example a portal awaiting access).
+   * These cells show as "not yet assessed" in the compliance matrix.
+   */
+  coverageGaps: z
+    .array(
+      z.object({
+        stageId: IdSchema,
+        /** Omit to mean every pattern in scope. */
+        patternIds: z.array(PatternIdSchema).optional(),
+        reason: z.string().min(1),
+      }),
+    )
+    .default([]),
   progress: z.object({
     completedSteps: z.number().int().nonnegative(),
     totalSteps: z.number().int().nonnegative(),

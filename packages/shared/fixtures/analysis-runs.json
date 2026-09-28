@@ -1,0 +1,266 @@
+[
+  {
+    "id": "run-digital-h1",
+    "assessmentId": "asm-digital-h1",
+    "status": "succeeded",
+    "rulePackSetVersion": "ccpa-2023@0.1.0-draft",
+    "startedAt": "2026-08-04T03:30:00Z",
+    "completedAt": "2026-08-04T09:12:00Z",
+    "engines": [
+      {
+        "engine": "screen_capture",
+        "status": "succeeded",
+        "startedAt": "2026-08-04T03:30:00Z",
+        "completedAt": "2026-08-05T04:20:00Z",
+        "events": [
+          {
+            "at": "2026-08-04T03:30:00Z",
+            "level": "info",
+            "message": "Starting 3 journeys on 2 targets"
+          },
+          {
+            "at": "2026-08-04T03:48:05Z",
+            "level": "info",
+            "message": "Website purchase journey: 16 steps, 5 screens captured"
+          },
+          {
+            "at": "2026-08-04T03:56:44Z",
+            "level": "info",
+            "message": "Website claims and grievance journey: 4 steps, 2 screens captured"
+          },
+          {
+            "at": "2026-08-04T04:14:10Z",
+            "level": "info",
+            "message": "Android app journey: waiting 24 hours to observe notifications"
+          },
+          {
+            "at": "2026-08-05T04:14:05Z",
+            "level": "info",
+            "message": "Android app journey: 10 steps, 5 screens captured"
+          },
+          {
+            "at": "2026-08-05T04:20:00Z",
+            "level": "info",
+            "message": "Screen analysis complete: 22 findings raised"
+          }
+        ],
+        "metrics": {
+          "itemsTotal": 12,
+          "itemsProcessed": 12,
+          "findingsRaised": 22
+        }
+      },
+      {
+        "engine": "code_analysis",
+        "status": "succeeded",
+        "startedAt": "2026-08-04T05:15:00Z",
+        "completedAt": "2026-08-04T06:45:00Z",
+        "events": [
+          {
+            "at": "2026-08-04T05:15:00Z",
+            "level": "info",
+            "message": "Unpacked source archive policy-admin-platform@a3f9c21 (4,812 files)"
+          },
+          {
+            "at": "2026-08-04T05:40:12Z",
+            "level": "info",
+            "message": "Indexed TypeScript, Java and Kotlin sources"
+          },
+          {
+            "at": "2026-08-04T06:20:31Z",
+            "level": "info",
+            "message": "Ran 39 deterministic checks across 13 rule packs"
+          },
+          {
+            "at": "2026-08-04T06:44:50Z",
+            "level": "info",
+            "message": "Code analysis complete: 8 findings raised"
+          }
+        ],
+        "metrics": {
+          "itemsTotal": 4812,
+          "itemsProcessed": 4812,
+          "findingsRaised": 8
+        }
+      },
+      {
+        "engine": "backend_logic",
+        "status": "succeeded",
+        "startedAt": "2026-08-04T06:50:00Z",
+        "completedAt": "2026-08-04T08:00:00Z",
+        "events": [
+          {
+            "at": "2026-08-04T06:50:00Z",
+            "level": "info",
+            "message": "Loaded pricing, notification, billing and catalogue configuration (61 files)"
+          },
+          {
+            "at": "2026-08-04T07:20:44Z",
+            "level": "info",
+            "message": "Parsed payments API specification"
+          },
+          {
+            "at": "2026-08-04T07:41:09Z",
+            "level": "warn",
+            "message": "Fee rule conditioned on journey step detected"
+          },
+          {
+            "at": "2026-08-04T07:59:30Z",
+            "level": "info",
+            "message": "Backend and logic review complete: 9 findings raised"
+          }
+        ],
+        "metrics": {
+          "itemsTotal": 61,
+          "itemsProcessed": 61,
+          "findingsRaised": 9
+        }
+      },
+      {
+        "engine": "software_risk",
+        "status": "succeeded",
+        "startedAt": "2026-08-04T08:00:00Z",
+        "completedAt": "2026-08-04T08:35:00Z",
+        "events": [
+          {
+            "at": "2026-08-04T08:00:00Z",
+            "level": "info",
+            "message": "Decompiled ExampleLife-4.2.0.apk"
+          },
+          {
+            "at": "2026-08-04T08:18:22Z",
+            "level": "info",
+            "message": "SDK inventory: 23 third-party SDKs"
+          },
+          {
+            "at": "2026-08-04T08:34:40Z",
+            "level": "info",
+            "message": "Software risk scan complete: 2 findings raised"
+          }
+        ],
+        "metrics": {
+          "itemsTotal": 23,
+          "itemsProcessed": 23,
+          "findingsRaised": 2
+        }
+      },
+      {
+        "engine": "correlation",
+        "status": "succeeded",
+        "startedAt": "2026-08-04T08:40:00Z",
+        "completedAt": "2026-08-04T09:12:00Z",
+        "events": [
+          {
+            "at": "2026-08-04T08:40:00Z",
+            "level": "info",
+            "message": "Correlating 41 findings across engines"
+          },
+          {
+            "at": "2026-08-04T09:05:13Z",
+            "level": "info",
+            "message": "Linked 24 findings into 11 groups"
+          },
+          {
+            "at": "2026-08-04T09:12:00Z",
+            "level": "info",
+            "message": "Correlation complete"
+          }
+        ],
+        "metrics": {
+          "itemsTotal": 41,
+          "itemsProcessed": 41,
+          "findingsRaised": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "run-renewal-prelaunch",
+    "assessmentId": "asm-renewal-prelaunch",
+    "status": "running",
+    "rulePackSetVersion": "ccpa-2023@0.1.0-draft",
+    "startedAt": "2026-09-29T04:30:00Z",
+    "engines": [
+      {
+        "engine": "screen_capture",
+        "status": "succeeded",
+        "startedAt": "2026-09-29T04:30:00Z",
+        "completedAt": "2026-09-29T04:48:00Z",
+        "events": [
+          {
+            "at": "2026-09-29T04:30:00Z",
+            "level": "info",
+            "message": "Starting 1 journey on the UAT build"
+          },
+          {
+            "at": "2026-09-29T04:41:02Z",
+            "level": "warn",
+            "message": "Captured 2 of 4 screens; 2 steps blocked by UAT login timeout"
+          },
+          {
+            "at": "2026-09-29T04:48:00Z",
+            "level": "info",
+            "message": "Screen analysis complete: 6 findings raised"
+          }
+        ],
+        "metrics": {
+          "itemsTotal": 4,
+          "itemsProcessed": 2,
+          "findingsRaised": 6
+        }
+      },
+      {
+        "engine": "code_analysis",
+        "status": "running",
+        "startedAt": "2026-09-29T04:49:00Z",
+        "events": [
+          {
+            "at": "2026-09-29T04:49:00Z",
+            "level": "info",
+            "message": "Decompiling ExampleLife-5.0.0-rc2.apk"
+          },
+          {
+            "at": "2026-09-29T04:52:30Z",
+            "level": "info",
+            "message": "Indexed 212 of 540 classes"
+          }
+        ],
+        "metrics": {
+          "itemsTotal": 540,
+          "itemsProcessed": 212,
+          "findingsRaised": 0
+        }
+      },
+      {
+        "engine": "backend_logic",
+        "status": "pending",
+        "events": [],
+        "metrics": {
+          "itemsTotal": 0,
+          "itemsProcessed": 0,
+          "findingsRaised": 0
+        }
+      },
+      {
+        "engine": "software_risk",
+        "status": "pending",
+        "events": [],
+        "metrics": {
+          "itemsTotal": 0,
+          "itemsProcessed": 0,
+          "findingsRaised": 0
+        }
+      },
+      {
+        "engine": "correlation",
+        "status": "pending",
+        "events": [],
+        "metrics": {
+          "itemsTotal": 0,
+          "itemsProcessed": 0,
+          "findingsRaised": 0
+        }
+      }
+    ]
+  }
+]

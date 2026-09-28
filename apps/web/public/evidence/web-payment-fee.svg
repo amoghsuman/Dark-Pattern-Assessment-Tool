@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" font-family="Inter, 'Segoe UI', Arial, sans-serif">
+  <title>Payment summary with late administration fee and price hold timer</title>
+  <rect width="1440" height="900" fill="#f8fafc"/>
+  <rect width="1440" height="72" fill="#ffffff"/>
+  <line x1="0" y1="72" x2="1440" y2="72" stroke="#e2e8f0"/>
+  <circle cx="64" cy="36" r="16" fill="#1d4ed8"/>
+  <path d="M56 36l6 6 10-12" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <text x="92" y="43" font-size="20" font-weight="700" fill="#0f172a">Example Life</text>
+  <text x="1376" y="42" font-size="14" fill="#16a34a" text-anchor="end">🔒 Secure payment</text>
+
+  <text x="120" y="150" font-size="28" font-weight="700" fill="#0f172a">Review and pay</text>
+  <rect x="800" y="120" width="520" height="50" rx="10" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="1060" y="151" font-size="16" font-weight="600" fill="#c2410c" text-anchor="middle">Price held for 10:00, complete payment to lock it</text>
+
+  <!-- summary -->
+  <rect x="120" y="190" width="640" height="360" rx="14" fill="#fff" stroke="#e2e8f0"/>
+  <text x="150" y="226" font-size="15" font-weight="600" fill="#475569">Premium summary</text>
+  <g font-size="16">
+    <text x="150" y="266" fill="#334155">Base premium (monthly)</text><text x="730" y="266" fill="#0f172a" text-anchor="end">₹1,184.00</text>
+    <text x="150" y="312" fill="#334155">Critical Illness Rider</text><text x="730" y="312" fill="#0f172a" text-anchor="end">₹312.00</text>
+    <text x="150" y="358" fill="#334155">GST @ 18%</text><text x="730" y="358" fill="#0f172a" text-anchor="end">₹269.28</text>
+    <text x="150" y="426" fill="#334155">Policy administration fee</text><text x="730" y="426" fill="#0f172a" text-anchor="end">₹299.00</text>
+  </g>
+  <line x1="150" y1="455" x2="730" y2="455" stroke="#e2e8f0"/>
+  <text x="150" y="505" font-size="19" font-weight="700" fill="#0f172a">Total payable today</text>
+  <text x="730" y="505" font-size="24" font-weight="800" fill="#0f172a" text-anchor="end">₹2,064.28</text>
+
+  <!-- payment methods -->
+  <rect x="800" y="190" width="520" height="420" rx="14" fill="#fff" stroke="#e2e8f0"/>
+  <text x="830" y="232" font-size="17" font-weight="700" fill="#0f172a">Pay with</text>
+  <g font-size="16" fill="#0f172a">
+    <rect x="830" y="254" width="460" height="56" rx="10" fill="#eef4ff" stroke="#1d4ed8"/>
+    <circle cx="856" cy="282" r="8" fill="#1d4ed8"/><text x="878" y="288">UPI</text>
+    <rect x="830" y="322" width="460" height="56" rx="10" fill="#fff" stroke="#e2e8f0"/>
+    <circle cx="856" cy="350" r="8" fill="none" stroke="#94a3b8" stroke-width="2"/><text x="878" y="356">Net banking</text>
+    <rect x="830" y="390" width="460" height="56" rx="10" fill="#fff" stroke="#e2e8f0"/>
+    <circle cx="856" cy="418" r="8" fill="none" stroke="#94a3b8" stroke-width="2"/><text x="878" y="424">Debit or credit card</text>
+  </g>
+  <rect x="830" y="520" width="460" height="60" rx="10" fill="#1d4ed8"/>
+  <text x="1060" y="557" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">Pay ₹2,064.28</text>
+</svg>

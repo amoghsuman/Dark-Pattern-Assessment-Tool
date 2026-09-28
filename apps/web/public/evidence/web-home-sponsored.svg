@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" font-family="Inter, 'Segoe UI', Arial, sans-serif">
+  <title>Example Life home page with "Top rated plans" section</title>
+  <rect width="1440" height="900" fill="#f8fafc"/>
+  <!-- navigation -->
+  <rect width="1440" height="72" fill="#ffffff"/>
+  <line x1="0" y1="72" x2="1440" y2="72" stroke="#e2e8f0"/>
+  <circle cx="64" cy="36" r="16" fill="#1d4ed8"/>
+  <path d="M56 36l6 6 10-12" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <text x="92" y="43" font-size="20" font-weight="700" fill="#0f172a">Example Life</text>
+  <g font-size="15" fill="#334155">
+    <text x="820" y="42">Term</text><text x="890" y="42">Health</text><text x="970" y="42">Savings</text><text x="1055" y="42">Claims</text><text x="1135" y="42">Support</text>
+  </g>
+  <rect x="1236" y="18" width="140" height="36" rx="8" fill="none" stroke="#1d4ed8"/>
+  <text x="1306" y="41" font-size="15" fill="#1d4ed8" text-anchor="middle">My account</text>
+
+  <!-- hero -->
+  <rect x="0" y="72" width="1440" height="296" fill="#eef4ff"/>
+  <text x="120" y="130" font-size="15" fill="#1d4ed8" font-weight="600">TERM INSURANCE</text>
+  <text x="120" y="182" font-size="44" font-weight="700" fill="#0f172a">Term cover of ₹1 crore</text>
+  <text x="120" y="226" font-size="44" font-weight="700" fill="#1d4ed8">from ₹649/month*</text>
+  <rect x="120" y="260" width="220" height="56" rx="10" fill="#1d4ed8"/>
+  <text x="230" y="294" font-size="18" font-weight="600" fill="#fff" text-anchor="middle">Get a quote</text>
+  <text x="362" y="294" font-size="13" fill="#64748b">*T&amp;C apply. Illustrative premium.</text>
+  <g opacity="0.9">
+    <circle cx="1090" cy="210" r="96" fill="#dbeafe"/>
+    <circle cx="1060" cy="180" r="26" fill="#93c5fd"/>
+    <rect x="1030" y="210" width="60" height="80" rx="30" fill="#93c5fd"/>
+    <circle cx="1130" cy="196" r="20" fill="#60a5fa"/>
+    <rect x="1106" y="220" width="48" height="66" rx="24" fill="#60a5fa"/>
+    <circle cx="1240" cy="150" r="40" fill="#bfdbfe"/>
+  </g>
+
+  <!-- top rated plans -->
+  <text x="120" y="412" font-size="26" font-weight="700" fill="#0f172a">Top rated plans for you</text>
+  <text x="440" y="412" font-size="15" fill="#64748b">· Ranked by our experts</text>
+
+  <g>
+    <rect x="120" y="440" width="380" height="360" rx="14" fill="#fff" stroke="#e2e8f0"/>
+    <rect x="144" y="464" width="44" height="28" rx="14" fill="#fef3c7"/>
+    <text x="166" y="483" font-size="14" font-weight="700" fill="#92400e" text-anchor="middle">#1</text>
+    <text x="144" y="530" font-size="20" font-weight="700" fill="#0f172a">Wealth Shield</text>
+    <text x="144" y="554" font-size="14" fill="#64748b">Sample General Assurance</text>
+    <text x="144" y="586" font-size="16" fill="#f59e0b">★★★★★</text><text x="238" y="586" font-size="14" fill="#334155">4.9</text>
+    <text x="144" y="626" font-size="14" fill="#334155">✓ Market-linked returns</text>
+    <text x="144" y="652" font-size="14" fill="#334155">✓ Life cover up to ₹50 lakh</text>
+    <text x="144" y="678" font-size="14" fill="#334155">✓ Partial withdrawals after 5 years</text>
+    <rect x="144" y="730" width="332" height="44" rx="8" fill="#1d4ed8"/>
+    <text x="310" y="758" font-size="15" font-weight="600" fill="#fff" text-anchor="middle">View plan</text>
+  </g>
+  <g>
+    <rect x="530" y="440" width="380" height="360" rx="14" fill="#fff" stroke="#e2e8f0"/>
+    <rect x="554" y="464" width="44" height="28" rx="14" fill="#f1f5f9"/>
+    <text x="576" y="483" font-size="14" font-weight="700" fill="#334155" text-anchor="middle">#2</text>
+    <text x="554" y="530" font-size="20" font-weight="700" fill="#0f172a">Smart Saver</text>
+    <text x="554" y="554" font-size="14" fill="#64748b">Sample General Assurance</text>
+    <text x="554" y="586" font-size="16" fill="#f59e0b">★★★★★</text><text x="648" y="586" font-size="14" fill="#334155">4.8</text>
+    <text x="554" y="626" font-size="14" fill="#334155">✓ Guaranteed maturity benefit</text>
+    <text x="554" y="652" font-size="14" fill="#334155">✓ Premium payment for 10 years</text>
+    <text x="554" y="678" font-size="14" fill="#334155">✓ Tax benefits*</text>
+    <rect x="554" y="730" width="332" height="44" rx="8" fill="#1d4ed8"/>
+    <text x="720" y="758" font-size="15" font-weight="600" fill="#fff" text-anchor="middle">View plan</text>
+  </g>
+  <g>
+    <rect x="940" y="440" width="380" height="360" rx="14" fill="#fff" stroke="#e2e8f0"/>
+    <rect x="964" y="464" width="44" height="28" rx="14" fill="#f1f5f9"/>
+    <text x="986" y="483" font-size="14" font-weight="700" fill="#334155" text-anchor="middle">#3</text>
+    <text x="964" y="530" font-size="20" font-weight="700" fill="#0f172a">Secure Term Plus</text>
+    <text x="964" y="554" font-size="14" fill="#64748b">Example Life Insurance</text>
+    <text x="964" y="586" font-size="16" fill="#f59e0b">★★★★</text><text x="1044" y="586" font-size="14" fill="#334155">4.6</text>
+    <text x="964" y="626" font-size="14" fill="#334155">✓ Life cover up to ₹2 crore</text>
+    <text x="964" y="652" font-size="14" fill="#334155">✓ Terminal illness benefit</text>
+    <text x="964" y="678" font-size="14" fill="#334155">✓ Cover to age 85</text>
+    <rect x="964" y="730" width="332" height="44" rx="8" fill="#1d4ed8"/>
+    <text x="1130" y="758" font-size="15" font-weight="600" fill="#fff" text-anchor="middle">View plan</text>
+  </g>
+  <text x="720" y="850" font-size="13" fill="#94a3b8" text-anchor="middle">© Example Life Insurance · Fictitious organisation for sample data</text>
+</svg>

@@ -17,7 +17,8 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 - M0 Foundation: done (monorepo, tooling, CI, Next.js shell, theme, brand config).
 - M1 Access gate: done (proxy, signed cookie, access page, sign out).
 - M2 Domain, schemas, rules: done (zod domain schemas, finding workflow, repository interfaces, 13 draft rule packs).
-- Next: M3 Sample data layer.
+- M3 Sample data layer: done (fixtures, 14 SVG evidence screens, SampleDataRepository with localStorage overlay, derive functions, RepositoryProvider and hooks).
+- Next: M4 App shell, Home, Settings.
 
 ## Commands (run from the repo root, PowerShell or any shell)
 
@@ -53,7 +54,10 @@ supabase          reserved (Stage B)
 - **Domain:** zod schemas in `packages/shared/src/schemas` (types via `z.infer`); finding status workflow and role permissions in `src/domain/finding-workflow.ts`; display labels in `src/domain/labels.ts`; repository interfaces in `src/data/repositories.ts`. Findings store `rulePackId` + `rulePackVersion`; assessments store `rulePackSetVersion`.
 - Workspace packages are consumed as TypeScript source (`exports` points at `src/index.ts`); `apps/web` lists them in `transpilePackages`. No package build step.
 - **Data seam:** screens use hooks in `apps/web/lib/data` only. Hooks call the `Repositories` interface from `@dpat/shared`. `DATA_SOURCE` (parsed by `parseDataSource`) selects the implementation; Stage A supports `sample`. Never import fixtures or a concrete repository from a screen.
-- Sample mode writes go to a browser localStorage overlay (resettable from the Sample data badge).
+- **Sample data:** JSON fixtures in `packages/shared/fixtures/` are the source of truth (fictitious insurer "Example Life Insurance": 2 assessments, 4 targets, 4 journeys, 47 findings, full review histories). `src/data/sample/fixtures.test.ts` enforces schema validity and referential integrity (IDs, rule criteria, box criteria, correlation symmetry, valid status histories ending at the current status, engine counts, no findings inside coverage gaps, all matrix colours present). Evidence illustrations are SVGs in `apps/web/public/evidence/` (desktop 1440×900, mobile 390×844); bounding boxes are fractions of the image and are overlaid by the viewer, not drawn into the SVG.
+- **Sample writes:** `createSampleRepositories` layers an `OverlayState` (status changes, history, comments, created assessments, settings, selected role) over the fixtures, stored in localStorage key `dpat.sample-overlay.v1` with in-memory fallback. `SampleControls` (role switcher, reset) are exposed via `useSampleMode()`. Role → acting user: admin Priya Raman, reviewer Kavya Iyer, assessor Arjun Mehta, viewer Rohan Das.
+- **Derived data** (`packages/shared/src/data/derive`): `deriveMatrix` (colour rules documented in the file), `deriveKpis`, `deriveRiskSummary`, `deriveRiskRegister` (13 × stages rows), `filterFindings`, `buildRunReplay` (frames for the run view). Screens must use these rather than re-implementing the rules.
+- **Web data access:** `apps/web/lib/data/repository-provider.tsx` (client) creates repositories from `DATA_SOURCE` (passed from the `(app)` layout, which calls `connection()` so env is read per request) and a TanStack Query client; `lib/data/hooks.ts` holds every query/mutation hook and the query keys.
 - **Access gate:** `apps/web/proxy.ts` (Next 16 middleware) requires a valid `dpat_access` cookie on every route except Next internals and `/brand/*`; otherwise it redirects to `/access?next=<path>`. The cookie is `v1.<expiry>.<HMAC-SHA256(expiry, SITE_PASSCODE)>` (7-day TTL, `lib/access/token.ts`, Web Crypto), so rotating the passcode signs everyone out. Unlock and sign out are Server Actions in `app/access/actions.ts`. `next` is sanitised by `lib/access/redirect.ts`. Blank `SITE_PASSCODE` fails closed. It is a light gate, not user authentication.
 - Server-only env access goes through `apps/web/lib/env.ts` (guarded by `server-only`).
 - Branding (product name, logo, accent hue) lives only in `apps/web/config/brand.ts`.

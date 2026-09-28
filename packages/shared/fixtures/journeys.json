@@ -1,0 +1,345 @@
+[
+  {
+    "id": "jrn-web-buy",
+    "assessmentId": "asm-digital-h1",
+    "targetId": "tgt-web",
+    "name": "Term plan: discovery to payment",
+    "stageIds": ["stg-discovery", "stg-quote", "stg-proposal", "stg-payment"],
+    "steps": [
+      {
+        "id": "stp-wb-00",
+        "order": 0,
+        "action": "navigate",
+        "stageId": "stg-discovery",
+        "label": "Open home page",
+        "target": "https://www.examplelife.example/"
+      },
+      {
+        "id": "stp-wb-01",
+        "order": 1,
+        "action": "capture",
+        "stageId": "stg-discovery",
+        "label": "Capture home page",
+        "screenArtifactId": "art-web-home"
+      },
+      {
+        "id": "stp-wb-02",
+        "order": 2,
+        "action": "click",
+        "stageId": "stg-quote",
+        "label": "Open term plan quote",
+        "target": "a[href=\"/term-insurance/quote\"]"
+      },
+      {
+        "id": "stp-wb-03",
+        "order": 3,
+        "action": "fill",
+        "stageId": "stg-quote",
+        "label": "Enter age",
+        "target": "#age",
+        "value": "34"
+      },
+      {
+        "id": "stp-wb-04",
+        "order": 4,
+        "action": "fill",
+        "stageId": "stg-quote",
+        "label": "Enter sum assured",
+        "target": "#sum-assured",
+        "value": "10000000"
+      },
+      {
+        "id": "stp-wb-05",
+        "order": 5,
+        "action": "click",
+        "stageId": "stg-quote",
+        "label": "Get quote",
+        "target": "button[type=submit]"
+      },
+      {
+        "id": "stp-wb-06",
+        "order": 6,
+        "action": "wait",
+        "stageId": "stg-quote",
+        "label": "Wait for quote",
+        "waitMs": 2000
+      },
+      {
+        "id": "stp-wb-07",
+        "order": 7,
+        "action": "fill",
+        "stageId": "stg-quote",
+        "label": "Answer lifestyle questions",
+        "target": "#tobacco",
+        "value": "No"
+      },
+      {
+        "id": "stp-wb-08",
+        "order": 8,
+        "action": "capture",
+        "stageId": "stg-quote",
+        "label": "Capture quote page",
+        "screenArtifactId": "art-web-quote"
+      },
+      {
+        "id": "stp-wb-09",
+        "order": 9,
+        "action": "click",
+        "stageId": "stg-proposal",
+        "label": "Buy now",
+        "target": "text=Buy now"
+      },
+      {
+        "id": "stp-wb-10",
+        "order": 10,
+        "action": "fill",
+        "stageId": "stg-proposal",
+        "label": "Enter proposer name",
+        "target": "#full-name",
+        "value": "Test Proposer",
+        "sensitive": true
+      },
+      {
+        "id": "stp-wb-11",
+        "order": 11,
+        "action": "capture",
+        "stageId": "stg-proposal",
+        "label": "Capture cover options",
+        "screenArtifactId": "art-web-proposal"
+      },
+      {
+        "id": "stp-wb-12",
+        "order": 12,
+        "action": "click",
+        "stageId": "stg-payment",
+        "label": "Proceed to payment",
+        "target": "text=Proceed to payment"
+      },
+      {
+        "id": "stp-wb-13",
+        "order": 13,
+        "action": "capture",
+        "stageId": "stg-payment",
+        "label": "Capture add-on offer",
+        "screenArtifactId": "art-web-addons"
+      },
+      {
+        "id": "stp-wb-14",
+        "order": 14,
+        "action": "click",
+        "stageId": "stg-payment",
+        "label": "Skip add-ons",
+        "target": "text=Skip"
+      },
+      {
+        "id": "stp-wb-15",
+        "order": 15,
+        "action": "capture",
+        "stageId": "stg-payment",
+        "label": "Capture payment summary",
+        "screenArtifactId": "art-web-payment"
+      }
+    ]
+  },
+  {
+    "id": "jrn-web-service",
+    "assessmentId": "asm-digital-h1",
+    "targetId": "tgt-web",
+    "name": "Claims intimation and grievance",
+    "stageIds": ["stg-claims", "stg-grievance"],
+    "steps": [
+      {
+        "id": "stp-ws-00",
+        "order": 0,
+        "action": "navigate",
+        "stageId": "stg-claims",
+        "label": "Open claim intimation",
+        "target": "https://www.examplelife.example/claims/intimate"
+      },
+      {
+        "id": "stp-ws-01",
+        "order": 1,
+        "action": "capture",
+        "stageId": "stg-claims",
+        "label": "Capture claim form",
+        "screenArtifactId": "art-web-claims"
+      },
+      {
+        "id": "stp-ws-02",
+        "order": 2,
+        "action": "navigate",
+        "stageId": "stg-grievance",
+        "label": "Open grievance page",
+        "target": "https://www.examplelife.example/grievance"
+      },
+      {
+        "id": "stp-ws-03",
+        "order": 3,
+        "action": "capture",
+        "stageId": "stg-grievance",
+        "label": "Capture grievance page",
+        "screenArtifactId": "art-web-grievance"
+      }
+    ]
+  },
+  {
+    "id": "jrn-app-service",
+    "assessmentId": "asm-digital-h1",
+    "targetId": "tgt-android",
+    "name": "Servicing, renewal and consent (app)",
+    "stageIds": ["stg-servicing", "stg-renewal", "stg-consent"],
+    "steps": [
+      {
+        "id": "stp-ap-00",
+        "order": 0,
+        "action": "navigate",
+        "stageId": "stg-servicing",
+        "label": "Launch app and sign in",
+        "target": "app://home"
+      },
+      {
+        "id": "stp-ap-01",
+        "order": 1,
+        "action": "capture",
+        "stageId": "stg-servicing",
+        "label": "Capture home screen",
+        "screenArtifactId": "art-app-home"
+      },
+      {
+        "id": "stp-ap-02",
+        "order": 2,
+        "action": "wait",
+        "stageId": "stg-renewal",
+        "label": "Observe notifications for 24 hours",
+        "waitMs": 86400000
+      },
+      {
+        "id": "stp-ap-03",
+        "order": 3,
+        "action": "capture",
+        "stageId": "stg-renewal",
+        "label": "Capture notification shade",
+        "screenArtifactId": "art-app-notifications"
+      },
+      {
+        "id": "stp-ap-04",
+        "order": 4,
+        "action": "click",
+        "stageId": "stg-renewal",
+        "label": "Open renewal",
+        "target": "Renew policy"
+      },
+      {
+        "id": "stp-ap-05",
+        "order": 5,
+        "action": "capture",
+        "stageId": "stg-renewal",
+        "label": "Capture renewal checkout",
+        "screenArtifactId": "art-app-renewal"
+      },
+      {
+        "id": "stp-ap-06",
+        "order": 6,
+        "action": "click",
+        "stageId": "stg-consent",
+        "label": "Open auto-debit cancellation",
+        "target": "Profile > Payments > Auto-debit > Cancel"
+      },
+      {
+        "id": "stp-ap-07",
+        "order": 7,
+        "action": "capture",
+        "stageId": "stg-consent",
+        "label": "Capture final cancellation step",
+        "screenArtifactId": "art-app-autodebit"
+      },
+      {
+        "id": "stp-ap-08",
+        "order": 8,
+        "action": "click",
+        "stageId": "stg-consent",
+        "label": "Open communication preferences",
+        "target": "Profile > Communication preferences"
+      },
+      {
+        "id": "stp-ap-09",
+        "order": 9,
+        "action": "capture",
+        "stageId": "stg-consent",
+        "label": "Capture preferences",
+        "screenArtifactId": "art-app-preferences"
+      }
+    ]
+  },
+  {
+    "id": "jrn-uat-renewal",
+    "assessmentId": "asm-renewal-prelaunch",
+    "targetId": "tgt-uat-app",
+    "name": "Renewal, payment and preferences (UAT)",
+    "stageIds": ["stg-renewal", "stg-payment", "stg-servicing", "stg-consent"],
+    "steps": [
+      {
+        "id": "stp-ur-00",
+        "order": 0,
+        "action": "navigate",
+        "stageId": "stg-renewal",
+        "label": "Open renewal from home",
+        "target": "app://renewal"
+      },
+      {
+        "id": "stp-ur-01",
+        "order": 1,
+        "action": "capture",
+        "stageId": "stg-renewal",
+        "label": "Capture renewal offer",
+        "screenArtifactId": "art-uat-renewal"
+      },
+      {
+        "id": "stp-ur-02",
+        "order": 2,
+        "action": "click",
+        "stageId": "stg-payment",
+        "label": "Continue to payment",
+        "target": "Continue"
+      },
+      {
+        "id": "stp-ur-03",
+        "order": 3,
+        "action": "capture",
+        "stageId": "stg-payment",
+        "label": "Capture payment screen",
+        "screenArtifactId": "art-uat-payment"
+      },
+      {
+        "id": "stp-ur-04",
+        "order": 4,
+        "action": "click",
+        "stageId": "stg-servicing",
+        "label": "Open My policies",
+        "target": "My policies"
+      },
+      {
+        "id": "stp-ur-05",
+        "order": 5,
+        "action": "capture",
+        "stageId": "stg-servicing",
+        "label": "Capture policy details"
+      },
+      {
+        "id": "stp-ur-06",
+        "order": 6,
+        "action": "click",
+        "stageId": "stg-consent",
+        "label": "Open preferences",
+        "target": "Profile > Preferences"
+      },
+      {
+        "id": "stp-ur-07",
+        "order": 7,
+        "action": "capture",
+        "stageId": "stg-consent",
+        "label": "Capture preferences"
+      }
+    ]
+  }
+]

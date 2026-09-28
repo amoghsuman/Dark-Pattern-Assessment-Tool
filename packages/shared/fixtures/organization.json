@@ -1,0 +1,72 @@
+{
+  "id": "org-example-life",
+  "name": "Example Life Insurance",
+  "sector": "insurance",
+  "regulator": "IRDAI",
+  "journeyStages": [
+    {
+      "id": "stg-discovery",
+      "key": "product_discovery",
+      "name": "Product Discovery",
+      "order": 0,
+      "description": "Browsing plans, comparisons and recommendations"
+    },
+    {
+      "id": "stg-quote",
+      "key": "quote_comparison",
+      "name": "Quote and Comparison",
+      "order": 1,
+      "description": "Premium quotes and plan comparison"
+    },
+    {
+      "id": "stg-proposal",
+      "key": "proposal_onboarding",
+      "name": "Proposal and Onboarding",
+      "order": 2,
+      "description": "Proposal form, KYC, riders and consents"
+    },
+    {
+      "id": "stg-payment",
+      "key": "payment",
+      "name": "Payment",
+      "order": 3,
+      "description": "Premium summary, add-ons and payment"
+    },
+    {
+      "id": "stg-servicing",
+      "key": "policy_servicing",
+      "name": "Policy Servicing",
+      "order": 4,
+      "description": "In-life servicing in app and web"
+    },
+    {
+      "id": "stg-renewal",
+      "key": "renewal",
+      "name": "Renewal",
+      "order": 5,
+      "description": "Renewal reminders and renewal checkout"
+    },
+    {
+      "id": "stg-claims",
+      "key": "claims",
+      "name": "Claims",
+      "order": 6,
+      "description": "Claim intimation and document upload"
+    },
+    {
+      "id": "stg-grievance",
+      "key": "grievance",
+      "name": "Grievance",
+      "order": 7,
+      "description": "Complaints and grievance redressal"
+    },
+    {
+      "id": "stg-consent",
+      "key": "consent_withdrawal",
+      "name": "Consent Withdrawal",
+      "order": 8,
+      "description": "Withdrawing consents, mandates and subscriptions"
+    }
+  ],
+  "createdAt": "2026-06-02T05:30:00Z"
+}

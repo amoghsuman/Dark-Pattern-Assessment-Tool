@@ -1,0 +1,65 @@
+[
+  {
+    "id": "usr-priya",
+    "organizationId": "org-example-life",
+    "name": "Priya Raman",
+    "email": "priya.raman@examplelife.example",
+    "role": "admin",
+    "title": "Head of Digital Compliance",
+    "active": true
+  },
+  {
+    "id": "usr-kavya",
+    "organizationId": "org-example-life",
+    "name": "Kavya Iyer",
+    "email": "kavya.iyer@examplelife.example",
+    "role": "reviewer",
+    "title": "Compliance Reviewer",
+    "active": true
+  },
+  {
+    "id": "usr-arjun",
+    "organizationId": "org-example-life",
+    "name": "Arjun Mehta",
+    "email": "arjun.mehta@examplelife.example",
+    "role": "assessor",
+    "title": "Digital Assessor",
+    "active": true
+  },
+  {
+    "id": "usr-sneha",
+    "organizationId": "org-example-life",
+    "name": "Sneha Kulkarni",
+    "email": "sneha.kulkarni@examplelife.example",
+    "role": "assessor",
+    "title": "Digital Assessor",
+    "active": true
+  },
+  {
+    "id": "usr-rohan",
+    "organizationId": "org-example-life",
+    "name": "Rohan Das",
+    "email": "rohan.das@examplelife.example",
+    "role": "viewer",
+    "title": "Internal Audit",
+    "active": true
+  },
+  {
+    "id": "usr-meera",
+    "organizationId": "org-example-life",
+    "name": "Meera Nair",
+    "email": "meera.nair@examplelife.example",
+    "role": "reviewer",
+    "title": "Legal Counsel",
+    "active": true
+  },
+  {
+    "id": "usr-vikram",
+    "organizationId": "org-example-life",
+    "name": "Vikram Shah",
+    "email": "vikram.shah@examplelife.example",
+    "role": "viewer",
+    "title": "Product Manager, Term",
+    "active": false
+  }
+]

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" font-family="Inter, 'Segoe UI', Arial, sans-serif">
+  <title>Claim intimation form requiring marketing consent</title>
+  <rect width="1440" height="900" fill="#f8fafc"/>
+  <rect width="1440" height="72" fill="#ffffff"/>
+  <line x1="0" y1="72" x2="1440" y2="72" stroke="#e2e8f0"/>
+  <circle cx="64" cy="36" r="16" fill="#1d4ed8"/>
+  <path d="M56 36l6 6 10-12" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <text x="92" y="43" font-size="20" font-weight="700" fill="#0f172a">Example Life</text>
+  <text x="150" y="120" font-size="14" fill="#64748b">Claims › Intimate a claim</text>
+  <text x="150" y="162" font-size="28" font-weight="700" fill="#0f172a">Intimate a claim</text>
+
+  <g font-size="14" fill="#475569">
+    <text x="150" y="212">Policy number *</text>
+    <rect x="150" y="222" width="450" height="46" rx="8" fill="#fff" stroke="#cbd5e1"/>
+    <text x="166" y="251" fill="#0f172a">ELI-TP-0042817</text>
+    <text x="650" y="212">Claimant name *</text>
+    <rect x="650" y="222" width="450" height="46" rx="8" fill="#fff" stroke="#cbd5e1"/>
+    <text x="666" y="251" fill="#0f172a">Test Claimant</text>
+    <text x="150" y="302">Relationship to life assured *</text>
+    <rect x="150" y="312" width="450" height="46" rx="8" fill="#fff" stroke="#cbd5e1"/>
+    <text x="166" y="341" fill="#0f172a">Spouse</text>
+    <text x="650" y="302">Date of event *</text>
+    <rect x="650" y="312" width="450" height="46" rx="8" fill="#fff" stroke="#cbd5e1"/>
+    <text x="666" y="341" fill="#0f172a">21/07/2026</text>
+    <text x="150" y="392">Documents</text>
+    <rect x="150" y="402" width="950" height="150" rx="10" fill="#fff" stroke="#94a3b8" stroke-dasharray="6 5"/>
+    <text x="625" y="470" text-anchor="middle" font-size="16" fill="#334155">Drag and drop death certificate, claim form and ID proof</text>
+    <text x="625" y="498" text-anchor="middle" font-size="14" fill="#1d4ed8">or browse files</text>
+  </g>
+
+  <rect x="150" y="600" width="950" height="50" rx="10" fill="#fff" stroke="#fca5a5"/>
+  <rect x="172" y="614" width="22" height="22" rx="5" fill="#fff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="212" y="631" font-size="15" fill="#334155">* I agree to receive promotional offers from Example Life and partners (required to submit)</text>
+
+  <rect x="150" y="700" width="300" height="60" rx="10" fill="#1d4ed8"/>
+  <text x="300" y="737" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Submit claim</text>
+  <text x="525" y="739" font-size="12" fill="#94a3b8" text-anchor="middle">Save draft</text>
+</svg>

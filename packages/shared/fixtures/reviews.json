@@ -1,0 +1,1277 @@
+[
+  {
+    "findingId": "fnd-h1-001",
+    "history": [
+      {
+        "id": "hst-fnd-h1-001-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-001-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-11T10:40:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-001-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-18T10:40:00Z",
+        "note": "Reproduced on two reloads; no server deadline in the quote API response."
+      }
+    ],
+    "comments": [
+      {
+        "id": "cmt-fnd-h1-001-1",
+        "by": "usr-kavya",
+        "at": "2026-08-16T10:40:00Z",
+        "body": "Please attach the quote API response to the evidence pack before sign-off."
+      },
+      {
+        "id": "cmt-fnd-h1-001-2",
+        "by": "usr-arjun",
+        "at": "2026-08-16T16:38:00Z",
+        "body": "Attached to the audit folder; the response has no expiry field."
+      }
+    ]
+  },
+  {
+    "findingId": "fnd-h1-002",
+    "history": [
+      {
+        "id": "hst-fnd-h1-002-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T06:40:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-002-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-12T11:50:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-002-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-kavya",
+        "at": "2026-08-19T11:50:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-003",
+    "history": [
+      {
+        "id": "hst-fnd-h1-003-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-003-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-13T13:00:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-004",
+    "history": [
+      {
+        "id": "hst-fnd-h1-004-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-004-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-10T14:10:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-004-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-kavya",
+        "at": "2026-08-17T14:10:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      },
+      {
+        "id": "hst-fnd-h1-004-3",
+        "from": "confirmed",
+        "to": "remediation_in_progress",
+        "by": "usr-priya",
+        "at": "2026-08-26T14:10:00Z",
+        "note": "Fix scheduled with the owning team."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-005",
+    "history": [
+      {
+        "id": "hst-fnd-h1-005-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-005-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-11T14:30:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-005-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-18T14:30:00Z",
+        "note": "Confirmed with Product: the rider is optional and separately priced."
+      }
+    ],
+    "comments": [
+      {
+        "id": "cmt-fnd-h1-005-1",
+        "by": "usr-meera",
+        "at": "2026-08-18T14:30:00Z",
+        "body": "This will need customer remediation for policies sold since the June release. Raising with Legal."
+      }
+    ]
+  },
+  {
+    "findingId": "fnd-h1-006",
+    "history": [
+      {
+        "id": "hst-fnd-h1-006-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T06:40:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-006-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-12T15:40:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-006-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-kavya",
+        "at": "2026-08-19T15:40:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-007",
+    "history": [
+      {
+        "id": "hst-fnd-h1-007-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T07:55:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-007-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-13T09:50:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-008",
+    "history": [
+      {
+        "id": "hst-fnd-h1-008-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-009",
+    "history": [
+      {
+        "id": "hst-fnd-h1-009-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-009-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-11T12:10:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-009-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-18T12:10:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-010",
+    "history": [
+      {
+        "id": "hst-fnd-h1-010-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-011",
+    "history": [
+      {
+        "id": "hst-fnd-h1-011-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T06:40:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-011-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-13T13:40:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-011-2",
+        "from": "under_review",
+        "to": "dismissed",
+        "by": "usr-kavya",
+        "at": "2026-08-19T13:40:00Z",
+        "note": "Wording is neutral."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-012",
+    "history": [
+      {
+        "id": "hst-fnd-h1-012-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-012-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-10T14:50:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-012-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-kavya",
+        "at": "2026-08-17T14:50:00Z",
+        "note": "Escalated to Head of Customer Service. Treat as priority."
+      }
+    ],
+    "comments": [
+      {
+        "id": "cmt-fnd-h1-012-1",
+        "by": "usr-priya",
+        "at": "2026-08-18T14:50:00Z",
+        "body": "Customer Service confirms the web form was removed in the May redesign."
+      },
+      {
+        "id": "cmt-fnd-h1-012-2",
+        "by": "usr-kavya",
+        "at": "2026-08-19T16:00:00Z",
+        "body": "Target date agreed for 20 October."
+      }
+    ]
+  },
+  {
+    "findingId": "fnd-h1-013",
+    "history": [
+      {
+        "id": "hst-fnd-h1-013-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T06:40:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-013-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-11T16:00:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-013-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-18T16:00:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      },
+      {
+        "id": "hst-fnd-h1-013-3",
+        "from": "confirmed",
+        "to": "remediation_in_progress",
+        "by": "usr-arjun",
+        "at": "2026-08-27T16:00:00Z",
+        "note": "Fix scheduled with the owning team."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-014",
+    "history": [
+      {
+        "id": "hst-fnd-h1-014-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-014-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-12T10:10:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-015",
+    "history": [
+      {
+        "id": "hst-fnd-h1-015-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T08:30:00Z"
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-016",
+    "history": [
+      {
+        "id": "hst-fnd-h1-016-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-016-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-10T11:40:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-016-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-kavya",
+        "at": "2026-08-17T11:40:00Z",
+        "note": "Confirmed. Cancellation must be possible in the same channel as sign-up."
+      }
+    ],
+    "comments": [
+      {
+        "id": "cmt-fnd-h1-016-1",
+        "by": "usr-arjun",
+        "at": "2026-08-12T11:40:00Z",
+        "body": "Counted 5 screens to cancel versus 2 taps to set up."
+      }
+    ]
+  },
+  {
+    "findingId": "fnd-h1-017",
+    "history": [
+      {
+        "id": "hst-fnd-h1-017-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T07:55:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-017-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-11T12:50:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-017-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-18T12:50:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-018",
+    "history": [
+      {
+        "id": "hst-fnd-h1-018-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T06:40:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-018-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-12T14:00:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-018-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-kavya",
+        "at": "2026-08-19T14:00:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      },
+      {
+        "id": "hst-fnd-h1-018-3",
+        "from": "confirmed",
+        "to": "remediation_in_progress",
+        "by": "usr-priya",
+        "at": "2026-08-28T14:00:00Z",
+        "note": "Fix scheduled with the owning team."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-019",
+    "history": [
+      {
+        "id": "hst-fnd-h1-019-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-019-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-13T15:10:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-019-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-20T15:10:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-020",
+    "history": [
+      {
+        "id": "hst-fnd-h1-020-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T06:40:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-020-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-10T15:30:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-020-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-kavya",
+        "at": "2026-08-17T15:30:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      },
+      {
+        "id": "hst-fnd-h1-020-3",
+        "from": "confirmed",
+        "to": "remediation_in_progress",
+        "by": "usr-priya",
+        "at": "2026-08-26T15:30:00Z",
+        "note": "Fix scheduled with the owning team."
+      },
+      {
+        "id": "hst-fnd-h1-020-4",
+        "from": "remediation_in_progress",
+        "to": "closed",
+        "by": "usr-kavya",
+        "at": "2026-09-13T15:30:00Z",
+        "note": "Retested on release 2026.09.2: decline button now secondary variant, contrast 7.1:1."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-021",
+    "history": [
+      {
+        "id": "hst-fnd-h1-021-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-021-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-11T09:40:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-021-2",
+        "from": "under_review",
+        "to": "dismissed",
+        "by": "usr-kavya",
+        "at": "2026-08-17T09:40:00Z",
+        "note": "Single primary action; normal visual hierarchy."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-022",
+    "history": [
+      {
+        "id": "hst-fnd-h1-022-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-022-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-12T10:50:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      }
+    ],
+    "comments": [
+      {
+        "id": "cmt-fnd-h1-022-1",
+        "by": "usr-sneha",
+        "at": "2026-08-13T10:50:00Z",
+        "body": "Marketing says the ₹649 figure is for age 18 with ₹50 lakh cover. The banner says ₹1 crore."
+      },
+      {
+        "id": "cmt-fnd-h1-022-2",
+        "by": "usr-kavya",
+        "at": "2026-08-14T12:00:00Z",
+        "body": "Holding until Pricing confirms the minimum premium (see ELI-2026-023)."
+      }
+    ]
+  },
+  {
+    "findingId": "fnd-h1-023",
+    "history": [
+      {
+        "id": "hst-fnd-h1-023-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T07:55:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-023-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-13T12:00:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-024",
+    "history": [
+      {
+        "id": "hst-fnd-h1-024-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-024-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-10T13:10:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-024-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-kavya",
+        "at": "2026-08-17T13:10:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-025",
+    "history": [
+      {
+        "id": "hst-fnd-h1-025-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T07:55:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-025-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-11T13:30:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-025-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-18T13:30:00Z",
+        "note": "Pricing confirms the fee is not in the filed rate. Legal to review refunds."
+      }
+    ],
+    "comments": [
+      {
+        "id": "cmt-fnd-h1-025-1",
+        "by": "usr-kavya",
+        "at": "2026-08-18T13:30:00Z",
+        "body": "Correlated with ELI-2026-024. Treat as one remediation item."
+      }
+    ]
+  },
+  {
+    "findingId": "fnd-h1-026",
+    "history": [
+      {
+        "id": "hst-fnd-h1-026-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T06:40:00Z"
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-027",
+    "history": [
+      {
+        "id": "hst-fnd-h1-027-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-027-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-13T15:50:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-027-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-20T15:50:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-028",
+    "history": [
+      {
+        "id": "hst-fnd-h1-028-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T07:55:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-028-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-10T10:00:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-029",
+    "history": [
+      {
+        "id": "hst-fnd-h1-029-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T07:55:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-029-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-11T11:10:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-029-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-18T11:10:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      }
+    ],
+    "comments": [
+      {
+        "id": "cmt-fnd-h1-029-1",
+        "by": "usr-sneha",
+        "at": "2026-08-13T11:10:00Z",
+        "body": "Customer complaints mention 5 to 6 reminders a day, which matches the schedule."
+      }
+    ]
+  },
+  {
+    "findingId": "fnd-h1-030",
+    "history": [
+      {
+        "id": "hst-fnd-h1-030-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-030-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-12T11:30:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-030-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-kavya",
+        "at": "2026-08-19T11:30:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-031",
+    "history": [
+      {
+        "id": "hst-fnd-h1-031-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-031-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-13T12:40:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-031-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-20T12:40:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      },
+      {
+        "id": "hst-fnd-h1-031-3",
+        "from": "confirmed",
+        "to": "remediation_in_progress",
+        "by": "usr-arjun",
+        "at": "2026-08-29T12:40:00Z",
+        "note": "Fix scheduled with the owning team."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-032",
+    "history": [
+      {
+        "id": "hst-fnd-h1-032-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T06:40:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-032-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-10T13:50:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-032-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-kavya",
+        "at": "2026-08-17T13:50:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      },
+      {
+        "id": "hst-fnd-h1-032-3",
+        "from": "confirmed",
+        "to": "remediation_in_progress",
+        "by": "usr-priya",
+        "at": "2026-08-26T13:50:00Z",
+        "note": "Fix scheduled with the owning team."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-033",
+    "history": [
+      {
+        "id": "hst-fnd-h1-033-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-033-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-11T15:00:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-033-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-18T15:00:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-034",
+    "history": [
+      {
+        "id": "hst-fnd-h1-034-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-034-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-12T16:10:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      }
+    ],
+    "comments": [
+      {
+        "id": "cmt-fnd-h1-034-1",
+        "by": "usr-arjun",
+        "at": "2026-08-11T16:10:00Z",
+        "body": "Labels differ between Android and iOS; iOS not in scope for this cycle."
+      }
+    ]
+  },
+  {
+    "findingId": "fnd-h1-035",
+    "history": [
+      {
+        "id": "hst-fnd-h1-035-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T07:55:00Z"
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-036",
+    "history": [
+      {
+        "id": "hst-fnd-h1-036-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T07:55:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-036-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-10T10:40:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-037",
+    "history": [
+      {
+        "id": "hst-fnd-h1-037-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T07:55:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-037-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-11T11:50:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-037-2",
+        "from": "under_review",
+        "to": "dismissed",
+        "by": "usr-kavya",
+        "at": "2026-08-17T11:50:00Z",
+        "note": "Pre-debit notice sent 48 hours ahead; exclusion applies."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-038",
+    "history": [
+      {
+        "id": "hst-fnd-h1-038-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T08:30:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-038-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-12T13:00:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-038-2",
+        "from": "under_review",
+        "to": "dismissed",
+        "by": "usr-kavya",
+        "at": "2026-08-18T13:00:00Z",
+        "note": "Analytics SDK only; no ads or install prompts."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-039",
+    "history": [
+      {
+        "id": "hst-fnd-h1-039-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-039-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-sneha",
+        "at": "2026-08-13T14:10:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-039-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-meera",
+        "at": "2026-08-20T14:10:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      },
+      {
+        "id": "hst-fnd-h1-039-3",
+        "from": "confirmed",
+        "to": "remediation_in_progress",
+        "by": "usr-arjun",
+        "at": "2026-08-29T14:10:00Z",
+        "note": "Fix scheduled with the owning team."
+      },
+      {
+        "id": "hst-fnd-h1-039-4",
+        "from": "remediation_in_progress",
+        "to": "closed",
+        "by": "usr-kavya",
+        "at": "2026-09-16T14:10:00Z",
+        "note": "Retest on 15 Sep 2026: timer removed from the payment page."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-040",
+    "history": [
+      {
+        "id": "hst-fnd-h1-040-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      },
+      {
+        "id": "hst-fnd-h1-040-1",
+        "from": "detected",
+        "to": "under_review",
+        "by": "usr-arjun",
+        "at": "2026-08-10T14:30:00Z",
+        "note": "Picked up for review; evidence reproduced."
+      },
+      {
+        "id": "hst-fnd-h1-040-2",
+        "from": "under_review",
+        "to": "confirmed",
+        "by": "usr-kavya",
+        "at": "2026-08-17T14:30:00Z",
+        "note": "Confirmed against the rule pack criteria."
+      },
+      {
+        "id": "hst-fnd-h1-040-3",
+        "from": "confirmed",
+        "to": "remediation_in_progress",
+        "by": "usr-priya",
+        "at": "2026-08-26T14:30:00Z",
+        "note": "Fix scheduled with the owning team."
+      },
+      {
+        "id": "hst-fnd-h1-040-4",
+        "from": "remediation_in_progress",
+        "to": "closed",
+        "by": "usr-kavya",
+        "at": "2026-09-13T14:30:00Z",
+        "note": "Copy replaced with \"Continue to raise a grievance\"."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-h1-041",
+    "history": [
+      {
+        "id": "hst-fnd-h1-041-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-08-04T05:10:00Z"
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-rn-001",
+    "history": [
+      {
+        "id": "hst-fnd-rn-001-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-09-29T04:48:00Z",
+        "note": "Raised by screen capture engine."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-rn-002",
+    "history": [
+      {
+        "id": "hst-fnd-rn-002-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-09-29T04:48:00Z",
+        "note": "Raised by screen capture engine."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-rn-003",
+    "history": [
+      {
+        "id": "hst-fnd-rn-003-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-09-29T04:48:00Z",
+        "note": "Raised by screen capture engine."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-rn-004",
+    "history": [
+      {
+        "id": "hst-fnd-rn-004-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-09-29T04:48:00Z",
+        "note": "Raised by screen capture engine."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-rn-005",
+    "history": [
+      {
+        "id": "hst-fnd-rn-005-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-09-29T04:48:00Z",
+        "note": "Raised by screen capture engine."
+      }
+    ],
+    "comments": []
+  },
+  {
+    "findingId": "fnd-rn-006",
+    "history": [
+      {
+        "id": "hst-fnd-rn-006-0",
+        "from": null,
+        "to": "detected",
+        "by": "system",
+        "at": "2026-09-29T04:48:00Z",
+        "note": "Raised by screen capture engine."
+      }
+    ],
+    "comments": []
+  }
+]

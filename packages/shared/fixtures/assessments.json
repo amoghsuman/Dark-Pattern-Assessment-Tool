@@ -1,0 +1,96 @@
+[
+  {
+    "id": "asm-digital-h1",
+    "organizationId": "org-example-life",
+    "name": "Digital Journeys Review, H1 FY2026-27",
+    "description": "Half-yearly assessment of the public website, the Android app (v4.2.0) and the policy administration platform against all 13 specified dark patterns.",
+    "status": "in_review",
+    "targetIds": ["tgt-web", "tgt-android", "tgt-repo"],
+    "patternIds": [
+      "false_urgency",
+      "basket_sneaking",
+      "confirm_shaming",
+      "forced_action",
+      "subscription_trap",
+      "interface_interference",
+      "bait_and_switch",
+      "drip_pricing",
+      "disguised_advertisement",
+      "nagging",
+      "trick_question",
+      "saas_billing",
+      "rogue_malware"
+    ],
+    "stageIds": [
+      "stg-discovery",
+      "stg-quote",
+      "stg-proposal",
+      "stg-payment",
+      "stg-servicing",
+      "stg-renewal",
+      "stg-claims",
+      "stg-grievance",
+      "stg-consent"
+    ],
+    "rulePackSetVersion": "ccpa-2023@0.1.0-draft",
+    "coverageGaps": [
+      {
+        "stageId": "stg-claims",
+        "patternIds": [
+          "false_urgency",
+          "basket_sneaking",
+          "subscription_trap",
+          "bait_and_switch",
+          "drip_pricing",
+          "disguised_advertisement",
+          "saas_billing",
+          "rogue_malware"
+        ],
+        "reason": "Claims settlement is run on a third-party administrator portal; test access is pending. Only claim intimation was assessed."
+      },
+      {
+        "stageId": "stg-consent",
+        "patternIds": ["disguised_advertisement", "bait_and_switch"],
+        "reason": "The web consent centre launches next quarter; only the mobile app consent screens were assessed."
+      }
+    ],
+    "progress": {
+      "completedSteps": 32,
+      "totalSteps": 32
+    },
+    "createdBy": "usr-priya",
+    "createdAt": "2026-08-03T06:10:00Z",
+    "updatedAt": "2026-09-24T11:42:00Z",
+    "startedAt": "2026-08-04T03:30:00Z",
+    "completedAt": "2026-08-04T09:12:00Z"
+  },
+  {
+    "id": "asm-renewal-prelaunch",
+    "organizationId": "org-example-life",
+    "name": "Renewal and Servicing Revamp: Pre-launch",
+    "description": "Pre-launch check of the redesigned renewal and servicing journeys in the Android UAT build before release.",
+    "status": "running",
+    "targetIds": ["tgt-uat-app"],
+    "patternIds": [
+      "false_urgency",
+      "basket_sneaking",
+      "confirm_shaming",
+      "subscription_trap",
+      "interface_interference",
+      "drip_pricing",
+      "nagging",
+      "trick_question"
+    ],
+    "stageIds": ["stg-payment", "stg-servicing", "stg-renewal", "stg-consent"],
+    "rulePackSetVersion": "ccpa-2023@0.1.0-draft",
+    "coverageGaps": [],
+    "progress": {
+      "completedSteps": 9,
+      "totalSteps": 18
+    },
+    "createdBy": "usr-arjun",
+    "createdAt": "2026-09-28T10:05:00Z",
+    "updatedAt": "2026-09-29T04:52:00Z",
+    "startedAt": "2026-09-29T04:30:00Z"
+  }
+]

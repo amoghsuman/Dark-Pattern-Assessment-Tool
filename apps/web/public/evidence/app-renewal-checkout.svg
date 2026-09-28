@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" width="390" height="844" font-family="Inter, 'Segoe UI', Roboto, Arial, sans-serif">
+  <title>App renewal checkout with pre-selected paid plan and shaming decline link</title>
+  <rect width="390" height="844" fill="#f8fafc"/>
+  <text x="24" y="30" font-size="14" font-weight="600" fill="#0f172a">9:41</text>
+  <text x="366" y="30" font-size="12" fill="#0f172a" text-anchor="end">5G ▮▮▮ 82%</text>
+  <text x="24" y="80" font-size="22" fill="#0f172a">←</text>
+  <text x="60" y="80" font-size="19" font-weight="700" fill="#0f172a">Renew policy</text>
+
+  <rect x="16" y="110" width="358" height="200" rx="16" fill="#fff" stroke="#e2e8f0"/>
+  <text x="36" y="146" font-size="14" fill="#64748b">Example Secure Term Plus</text>
+  <text x="36" y="170" font-size="13" fill="#94a3b8">Policy ELI-TP-0042817</text>
+  <text x="36" y="222" font-size="14" fill="#475569">Renewal premium</text>
+  <text x="36" y="256" font-size="28" font-weight="800" fill="#0f172a">₹14,208</text><text x="170" y="256" font-size="15" fill="#475569">/ year</text>
+  <text x="36" y="288" font-size="13" fill="#b45309">Due 18 Aug 2026</text>
+
+  <rect x="16" y="330" width="358" height="60" rx="12" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="32" y="349" width="22" height="22" rx="5" fill="#1d4ed8"/>
+  <path d="M37 360l4 4 8-9" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <text x="66" y="366" font-size="15" font-weight="600" fill="#0f172a">Premium Protection Plan</text>
+  <text x="358" y="366" font-size="14" fill="#334155" text-anchor="end">₹199/year</text>
+
+  <rect x="16" y="420" width="358" height="100" rx="12" fill="#eef4ff"/>
+  <text x="36" y="458" font-size="14" fill="#475569">Total payable</text>
+  <text x="36" y="494" font-size="24" font-weight="800" fill="#0f172a">₹14,407</text>
+
+  <rect x="16" y="640" width="358" height="56" rx="12" fill="#1d4ed8"/>
+  <text x="195" y="674" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">Renew now</text>
+  <text x="195" y="733" font-size="14" fill="#94a3b8" text-anchor="middle">No, I'll risk losing my cover</text>
+</svg>

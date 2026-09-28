@@ -63,7 +63,7 @@ export const ConfigExcerptEvidenceSchema = z.object({
   kind: z.literal('config_excerpt'),
   /** File path, table or service the excerpt came from. */
   source: z.string().min(1),
-  format: z.enum(['yaml', 'json', 'properties', 'sql']),
+  format: z.enum(['yaml', 'json', 'properties', 'sql', 'xml']),
   ...LineRange,
   content: z.string().min(1),
   caption: z.string().min(1),

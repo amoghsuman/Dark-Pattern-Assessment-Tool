@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" width="390" height="844" font-family="Inter, 'Segoe UI', Roboto, Arial, sans-serif">
+  <title>Renewal payment screen (UAT build) with late convenience fee, double-negative checkbox and dominant AutoPay</title>
+  <rect width="390" height="844" fill="#f8fafc"/>
+  <text x="24" y="30" font-size="14" font-weight="600" fill="#0f172a">9:41</text>
+  <rect x="300" y="16" width="66" height="20" rx="4" fill="#7c3aed"/>
+  <text x="333" y="31" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">UAT</text>
+  <text x="24" y="80" font-size="22" fill="#0f172a">←</text>
+  <text x="60" y="80" font-size="19" font-weight="700" fill="#0f172a">Payment</text>
+
+  <rect x="16" y="110" width="358" height="320" rx="16" fill="#fff" stroke="#e2e8f0"/>
+  <text x="36" y="144" font-size="14" font-weight="600" fill="#475569">Summary</text>
+  <g font-size="14">
+    <text x="36" y="184" fill="#334155">Renewal premium</text><text x="354" y="184" fill="#0f172a" text-anchor="end">₹13,590.00</text>
+    <text x="36" y="232" fill="#334155">Renewal Shield</text><text x="354" y="232" fill="#0f172a" text-anchor="end">₹349.00</text>
+    <text x="36" y="280" fill="#334155">GST @ 18%</text><text x="354" y="280" fill="#0f172a" text-anchor="end">₹2,509.02</text>
+    <text x="36" y="356" fill="#334155">Convenience fee</text><text x="354" y="356" fill="#0f172a" text-anchor="end">₹49.00</text>
+  </g>
+  <line x1="36" y1="378" x2="354" y2="378" stroke="#e2e8f0"/>
+  <text x="36" y="410" font-size="16" font-weight="700" fill="#0f172a">Total</text>
+  <text x="354" y="410" font-size="18" font-weight="800" fill="#0f172a" text-anchor="end">₹16,497.02</text>
+
+  <rect x="16" y="460" width="358" height="50" rx="12" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="32" y="474" width="22" height="22" rx="5" fill="#1d4ed8"/>
+  <path d="M37 485l4 4 8-9" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <text x="66" y="490" font-size="13" fill="#334155">Uncheck to not opt out of AutoPay reminders</text>
+
+  <rect x="16" y="600" width="358" height="56" rx="12" fill="#1d4ed8"/>
+  <text x="195" y="634" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">Pay with AutoPay</text>
+  <text x="195" y="690" font-size="12" fill="#cbd5e1" text-anchor="middle">Pay once</text>
+</svg>

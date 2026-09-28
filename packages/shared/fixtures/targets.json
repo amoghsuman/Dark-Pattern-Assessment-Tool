@@ -1,0 +1,43 @@
+[
+  {
+    "id": "tgt-web",
+    "assessmentId": "asm-digital-h1",
+    "type": "website",
+    "name": "Public website",
+    "baseUrl": "https://www.examplelife.example",
+    "environment": "production"
+  },
+  {
+    "id": "tgt-android",
+    "assessmentId": "asm-digital-h1",
+    "type": "mobile_app",
+    "name": "Android app",
+    "platform": "android",
+    "appId": "com.examplelife.app",
+    "version": "4.2.0",
+    "environment": "production",
+    "buildArtifactId": "art-apk-420"
+  },
+  {
+    "id": "tgt-repo",
+    "assessmentId": "asm-digital-h1",
+    "type": "code_repository",
+    "name": "Policy administration platform",
+    "repoUrl": "https://git.examplelife.example/digital/policy-admin-platform",
+    "branch": "release/2026.08",
+    "commitSha": "a3f9c21",
+    "sourceArtifactId": "art-src-a3f9c21",
+    "languages": ["TypeScript", "Java", "Kotlin", "YAML"]
+  },
+  {
+    "id": "tgt-uat-app",
+    "assessmentId": "asm-renewal-prelaunch",
+    "type": "mobile_app",
+    "name": "Android app (UAT build)",
+    "platform": "android",
+    "appId": "com.examplelife.app.uat",
+    "version": "5.0.0-rc2",
+    "environment": "uat",
+    "buildArtifactId": "art-apk-500rc2"
+  }
+]

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" width="390" height="844" font-family="Inter, 'Segoe UI', Roboto, Arial, sans-serif">
+  <title>Communication preferences with reversed and double-negative toggle labels</title>
+  <rect width="390" height="844" fill="#f8fafc"/>
+  <text x="24" y="30" font-size="14" font-weight="600" fill="#0f172a">9:41</text>
+  <text x="366" y="30" font-size="12" fill="#0f172a" text-anchor="end">5G ▮▮▮ 82%</text>
+  <text x="24" y="80" font-size="22" fill="#0f172a">←</text>
+  <text x="60" y="80" font-size="19" font-weight="700" fill="#0f172a">Communication preferences</text>
+  <text x="24" y="150" font-size="14" fill="#64748b">Choose how we keep in touch with you.</text>
+
+  <g font-size="14" fill="#0f172a">
+    <rect x="16" y="200" width="358" height="60" rx="12" fill="#fff" stroke="#e2e8f0"/>
+    <text x="32" y="235">Don't stop sending me offers</text>
+    <rect x="310" y="218" width="48" height="26" rx="13" fill="#1d4ed8"/><circle cx="345" cy="231" r="10" fill="#fff"/>
+
+    <rect x="16" y="280" width="358" height="60" rx="12" fill="#fff" stroke="#e2e8f0"/>
+    <text x="32" y="315">Opt out of not receiving renewal tips</text>
+    <rect x="310" y="298" width="48" height="26" rx="13" fill="#1d4ed8"/><circle cx="345" cy="311" r="10" fill="#fff"/>
+
+    <rect x="16" y="360" width="358" height="60" rx="12" fill="#fff" stroke="#e2e8f0"/>
+    <text x="32" y="387">Share my data with partners so</text>
+    <text x="32" y="405">I don't miss offers</text>
+    <rect x="310" y="378" width="48" height="26" rx="13" fill="#1d4ed8"/><circle cx="345" cy="391" r="10" fill="#fff"/>
+
+    <rect x="16" y="440" width="358" height="60" rx="12" fill="#fff" stroke="#e2e8f0"/>
+    <text x="32" y="467">Policy and service messages</text>
+    <text x="32" y="485" font-size="12" fill="#64748b">Required for your policy</text>
+    <rect x="310" y="458" width="48" height="26" rx="13" fill="#93c5fd"/><circle cx="345" cy="471" r="10" fill="#fff"/>
+  </g>
+
+  <rect x="16" y="720" width="358" height="56" rx="12" fill="#1d4ed8"/>
+  <text x="195" y="754" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">Save preferences</text>
+</svg>

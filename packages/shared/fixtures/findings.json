@@ -1,0 +1,2209 @@
+[
+  {
+    "id": "fnd-h1-001",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-001",
+    "patternId": "false_urgency",
+    "rulePackId": "dp-01-false-urgency",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["FU-C-1", "FU-C-2", "FU-C-3"],
+    "stageId": "stg-quote",
+    "journeyStepId": "stp-wb-08",
+    "engine": "screen_capture",
+    "title": "Quote countdown restarts on every page load",
+    "summary": "The quote page shows \"Special online price ends in 09:59\". Reloading the page restarts the timer at 10:00, so the deadline is not real.",
+    "rationale": "Two reloads 90 seconds apart both showed 09:59 at first paint (FU-DC-1). No server deadline is returned by the quote API. The banner sits directly above the Buy now button, pressuring the customer to buy before comparing plans.",
+    "severity": "high",
+    "confidence": 0.93,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-001",
+        "kind": "screenshot",
+        "artifactId": "art-web-quote",
+        "caption": "Quote page with countdown banner",
+        "boxes": [
+          {
+            "x": 0.0833,
+            "y": 0.1111,
+            "width": 0.5139,
+            "height": 0.0667,
+            "label": "Countdown restarts at 10:00 on reload",
+            "criterionId": "FU-C-2"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-002", "fnd-h1-003"],
+    "remediation": {
+      "guidance": "Remove the countdown, or drive it from a server-stored offer end time that is the same for every visitor and shown with its date and time in IST.",
+      "effort": "low",
+      "ownerTeam": "Digital Sales",
+      "targetDate": "2026-10-15"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-18T10:40:00Z"
+  },
+  {
+    "id": "fnd-h1-002",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-002",
+    "patternId": "false_urgency",
+    "rulePackId": "dp-01-false-urgency",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["FU-C-2"],
+    "stageId": "stg-quote",
+    "engine": "code_analysis",
+    "title": "Countdown is seeded from a hard-coded 10-minute window",
+    "summary": "QuoteTimer initialises its state to 600 seconds on mount. The deadline is created in the browser for each visit.",
+    "rationale": "The timer value comes from useState(10 * 60) with no server input, which matches FU-SIG-CODE-1. This confirms the behaviour observed on the quote screen.",
+    "severity": "high",
+    "confidence": 0.96,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-002",
+        "kind": "code_snippet",
+        "filePath": "web/src/features/quote/QuoteTimer.tsx",
+        "language": "tsx",
+        "startLine": 12,
+        "endLine": 28,
+        "highlightLines": [14],
+        "code": "export function QuoteTimer({ onExpire }: QuoteTimerProps) {\n  // Offer window shown to every visitor on page load\n  const [secondsLeft, setSecondsLeft] = useState(10 * 60);\n\n  useEffect(() => {\n    const id = setInterval(() => {\n      setSecondsLeft((s) => (s > 0 ? s - 1 : 0));\n    }, 1000);\n    return () => clearInterval(id);\n  }, []);\n\n  return (\n    <Banner tone=\"urgent\">\n      Special online price ends in {formatMmSs(secondsLeft)}\n    </Banner>\n  );\n}",
+        "commitSha": "a3f9c21",
+        "caption": "Timer state initialised to 600 seconds on mount"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-001", "fnd-h1-003"],
+    "remediation": {
+      "guidance": "Pass the offer end time from the pricing service and compute the remaining time from it; delete the local default.",
+      "effort": "low",
+      "ownerTeam": "Web Platform",
+      "targetDate": "2026-10-15"
+    },
+    "createdAt": "2026-08-04T06:40:00Z",
+    "updatedAt": "2026-08-19T11:50:00Z"
+  },
+  {
+    "id": "fnd-h1-003",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-003",
+    "patternId": "false_urgency",
+    "rulePackId": "dp-01-false-urgency",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["FU-C-1", "FU-C-2"],
+    "stageId": "stg-quote",
+    "journeyStepId": "stp-wb-08",
+    "engine": "screen_capture",
+    "title": "\"Only 3 policies left at this price\" badge uses a random number",
+    "summary": "A scarcity badge on the quote page shows between 2 and 4 policies remaining. Term insurance has no stock limit, and the number is random.",
+    "rationale": "Policies are not a limited stock. The component generates the number with Math.random() (FU-DC-3), so the claim is fabricated.",
+    "severity": "high",
+    "confidence": 0.88,
+    "status": "under_review",
+    "evidence": [
+      {
+        "id": "ev-003",
+        "kind": "screenshot",
+        "artifactId": "art-web-quote",
+        "caption": "Scarcity badge next to the premium",
+        "boxes": [
+          {
+            "x": 0.4167,
+            "y": 0.2778,
+            "width": 0.1667,
+            "height": 0.0444,
+            "label": "Fabricated scarcity claim",
+            "criterionId": "FU-C-1"
+          }
+        ]
+      },
+      {
+        "id": "ev-004",
+        "kind": "code_snippet",
+        "filePath": "web/src/features/quote/ScarcityBadge.tsx",
+        "language": "tsx",
+        "startLine": 4,
+        "endLine": 8,
+        "highlightLines": [6],
+        "code": "export function ScarcityBadge() {\n  // Keep the number low so the badge feels urgent\n  const remaining = useMemo(() => 2 + Math.floor(Math.random() * 3), []);\n  return <Badge variant=\"warning\">Only {remaining} policies left at this price</Badge>;\n}",
+        "commitSha": "a3f9c21",
+        "caption": "Remaining count is random"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-001", "fnd-h1-002"],
+    "remediation": {
+      "guidance": "Remove the scarcity badge. If a price is genuinely time-limited, state the end date instead.",
+      "effort": "low",
+      "ownerTeam": "Digital Sales"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-13T13:00:00Z"
+  },
+  {
+    "id": "fnd-h1-004",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-android",
+    "reference": "ELI-2026-004",
+    "patternId": "false_urgency",
+    "rulePackId": "dp-01-false-urgency",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["FU-C-1", "FU-C-2", "FU-C-3"],
+    "stageId": "stg-renewal",
+    "journeyStepId": "stp-ap-03",
+    "engine": "screen_capture",
+    "title": "Renewal push claims loyalty bonus is lost in 2 hours",
+    "summary": "A renewal reminder says \"Renew in the next 2 hours or lose your loyalty bonus\". The policy is in its 30-day grace period and the bonus is not forfeited in 2 hours.",
+    "rationale": "Policy terms keep loyalty additions until the end of the grace period. The 2-hour deadline has no basis and pushes an immediate renewal.",
+    "severity": "medium",
+    "confidence": 0.81,
+    "status": "remediation_in_progress",
+    "evidence": [
+      {
+        "id": "ev-005",
+        "kind": "screenshot",
+        "artifactId": "art-app-notifications",
+        "caption": "Notification shade, 12:00 PM reminder",
+        "boxes": [
+          {
+            "x": 0.041,
+            "y": 0.5758,
+            "width": 0.9179,
+            "height": 0.109,
+            "label": "False 2-hour deadline",
+            "criterionId": "FU-C-2"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Replace the copy with the actual grace period end date and what happens after it.",
+      "effort": "low",
+      "ownerTeam": "Marketing",
+      "targetDate": "2026-10-05"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-26T14:10:00Z"
+  },
+  {
+    "id": "fnd-h1-005",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-005",
+    "patternId": "basket_sneaking",
+    "rulePackId": "dp-02-basket-sneaking",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["BS-C-1", "BS-C-2", "BS-C-3"],
+    "stageId": "stg-proposal",
+    "journeyStepId": "stp-wb-11",
+    "engine": "screen_capture",
+    "title": "Critical Illness Rider is pre-selected in the proposal form",
+    "summary": "The cover options step shows the Critical Illness Rider already ticked, adding ₹312 a month to the premium unless the customer unticks it.",
+    "rationale": "The rider is optional and priced separately. It is included by default (BS-SIG-SCR-1) and raises the premium from ₹1,184 to ₹1,496 a month without an affirmative choice by the customer.",
+    "severity": "critical",
+    "confidence": 0.95,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-006",
+        "kind": "screenshot",
+        "artifactId": "art-web-proposal",
+        "caption": "Cover options with pre-ticked rider",
+        "boxes": [
+          {
+            "x": 0.1042,
+            "y": 0.3889,
+            "width": 0.5208,
+            "height": 0.0611,
+            "label": "Pre-ticked paid rider (+₹312/month)",
+            "criterionId": "BS-C-3"
+          },
+          {
+            "x": 0.6806,
+            "y": 0.3667,
+            "width": 0.2361,
+            "height": 0.1333,
+            "label": "Total includes the rider",
+            "criterionId": "BS-C-2"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-006", "fnd-h1-007"],
+    "remediation": {
+      "guidance": "Default all riders to unselected and show each rider’s premium next to its checkbox.",
+      "effort": "low",
+      "ownerTeam": "Digital Sales",
+      "targetDate": "2026-10-10"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-18T14:30:00Z"
+  },
+  {
+    "id": "fnd-h1-006",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-006",
+    "patternId": "basket_sneaking",
+    "rulePackId": "dp-02-basket-sneaking",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["BS-C-1", "BS-C-3"],
+    "stageId": "stg-proposal",
+    "engine": "code_analysis",
+    "title": "Proposal state defaults criticalIllnessRider to true",
+    "summary": "The initial cover options object sets criticalIllnessRider: true, which renders the rider as selected for every customer.",
+    "rationale": "Matches BS-DC-2: an optional rider initialised to true in client state.",
+    "severity": "critical",
+    "confidence": 0.97,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-007",
+        "kind": "code_snippet",
+        "filePath": "web/src/features/proposal/ProposalFormState.ts",
+        "language": "typescript",
+        "startLine": 18,
+        "endLine": 26,
+        "highlightLines": [21],
+        "code": "export const initialCoverOptions: CoverOptions = {\n  baseCover: { sumAssured: 10_000_000, termYears: 30 },\n  riders: {\n    criticalIllnessRider: true,\n    accidentalDeathBenefit: false,\n    waiverOfPremium: false,\n  },\n  premiumMode: 'monthly',\n};",
+        "commitSha": "a3f9c21",
+        "caption": "Optional rider initialised to selected"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-005", "fnd-h1-007"],
+    "remediation": {
+      "guidance": "Set every rider to false in the initial state and add a unit test asserting no paid option is preselected.",
+      "effort": "low",
+      "ownerTeam": "Web Platform",
+      "targetDate": "2026-10-10"
+    },
+    "createdAt": "2026-08-04T06:40:00Z",
+    "updatedAt": "2026-08-19T15:40:00Z"
+  },
+  {
+    "id": "fnd-h1-007",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-007",
+    "patternId": "basket_sneaking",
+    "rulePackId": "dp-02-basket-sneaking",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["BS-C-1", "BS-C-2"],
+    "stageId": "stg-proposal",
+    "engine": "backend_logic",
+    "title": "Proposal API adds the Critical Illness Rider when no riders are sent",
+    "summary": "ProposalService attaches the Critical Illness Rider when a channel omits the rider list, so partner and assisted channels also sell the rider by default.",
+    "rationale": "Server-side defaulting (BS-SIG-BE-1) means removing the web preselection alone would not fix other channels.",
+    "severity": "high",
+    "confidence": 0.84,
+    "status": "under_review",
+    "evidence": [
+      {
+        "id": "ev-008",
+        "kind": "code_snippet",
+        "filePath": "services/proposal/src/main/java/com/examplelife/proposal/ProposalService.java",
+        "language": "java",
+        "startLine": 141,
+        "endLine": 149,
+        "highlightLines": [143, 144, 145],
+        "code": "    public Proposal createProposal(ProposalRequest request) {\n        Proposal proposal = proposalMapper.fromRequest(request);\n        // Default riders when the channel does not send a rider list\n        if (request.getRiders() == null || request.getRiders().isEmpty()) {\n            proposal.addRider(riderCatalogue.get(RiderCode.CRITICAL_ILLNESS));\n        }\n        proposal.setPremium(premiumCalculator.calculate(proposal));\n        return proposalRepository.save(proposal);\n    }",
+        "commitSha": "a3f9c21",
+        "caption": "Rider added when the request has no riders"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-005", "fnd-h1-006"],
+    "remediation": {
+      "guidance": "Treat a missing rider list as no riders. Reject ambiguous requests instead of defaulting.",
+      "effort": "medium",
+      "ownerTeam": "Policy Admin"
+    },
+    "createdAt": "2026-08-04T07:55:00Z",
+    "updatedAt": "2026-08-13T09:50:00Z"
+  },
+  {
+    "id": "fnd-h1-008",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-android",
+    "reference": "ELI-2026-008",
+    "patternId": "basket_sneaking",
+    "rulePackId": "dp-02-basket-sneaking",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["BS-C-1", "BS-C-2", "BS-C-3"],
+    "stageId": "stg-renewal",
+    "journeyStepId": "stp-ap-05",
+    "engine": "screen_capture",
+    "title": "Premium Protection Plan pre-selected at renewal",
+    "summary": "The app renewal checkout includes a ticked \"Premium Protection Plan ₹199/year\" that the customer did not add.",
+    "rationale": "An optional paid plan is pre-selected and included in the renewal total.",
+    "severity": "high",
+    "confidence": 0.86,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-009",
+        "kind": "screenshot",
+        "artifactId": "art-app-renewal",
+        "caption": "Renewal checkout",
+        "boxes": [
+          {
+            "x": 0.041,
+            "y": 0.391,
+            "width": 0.9179,
+            "height": 0.0711,
+            "label": "Pre-selected paid plan (₹199/year)",
+            "criterionId": "BS-C-3"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Show the plan as an unticked option with its price.",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-04T05:10:00Z"
+  },
+  {
+    "id": "fnd-h1-009",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-009",
+    "patternId": "confirm_shaming",
+    "rulePackId": "dp-03-confirm-shaming",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["CS-C-1", "CS-C-2"],
+    "stageId": "stg-quote",
+    "journeyStepId": "stp-wb-08",
+    "engine": "screen_capture",
+    "title": "Decline link reads \"No, I don't care about my family's future\"",
+    "summary": "The only way to leave the quote without buying is a link that implies the customer does not care about their family.",
+    "rationale": "The wording attributes a negative motive to declining (CS-C-1) on a purchase decision (CS-C-2).",
+    "severity": "high",
+    "confidence": 0.94,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-010",
+        "kind": "screenshot",
+        "artifactId": "art-web-quote",
+        "caption": "Buy now button and decline link",
+        "boxes": [
+          {
+            "x": 0.1111,
+            "y": 0.7533,
+            "width": 0.3264,
+            "height": 0.0333,
+            "label": "Shaming decline text",
+            "criterionId": "CS-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Replace with a neutral option such as \"Not now\" or \"Compare other plans\".",
+      "effort": "low",
+      "ownerTeam": "Digital Sales",
+      "targetDate": "2026-10-05"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-18T12:10:00Z"
+  },
+  {
+    "id": "fnd-h1-010",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-android",
+    "reference": "ELI-2026-010",
+    "patternId": "confirm_shaming",
+    "rulePackId": "dp-03-confirm-shaming",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["CS-C-1", "CS-C-2"],
+    "stageId": "stg-renewal",
+    "journeyStepId": "stp-ap-05",
+    "engine": "screen_capture",
+    "title": "Renewal decline link: \"No, I'll risk losing my cover\"",
+    "summary": "The link to leave the renewal checkout frames declining as reckless.",
+    "rationale": "Guilt-inducing wording on a renewal decision. The customer may intend to renew later or through another channel.",
+    "severity": "medium",
+    "confidence": 0.79,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-011",
+        "kind": "screenshot",
+        "artifactId": "art-app-renewal",
+        "caption": "Renewal checkout footer",
+        "boxes": [
+          {
+            "x": 0.1795,
+            "y": 0.846,
+            "width": 0.641,
+            "height": 0.0332,
+            "label": "Guilt-inducing decline text",
+            "criterionId": "CS-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Use \"Renew later\" and show the grace period end date.",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-04T05:10:00Z"
+  },
+  {
+    "id": "fnd-h1-011",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-011",
+    "patternId": "confirm_shaming",
+    "rulePackId": "dp-03-confirm-shaming",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["CS-C-1"],
+    "stageId": "stg-payment",
+    "engine": "code_analysis",
+    "title": "Add-on decline copy flagged for review",
+    "summary": "The lexicon check flagged the add-on decline strings. On review the wording is neutral.",
+    "rationale": "\"Maybe later\" with a factual hint does not attribute a negative motive to the customer.",
+    "severity": "low",
+    "confidence": 0.41,
+    "status": "dismissed",
+    "evidence": [
+      {
+        "id": "ev-012",
+        "kind": "config_excerpt",
+        "source": "web/src/i18n/en/payment.json",
+        "format": "json",
+        "startLine": 40,
+        "endLine": 41,
+        "highlightLines": [40],
+        "content": "  \"payment.addons.decline\": \"Maybe later\",\n  \"payment.addons.declineHint\": \"You can add cover any time from My Policies\",",
+        "caption": "Decline strings for the add-on offer"
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "No change needed.",
+      "effort": "low"
+    },
+    "createdAt": "2026-08-04T06:40:00Z",
+    "updatedAt": "2026-08-19T13:40:00Z"
+  },
+  {
+    "id": "fnd-h1-012",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-012",
+    "patternId": "forced_action",
+    "rulePackId": "dp-04-forced-action",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["FA-C-1", "FA-C-2", "FA-C-3"],
+    "stageId": "stg-grievance",
+    "journeyStepId": "stp-ws-03",
+    "engine": "screen_capture",
+    "title": "Website grievance page requires installing the mobile app",
+    "summary": "Visitors who open \"Raise a grievance\" on the website see only a prompt to download the app. There is no web form, e-mail address or other alternative on the page.",
+    "rationale": "Access to grievance redressal is blocked behind an unrelated action (installing an app) with no alternative path, which meets the critical severity rule.",
+    "severity": "critical",
+    "confidence": 0.95,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-013",
+        "kind": "screenshot",
+        "artifactId": "art-web-grievance",
+        "caption": "Grievance page",
+        "boxes": [
+          {
+            "x": 0.2083,
+            "y": 0.2778,
+            "width": 0.5833,
+            "height": 0.1889,
+            "label": "Grievance blocked behind app install",
+            "criterionId": "FA-C-1"
+          },
+          {
+            "x": 0.3611,
+            "y": 0.4889,
+            "width": 0.2778,
+            "height": 0.2222,
+            "label": "Only app download options offered",
+            "criterionId": "FA-C-3"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-013"],
+    "remediation": {
+      "guidance": "Restore a web grievance form and list e-mail, phone and branch options on the page.",
+      "effort": "medium",
+      "ownerTeam": "Customer Service",
+      "targetDate": "2026-10-20"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-17T14:50:00Z"
+  },
+  {
+    "id": "fnd-h1-013",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-013",
+    "patternId": "forced_action",
+    "rulePackId": "dp-04-forced-action",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["FA-C-1", "FA-C-3"],
+    "stageId": "stg-grievance",
+    "engine": "code_analysis",
+    "title": "Grievance route redirects non-app users to /get-app",
+    "summary": "GrievancePage redirects any visitor without an app session to the app download page.",
+    "rationale": "Route guard enforcing an unrelated action (FA-SIG-CODE-1).",
+    "severity": "high",
+    "confidence": 0.93,
+    "status": "remediation_in_progress",
+    "evidence": [
+      {
+        "id": "ev-014",
+        "kind": "code_snippet",
+        "filePath": "web/src/routes/grievance/GrievancePage.tsx",
+        "language": "tsx",
+        "startLine": 8,
+        "endLine": 17,
+        "highlightLines": [11, 12, 13],
+        "code": "export default function GrievancePage() {\n  const { isAppUser } = useSession();\n\n  // Grievances are handled only in the mobile app\n  if (!isAppUser) {\n    return <Navigate to=\"/get-app?from=grievance\" replace />;\n  }\n\n  return <GrievanceForm />;\n}",
+        "commitSha": "a3f9c21",
+        "caption": "Redirect for visitors without an app session"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-012"],
+    "remediation": {
+      "guidance": "Remove the guard and render GrievanceForm for all visitors.",
+      "effort": "low",
+      "ownerTeam": "Web Platform",
+      "targetDate": "2026-10-08"
+    },
+    "createdAt": "2026-08-04T06:40:00Z",
+    "updatedAt": "2026-08-27T16:00:00Z"
+  },
+  {
+    "id": "fnd-h1-014",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-014",
+    "patternId": "forced_action",
+    "rulePackId": "dp-04-forced-action",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["FA-C-1", "FA-C-2"],
+    "stageId": "stg-claims",
+    "journeyStepId": "stp-ws-01",
+    "engine": "screen_capture",
+    "title": "Claim intimation requires agreeing to promotional offers",
+    "summary": "The claim form cannot be submitted unless the claimant ticks \"I agree to receive promotional offers from Example Life and partners\".",
+    "rationale": "Marketing consent is unrelated to intimating a claim and is marked as required.",
+    "severity": "high",
+    "confidence": 0.87,
+    "status": "under_review",
+    "evidence": [
+      {
+        "id": "ev-015",
+        "kind": "screenshot",
+        "artifactId": "art-web-claims",
+        "caption": "Claim intimation form",
+        "boxes": [
+          {
+            "x": 0.1042,
+            "y": 0.6667,
+            "width": 0.6597,
+            "height": 0.0556,
+            "label": "Marketing consent marked as required",
+            "criterionId": "FA-C-2"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Make marketing consent optional and separate from claim submission.",
+      "effort": "low",
+      "ownerTeam": "Customer Service"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-12T10:10:00Z"
+  },
+  {
+    "id": "fnd-h1-015",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-android",
+    "reference": "ELI-2026-015",
+    "patternId": "forced_action",
+    "rulePackId": "dp-04-forced-action",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["FA-C-2"],
+    "stageId": "stg-proposal",
+    "engine": "software_risk",
+    "title": "App requests contacts and precise location during proposal",
+    "summary": "The Android app declares READ_CONTACTS and ACCESS_FINE_LOCATION and requests them on the nominee step of the proposal.",
+    "rationale": "Neither permission is needed to add a nominee. Whether progress is blocked when refused needs confirming in the journey.",
+    "severity": "medium",
+    "confidence": 0.62,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-016",
+        "kind": "config_excerpt",
+        "source": "android/app/src/main/AndroidManifest.xml",
+        "format": "xml",
+        "startLine": 9,
+        "endLine": 12,
+        "highlightLines": [10, 11],
+        "content": "    <uses-permission android:name=\"android.permission.INTERNET\" />\n    <uses-permission android:name=\"android.permission.READ_CONTACTS\" />\n    <uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />\n    <uses-permission android:name=\"android.permission.CAMERA\" />",
+        "caption": "Declared permissions"
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Remove READ_CONTACTS and ACCESS_FINE_LOCATION, or make them optional with a manual entry fallback.",
+      "effort": "medium",
+      "ownerTeam": "Mobile Engineering"
+    },
+    "createdAt": "2026-08-04T08:30:00Z",
+    "updatedAt": "2026-08-04T08:30:00Z"
+  },
+  {
+    "id": "fnd-h1-016",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-android",
+    "reference": "ELI-2026-016",
+    "patternId": "subscription_trap",
+    "rulePackId": "dp-05-subscription-trap",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["ST-C-1", "ST-C-4"],
+    "stageId": "stg-consent",
+    "journeyStepId": "stp-ap-07",
+    "engine": "screen_capture",
+    "title": "Auto-debit cancellation ends in \"visit a branch or call us\"",
+    "summary": "After five screens, the final step of cancelling the premium auto-debit tells the customer to visit a branch or call during office hours. Setting up the mandate took two taps in the app.",
+    "rationale": "Cancellation needs an offline channel while sign-up was online, and takes far more steps (ST-C-1, ST-C-4). This meets the critical severity rule.",
+    "severity": "critical",
+    "confidence": 0.92,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-017",
+        "kind": "screenshot",
+        "artifactId": "art-app-autodebit",
+        "caption": "Step 5 of the cancellation flow",
+        "boxes": [
+          {
+            "x": 0.0615,
+            "y": 0.2607,
+            "width": 0.8769,
+            "height": 0.1659,
+            "label": "Offline-only cancellation instruction",
+            "criterionId": "ST-C-4"
+          },
+          {
+            "x": 0.0615,
+            "y": 0.8294,
+            "width": 0.8769,
+            "height": 0.0664,
+            "label": "Only action offered keeps auto-debit",
+            "criterionId": "ST-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-017"],
+    "remediation": {
+      "guidance": "Add a self-service \"Cancel auto-debit\" action in the app that completes the cancellation.",
+      "effort": "high",
+      "ownerTeam": "Mobile Engineering",
+      "targetDate": "2026-11-15"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-17T11:40:00Z"
+  },
+  {
+    "id": "fnd-h1-017",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-017",
+    "patternId": "subscription_trap",
+    "rulePackId": "dp-05-subscription-trap",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["ST-C-1"],
+    "stageId": "stg-consent",
+    "engine": "backend_logic",
+    "title": "Payments API has no mandate cancellation operation",
+    "summary": "The payments API exposes create and get operations for mandates but no cancel operation, so no channel can offer self-service cancellation.",
+    "rationale": "Creation is self-service while cancellation is not (ST-SIG-BE-1). This is the root cause of the app behaviour.",
+    "severity": "high",
+    "confidence": 0.9,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-018",
+        "kind": "config_excerpt",
+        "source": "services/payments-api/openapi.yaml",
+        "format": "yaml",
+        "startLine": 212,
+        "endLine": 220,
+        "highlightLines": [220],
+        "content": "  /v1/mandates:\n    post:\n      summary: Register an e-mandate for premium auto-debit\n      operationId: createMandate\n  /v1/mandates/{mandateId}:\n    get:\n      summary: Get mandate status\n      operationId: getMandate\n    # No self-service cancel operation; cancellations are raised by branch staff",
+        "caption": "Mandate operations in the payments API"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-016"],
+    "remediation": {
+      "guidance": "Add a cancel operation that revokes the mandate with the sponsor bank and confirms to the customer.",
+      "effort": "high",
+      "ownerTeam": "Policy Admin",
+      "targetDate": "2026-11-15"
+    },
+    "createdAt": "2026-08-04T07:55:00Z",
+    "updatedAt": "2026-08-18T12:50:00Z"
+  },
+  {
+    "id": "fnd-h1-018",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-018",
+    "patternId": "subscription_trap",
+    "rulePackId": "dp-05-subscription-trap",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["ST-C-1"],
+    "stageId": "stg-renewal",
+    "engine": "code_analysis",
+    "title": "Turning off auto-renewal passes through three retention screens",
+    "summary": "Switching off auto-renewal pushes a retention offer, a mandatory survey and an OTP plus callback confirmation. Switching it on is a single toggle.",
+    "rationale": "Cancel flow with multiple mandatory retention screens (ST-SIG-CODE-2).",
+    "severity": "medium",
+    "confidence": 0.83,
+    "status": "remediation_in_progress",
+    "evidence": [
+      {
+        "id": "ev-019",
+        "kind": "code_snippet",
+        "filePath": "android/app/src/main/java/com/examplelife/renewal/AutoRenewFlow.kt",
+        "language": "kotlin",
+        "startLine": 55,
+        "endLine": 65,
+        "highlightLines": [60, 64],
+        "code": "    fun onTurnOffAutoRenewTapped() {\n        navigator.push(RetentionOfferScreen(offer = OfferType.LOYALTY_DISCOUNT))\n    }\n\n    fun onRetentionOfferDeclined() {\n        navigator.push(RetentionSurveyScreen(mandatory = true))\n    }\n\n    fun onSurveySubmitted() {\n        navigator.push(ConfirmAutoRenewOffScreen(requiresOtp = true, requiresCallback = true))\n    }",
+        "commitSha": "a3f9c21",
+        "caption": "Auto-renewal off flow"
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Allow one dismissible retention offer, make the survey optional and remove the callback requirement.",
+      "effort": "medium",
+      "ownerTeam": "Mobile Engineering",
+      "targetDate": "2026-10-25"
+    },
+    "createdAt": "2026-08-04T06:40:00Z",
+    "updatedAt": "2026-08-28T14:00:00Z"
+  },
+  {
+    "id": "fnd-h1-019",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-019",
+    "patternId": "interface_interference",
+    "rulePackId": "dp-06-interface-interference",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["II-C-1", "II-C-2"],
+    "stageId": "stg-payment",
+    "journeyStepId": "stp-wb-13",
+    "engine": "screen_capture",
+    "title": "Add-on modal: large \"Continue with add-ons\" versus faint \"Skip\"",
+    "summary": "The add-on offer before payment has a full-width primary button to accept and an 11px light-grey \"Skip\" link to decline.",
+    "rationale": "Measured contrast of \"Skip\" is 1.6:1 against white and the accept button area is about 40 times larger (II-DC-1).",
+    "severity": "high",
+    "confidence": 0.9,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-020",
+        "kind": "screenshot",
+        "artifactId": "art-web-addons",
+        "caption": "Add-on offer modal",
+        "boxes": [
+          {
+            "x": 0.3264,
+            "y": 0.6778,
+            "width": 0.3472,
+            "height": 0.0733,
+            "label": "Dominant accept button",
+            "criterionId": "II-C-1"
+          },
+          {
+            "x": 0.4826,
+            "y": 0.7733,
+            "width": 0.0347,
+            "height": 0.0267,
+            "label": "Low-contrast decline link",
+            "criterionId": "II-C-2"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-020"],
+    "remediation": {
+      "guidance": "Show \"Continue without add-ons\" as a secondary button of similar size and AA contrast.",
+      "effort": "low",
+      "ownerTeam": "Digital Sales",
+      "targetDate": "2026-10-10"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-20T15:10:00Z"
+  },
+  {
+    "id": "fnd-h1-020",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-020",
+    "patternId": "interface_interference",
+    "rulePackId": "dp-06-interface-interference",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["II-C-2"],
+    "stageId": "stg-payment",
+    "engine": "code_analysis",
+    "title": "Skip link styled text-[11px] text-slate-300",
+    "summary": "The decline control in AddOnModal used an 11px, slate-300 style that fails contrast requirements.",
+    "rationale": "Low-contrast styling of the decline option (II-SIG-CODE-1). Fixed in release 2026.09.2; retest passed.",
+    "severity": "medium",
+    "confidence": 0.88,
+    "status": "closed",
+    "evidence": [
+      {
+        "id": "ev-021",
+        "kind": "code_snippet",
+        "filePath": "web/src/features/checkout/AddOnModal.tsx",
+        "language": "tsx",
+        "startLine": 61,
+        "endLine": 66,
+        "highlightLines": [64],
+        "code": "      <Button size=\"lg\" className=\"w-full\" onClick={acceptAddOns}>\n        Continue with add-ons (+₹{addOnTotal}/month)\n      </Button>\n      <button className=\"mt-3 text-[11px] text-slate-300\" onClick={skip}>\n        Skip\n      </button>",
+        "commitSha": "a3f9c21",
+        "caption": "Decline control styling (before fix)"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-019"],
+    "remediation": {
+      "guidance": "Use the secondary button variant for the decline option.",
+      "effort": "low",
+      "ownerTeam": "Web Platform",
+      "targetDate": "2026-09-12"
+    },
+    "createdAt": "2026-08-04T06:40:00Z",
+    "updatedAt": "2026-09-13T15:30:00Z"
+  },
+  {
+    "id": "fnd-h1-021",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-021",
+    "patternId": "interface_interference",
+    "rulePackId": "dp-06-interface-interference",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["II-C-1"],
+    "stageId": "stg-discovery",
+    "journeyStepId": "stp-wb-01",
+    "engine": "screen_capture",
+    "title": "Home page hero emphasises \"Get a quote\"",
+    "summary": "The visual heuristic flagged the prominent hero button. There is no competing choice on the hero, so this is ordinary visual hierarchy.",
+    "rationale": "A single primary action with no hidden alternative falls under the exclusion for normal hierarchy.",
+    "severity": "low",
+    "confidence": 0.38,
+    "status": "dismissed",
+    "evidence": [
+      {
+        "id": "ev-022",
+        "kind": "screenshot",
+        "artifactId": "art-web-home",
+        "caption": "Home page hero",
+        "boxes": [
+          {
+            "x": 0.0833,
+            "y": 0.2889,
+            "width": 0.1528,
+            "height": 0.0622,
+            "label": "Primary call to action",
+            "criterionId": "II-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "No change needed.",
+      "effort": "low"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-17T09:40:00Z"
+  },
+  {
+    "id": "fnd-h1-022",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-022",
+    "patternId": "bait_and_switch",
+    "rulePackId": "dp-07-bait-and-switch",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["BW-C-1", "BW-C-2", "BW-C-3"],
+    "stageId": "stg-quote",
+    "journeyStepId": "stp-wb-08",
+    "engine": "screen_capture",
+    "title": "Advertised ₹649/month becomes ₹1,184/month on the quote",
+    "summary": "The home page promises ₹1 crore cover \"from ₹649/month\". A 34-year-old non-smoker is quoted ₹1,184, and the quote page does not explain the difference.",
+    "rationale": "The advertised price is not shown with a reference profile, and the quote gives no reasons for the difference.",
+    "severity": "high",
+    "confidence": 0.8,
+    "status": "under_review",
+    "evidence": [
+      {
+        "id": "ev-023",
+        "kind": "screenshot",
+        "artifactId": "art-web-home",
+        "caption": "Home page banner",
+        "boxes": [
+          {
+            "x": 0.0833,
+            "y": 0.1667,
+            "width": 0.5417,
+            "height": 0.0889,
+            "label": "Advertised starting premium",
+            "criterionId": "BW-C-1"
+          }
+        ]
+      },
+      {
+        "id": "ev-024",
+        "kind": "screenshot",
+        "artifactId": "art-web-quote",
+        "caption": "Quote for the test profile",
+        "boxes": [
+          {
+            "x": 0.1111,
+            "y": 0.2778,
+            "width": 0.2778,
+            "height": 0.0889,
+            "label": "Quoted premium with no explanation",
+            "criterionId": "BW-C-2"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-023"],
+    "remediation": {
+      "guidance": "State the reference profile for the headline price and explain the factors behind each quote.",
+      "effort": "medium",
+      "ownerTeam": "Marketing"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-12T10:50:00Z"
+  },
+  {
+    "id": "fnd-h1-023",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-023",
+    "patternId": "bait_and_switch",
+    "rulePackId": "dp-07-bait-and-switch",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["BW-C-1", "BW-C-3"],
+    "stageId": "stg-quote",
+    "engine": "backend_logic",
+    "title": "Headline premium is below the minimum monthly premium",
+    "summary": "The rating rules set a minimum monthly premium of ₹812, but the marketing headline uses ₹649. No customer can obtain the advertised price.",
+    "rationale": "The advertised outcome is unattainable for any profile (BW-DC-2), which meets the critical severity rule.",
+    "severity": "critical",
+    "confidence": 0.85,
+    "status": "under_review",
+    "evidence": [
+      {
+        "id": "ev-025",
+        "kind": "config_excerpt",
+        "source": "pricing/term/rating-rules.yaml",
+        "format": "yaml",
+        "startLine": 3,
+        "endLine": 10,
+        "highlightLines": [8, 10],
+        "content": "product: EXAMPLE_SECURE_TERM_PLUS\nbase_rate_per_lakh:\n  age_18_25: 7.40\n  age_26_35: 9.10\n  age_36_45: 14.80\nminimum_monthly_premium: 812\nmarketing:\n  headline_premium: 649   # used on home page banner",
+        "caption": "Rating rules for the term plan"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-022"],
+    "remediation": {
+      "guidance": "Generate the headline premium from the rating engine for a stated reference profile.",
+      "effort": "medium",
+      "ownerTeam": "Pricing and Actuarial"
+    },
+    "createdAt": "2026-08-04T07:55:00Z",
+    "updatedAt": "2026-08-13T12:00:00Z"
+  },
+  {
+    "id": "fnd-h1-024",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-024",
+    "patternId": "drip_pricing",
+    "rulePackId": "dp-08-drip-pricing",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["DP-C-1", "DP-C-2"],
+    "stageId": "stg-payment",
+    "journeyStepId": "stp-wb-15",
+    "engine": "screen_capture",
+    "title": "\"Policy administration fee\" appears only on the payment page",
+    "summary": "A ₹299 policy administration fee first appears in the payment summary. It was not shown on the quote, proposal or add-on screens.",
+    "rationale": "A mandatory fee revealed at the final step (DP-C-1) makes the total payable higher than the quoted amount (DP-C-2).",
+    "severity": "high",
+    "confidence": 0.94,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-026",
+        "kind": "screenshot",
+        "artifactId": "art-web-payment",
+        "caption": "Payment summary",
+        "boxes": [
+          {
+            "x": 0.1042,
+            "y": 0.4444,
+            "width": 0.4028,
+            "height": 0.0444,
+            "label": "Fee first shown at payment",
+            "criterionId": "DP-C-1"
+          },
+          {
+            "x": 0.1042,
+            "y": 0.5222,
+            "width": 0.4028,
+            "height": 0.0556,
+            "label": "Total higher than quoted",
+            "criterionId": "DP-C-2"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-025"],
+    "remediation": {
+      "guidance": "Show the fee in the first quoted total, or remove it.",
+      "effort": "low",
+      "ownerTeam": "Digital Sales",
+      "targetDate": "2026-10-10"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-17T13:10:00Z"
+  },
+  {
+    "id": "fnd-h1-025",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-025",
+    "patternId": "drip_pricing",
+    "rulePackId": "dp-08-drip-pricing",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["DP-C-1", "DP-C-2"],
+    "stageId": "stg-payment",
+    "engine": "backend_logic",
+    "title": "Pricing rule adds a fee only at the payment step",
+    "summary": "The POLICY_ADMIN_FEE rule applies only when journey_step is payment and is hidden from quotes. PremiumCalculator adds fees per step.",
+    "rationale": "Step-conditioned fee (DP-DC-2) confirmed in both configuration and code, so the amount charged exceeds what the customer confirmed.",
+    "severity": "critical",
+    "confidence": 0.97,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-027",
+        "kind": "config_excerpt",
+        "source": "pricing/term/pricing-rules.yaml",
+        "format": "yaml",
+        "startLine": 27,
+        "endLine": 33,
+        "highlightLines": [30, 31, 33],
+        "content": "  - id: POLICY_ADMIN_FEE\n    description: Policy administration fee\n    amount: 299\n    apply_when:\n      journey_step: payment\n      channel: web\n    display_on_quote: false",
+        "caption": "Fee rule conditioned on the payment step"
+      },
+      {
+        "id": "ev-028",
+        "kind": "code_snippet",
+        "filePath": "services/pricing/src/main/java/com/examplelife/pricing/PremiumCalculator.java",
+        "language": "java",
+        "startLine": 88,
+        "endLine": 94,
+        "highlightLines": [90, 91],
+        "code": "    public Money totalPayable(Proposal proposal, JourneyStep step) {\n        Money total = basePremium(proposal).plus(riderPremium(proposal));\n        for (FeeRule rule : feeRules.forStep(step)) {\n            total = total.plus(rule.amount());\n        }\n        return total.plus(gst(total));\n    }",
+        "commitSha": "a3f9c21",
+        "caption": "Fees applied per journey step"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-024"],
+    "remediation": {
+      "guidance": "Remove step conditions from fee rules and assert in tests that the payment amount equals the confirmed quote.",
+      "effort": "medium",
+      "ownerTeam": "Pricing and Actuarial",
+      "targetDate": "2026-10-20"
+    },
+    "createdAt": "2026-08-04T07:55:00Z",
+    "updatedAt": "2026-08-18T13:30:00Z"
+  },
+  {
+    "id": "fnd-h1-026",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-026",
+    "patternId": "drip_pricing",
+    "rulePackId": "dp-08-drip-pricing",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["DP-C-1"],
+    "stageId": "stg-renewal",
+    "engine": "code_analysis",
+    "title": "Monthly renewal quote omits modal loading",
+    "summary": "The renewal quote divides the annual premium by 12. Monthly-mode loading is added later at payment.",
+    "rationale": "The displayed monthly premium is lower than the amount collected.",
+    "severity": "medium",
+    "confidence": 0.72,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-029",
+        "kind": "code_snippet",
+        "filePath": "android/app/src/main/java/com/examplelife/renewal/RenewalPricing.kt",
+        "language": "kotlin",
+        "startLine": 30,
+        "endLine": 34,
+        "highlightLines": [32, 33],
+        "code": "    fun renewalQuote(policy: Policy): RenewalQuote {\n        val annual = premiumService.annualPremium(policy)\n        // Modal loading is applied later, at payment, for monthly mode\n        return RenewalQuote(displayPremium = annual / 12, mode = policy.premiumMode)\n    }",
+        "commitSha": "a3f9c21",
+        "caption": "Renewal quote calculation"
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Include modal loading in the displayed renewal premium.",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering"
+    },
+    "createdAt": "2026-08-04T06:40:00Z",
+    "updatedAt": "2026-08-04T06:40:00Z"
+  },
+  {
+    "id": "fnd-h1-027",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-027",
+    "patternId": "disguised_advertisement",
+    "rulePackId": "dp-09-disguised-advertisement",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["DA-C-1", "DA-C-2", "DA-C-3"],
+    "stageId": "stg-discovery",
+    "journeyStepId": "stp-wb-01",
+    "engine": "screen_capture",
+    "title": "\"Top rated plans\" ranks partner plans first without a sponsored label",
+    "summary": "The home page section \"Top rated plans for you\" puts two partner plans from Sample General Assurance above Example Life's own plan. Nothing indicates that the order is commercially weighted.",
+    "rationale": "The ranking is presented as editorial (DA-C-2) and has no disclosure (DA-C-3). The ranking configuration confirms partner weighting (DA-C-1).",
+    "severity": "high",
+    "confidence": 0.89,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-030",
+        "kind": "screenshot",
+        "artifactId": "art-web-home",
+        "caption": "Top rated plans section",
+        "boxes": [
+          {
+            "x": 0.0833,
+            "y": 0.4222,
+            "width": 0.4028,
+            "height": 0.05,
+            "label": "Presented as an editorial ranking",
+            "criterionId": "DA-C-2"
+          },
+          {
+            "x": 0.0833,
+            "y": 0.4889,
+            "width": 0.5486,
+            "height": 0.4,
+            "label": "Partner plans ranked #1 and #2 with no sponsored label",
+            "criterionId": "DA-C-3"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-028"],
+    "remediation": {
+      "guidance": "Label partner placements as sponsored, or rank by customer-relevant criteria only.",
+      "effort": "low",
+      "ownerTeam": "Marketing",
+      "targetDate": "2026-10-15"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-20T15:50:00Z"
+  },
+  {
+    "id": "fnd-h1-028",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-028",
+    "patternId": "disguised_advertisement",
+    "rulePackId": "dp-09-disguised-advertisement",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["DA-C-1"],
+    "stageId": "stg-discovery",
+    "engine": "backend_logic",
+    "title": "Ranking score weights partner boost equally with rating",
+    "summary": "The catalogue ranking gives partner_boost the same weight as customer rating and disables the sponsored label.",
+    "rationale": "Commercial weighting in ranking configuration (DA-DC-2).",
+    "severity": "medium",
+    "confidence": 0.86,
+    "status": "under_review",
+    "evidence": [
+      {
+        "id": "ev-031",
+        "kind": "config_excerpt",
+        "source": "services/catalogue/config/ranking.yaml",
+        "format": "yaml",
+        "startLine": 1,
+        "endLine": 8,
+        "highlightLines": [3, 8],
+        "content": "ranking:\n  label: \"Top rated plans\"\n  score: \"0.5 * customer_rating + 0.5 * partner_boost\"\n  partner_boost:\n    SAMPLE_GENERAL_WEALTH_SHIELD: 1.0\n    SAMPLE_GENERAL_SMART_SAVER: 0.9\n    EXAMPLE_SECURE_TERM_PLUS: 0.2\n  show_sponsored_label: false",
+        "caption": "Catalogue ranking configuration"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-027"],
+    "remediation": {
+      "guidance": "Set show_sponsored_label to true and publish the ranking basis.",
+      "effort": "low",
+      "ownerTeam": "Marketing"
+    },
+    "createdAt": "2026-08-04T07:55:00Z",
+    "updatedAt": "2026-08-10T10:00:00Z"
+  },
+  {
+    "id": "fnd-h1-029",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-029",
+    "patternId": "nagging",
+    "rulePackId": "dp-10-nagging",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["NG-C-1", "NG-C-3"],
+    "stageId": "stg-renewal",
+    "engine": "backend_logic",
+    "title": "Renewal reminder scheduler has no frequency cap",
+    "summary": "The renewal_reminder job runs every two hours from 8 AM to 8 PM across push, SMS and WhatsApp, with no daily cap, quiet hours or opt-out check.",
+    "rationale": "Scheduler with no frequency cap (NG-DC-1). ReminderJob sends on every channel without checking preferences, so opting out does not stop it (NG-C-3).",
+    "severity": "high",
+    "confidence": 0.95,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-032",
+        "kind": "config_excerpt",
+        "source": "services/notifications/config/notification-scheduler.yaml",
+        "format": "yaml",
+        "startLine": 14,
+        "endLine": 21,
+        "highlightLines": [16, 20, 21],
+        "content": "jobs:\n  renewal_reminder:\n    schedule: \"0 0 8-20/2 * * *\"   # every 2 hours, 8 AM to 8 PM\n    channels: [push, sms, whatsapp]\n    audience: policies_due_within_30_days\n    stop_when: renewed\n    # max_per_day: not configured\n    # quiet_hours: not configured",
+        "caption": "Renewal reminder job"
+      },
+      {
+        "id": "ev-033",
+        "kind": "code_snippet",
+        "filePath": "services/notifications/src/main/kotlin/com/examplelife/notify/ReminderJob.kt",
+        "language": "kotlin",
+        "startLine": 22,
+        "endLine": 27,
+        "highlightLines": [24, 25],
+        "code": "    override suspend fun run(policy: Policy) {\n        if (policy.isRenewed) return\n        channels.forEach { channel ->\n            sender.send(channel, templates.renewalReminder(policy))\n        }\n    }",
+        "commitSha": "a3f9c21",
+        "caption": "Reminder job sends on every channel"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-030"],
+    "remediation": {
+      "guidance": "Cap renewal reminders at one per day per channel, add quiet hours, and check communication preferences before sending.",
+      "effort": "medium",
+      "ownerTeam": "Customer Service",
+      "targetDate": "2026-10-20"
+    },
+    "createdAt": "2026-08-04T07:55:00Z",
+    "updatedAt": "2026-08-18T11:10:00Z"
+  },
+  {
+    "id": "fnd-h1-030",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-android",
+    "reference": "ELI-2026-030",
+    "patternId": "nagging",
+    "rulePackId": "dp-10-nagging",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["NG-C-1"],
+    "stageId": "stg-renewal",
+    "journeyStepId": "stp-ap-03",
+    "engine": "screen_capture",
+    "title": "Six renewal reminders received in one day",
+    "summary": "During the 24-hour observation window the test device received six renewal push notifications, every two hours from 8 AM to 6 PM.",
+    "rationale": "Repeated identical requests (NG-C-1) observed in the journey, consistent with the scheduler configuration.",
+    "severity": "high",
+    "confidence": 0.9,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-034",
+        "kind": "screenshot",
+        "artifactId": "art-app-notifications",
+        "caption": "Notification shade after 24 hours",
+        "boxes": [
+          {
+            "x": 0.041,
+            "y": 0.2133,
+            "width": 0.9179,
+            "height": 0.7227,
+            "label": "Six reminders in one day",
+            "criterionId": "NG-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-029"],
+    "remediation": {
+      "guidance": "Apply the scheduler cap and verify with a 24-hour retest.",
+      "effort": "medium",
+      "ownerTeam": "Customer Service",
+      "targetDate": "2026-10-20"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-19T11:30:00Z"
+  },
+  {
+    "id": "fnd-h1-031",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-android",
+    "reference": "ELI-2026-031",
+    "patternId": "nagging",
+    "rulePackId": "dp-10-nagging",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["NG-C-1", "NG-C-2", "NG-C-3"],
+    "stageId": "stg-servicing",
+    "journeyStepId": "stp-ap-01",
+    "engine": "screen_capture",
+    "title": "Top-up cover sheet appears on every app launch",
+    "summary": "A cross-sell sheet for Top-Up Health Cover opens every time the app is launched. The only dismissal is \"Remind me later\".",
+    "rationale": "Repeated prompt unrelated to the servicing task, with no lasting way to stop it.",
+    "severity": "medium",
+    "confidence": 0.84,
+    "status": "remediation_in_progress",
+    "evidence": [
+      {
+        "id": "ev-035",
+        "kind": "screenshot",
+        "artifactId": "art-app-home",
+        "caption": "App home with cross-sell sheet",
+        "boxes": [
+          {
+            "x": 0.0615,
+            "y": 0.2607,
+            "width": 0.8769,
+            "height": 0.4739,
+            "label": "Cross-sell shown on every launch",
+            "criterionId": "NG-C-2"
+          },
+          {
+            "x": 0.3077,
+            "y": 0.6635,
+            "width": 0.3846,
+            "height": 0.0379,
+            "label": "No \"Don't show again\"",
+            "criterionId": "NG-C-3"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-032"],
+    "remediation": {
+      "guidance": "Show at most once every 30 days and add \"Don't show again\".",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering",
+      "targetDate": "2026-10-12"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-29T12:40:00Z"
+  },
+  {
+    "id": "fnd-h1-032",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-032",
+    "patternId": "nagging",
+    "rulePackId": "dp-10-nagging",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["NG-C-1", "NG-C-3"],
+    "stageId": "stg-servicing",
+    "engine": "code_analysis",
+    "title": "HomeActivity shows the cross-sell sheet in onResume without a dismissal check",
+    "summary": "The sheet is shown whenever the customer lacks top-up cover, on every resume, with no persisted dismissal.",
+    "rationale": "Prompt trigger without a persisted dismissal flag (NG-SIG-CODE-1).",
+    "severity": "medium",
+    "confidence": 0.9,
+    "status": "remediation_in_progress",
+    "evidence": [
+      {
+        "id": "ev-036",
+        "kind": "code_snippet",
+        "filePath": "android/app/src/main/java/com/examplelife/home/HomeActivity.kt",
+        "language": "kotlin",
+        "startLine": 74,
+        "endLine": 80,
+        "highlightLines": [76, 77, 78],
+        "code": "    override fun onResume() {\n        super.onResume()\n        // Cross-sell prompt on every launch\n        if (!user.hasTopUpCover) {\n            TopUpCoverSheet.newInstance().show(supportFragmentManager, \"top_up\")\n        }\n    }",
+        "commitSha": "a3f9c21",
+        "caption": "Cross-sell trigger"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-031"],
+    "remediation": {
+      "guidance": "Persist dismissal server-side and throttle the prompt.",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering",
+      "targetDate": "2026-10-12"
+    },
+    "createdAt": "2026-08-04T06:40:00Z",
+    "updatedAt": "2026-08-26T13:50:00Z"
+  },
+  {
+    "id": "fnd-h1-033",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-033",
+    "patternId": "trick_question",
+    "rulePackId": "dp-11-trick-question",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["TQ-C-1", "TQ-C-2"],
+    "stageId": "stg-proposal",
+    "journeyStepId": "stp-wb-11",
+    "engine": "screen_capture",
+    "title": "Partner offers consent uses a double negative",
+    "summary": "The proposal form asks the customer to \"Untick this box if you do not wish to not receive offers from our partners\". The box is ticked by default.",
+    "rationale": "A double negative in a data-sharing consent (TQ-C-1) makes it likely the customer consents without meaning to (TQ-C-2).",
+    "severity": "high",
+    "confidence": 0.91,
+    "status": "confirmed",
+    "evidence": [
+      {
+        "id": "ev-037",
+        "kind": "screenshot",
+        "artifactId": "art-web-proposal",
+        "caption": "Consent section of the proposal form",
+        "boxes": [
+          {
+            "x": 0.1042,
+            "y": 0.6778,
+            "width": 0.6597,
+            "height": 0.0556,
+            "label": "Double-negative consent",
+            "criterionId": "TQ-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Rewrite as \"Share my details with partners for offers\", unticked by default.",
+      "effort": "low",
+      "ownerTeam": "Digital Sales",
+      "targetDate": "2026-10-10"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-18T15:00:00Z"
+  },
+  {
+    "id": "fnd-h1-034",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-android",
+    "reference": "ELI-2026-034",
+    "patternId": "trick_question",
+    "rulePackId": "dp-11-trick-question",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["TQ-C-1", "TQ-C-2"],
+    "stageId": "stg-consent",
+    "journeyStepId": "stp-ap-09",
+    "engine": "screen_capture",
+    "title": "Preference toggles: \"Don't stop sending me offers\"",
+    "summary": "Communication preferences use reversed labels such as \"Don't stop sending me offers\" and \"Opt out of not receiving renewal tips\", all switched on.",
+    "rationale": "Reversed and double-negative toggle labels on the consent withdrawal screen.",
+    "severity": "high",
+    "confidence": 0.87,
+    "status": "under_review",
+    "evidence": [
+      {
+        "id": "ev-038",
+        "kind": "screenshot",
+        "artifactId": "art-app-preferences",
+        "caption": "Communication preferences",
+        "boxes": [
+          {
+            "x": 0.041,
+            "y": 0.237,
+            "width": 0.9179,
+            "height": 0.0711,
+            "label": "Reversed toggle label",
+            "criterionId": "TQ-C-1"
+          },
+          {
+            "x": 0.041,
+            "y": 0.3318,
+            "width": 0.9179,
+            "height": 0.0711,
+            "label": "Double-negative toggle label",
+            "criterionId": "TQ-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-035"],
+    "remediation": {
+      "guidance": "Use positive labels (\"Send me offers by SMS\") and default them to off.",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-12T16:10:00Z"
+  },
+  {
+    "id": "fnd-h1-035",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-035",
+    "patternId": "trick_question",
+    "rulePackId": "dp-11-trick-question",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["TQ-C-2"],
+    "stageId": "stg-consent",
+    "engine": "backend_logic",
+    "title": "Consent stored as marketing_opt_out with inverted meaning",
+    "summary": "The consent table stores marketing_opt_out (default true) while the app label means \"keep sending\". Reports and exports may read the flag the wrong way round.",
+    "rationale": "Consent stored with semantics inverted relative to the UI label (TQ-SIG-BE-1).",
+    "severity": "medium",
+    "confidence": 0.66,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-039",
+        "kind": "config_excerpt",
+        "source": "db/migrations/V42__customer_consent.sql",
+        "format": "sql",
+        "startLine": 1,
+        "endLine": 7,
+        "highlightLines": [4],
+        "content": "CREATE TABLE customer_consent (\n  customer_id       BIGINT PRIMARY KEY,\n  -- UI label: \"Don't stop sending me offers\" (toggle ON = true)\n  marketing_opt_out BOOLEAN NOT NULL DEFAULT TRUE,\n  partner_sharing   BOOLEAN NOT NULL DEFAULT TRUE,\n  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()\n);",
+        "caption": "Consent table definition"
+      }
+    ],
+    "correlatedFindingIds": ["fnd-h1-034"],
+    "remediation": {
+      "guidance": "Rename to marketing_consent with the same meaning as the UI label and migrate existing values.",
+      "effort": "medium",
+      "ownerTeam": "Policy Admin"
+    },
+    "createdAt": "2026-08-04T07:55:00Z",
+    "updatedAt": "2026-08-04T07:55:00Z"
+  },
+  {
+    "id": "fnd-h1-036",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-036",
+    "patternId": "saas_billing",
+    "rulePackId": "dp-12-saas-billing",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["SB-C-1", "SB-C-2"],
+    "stageId": "stg-servicing",
+    "engine": "backend_logic",
+    "title": "Wellness Plus trial converts to ₹99/month without reminders",
+    "summary": "The Wellness Plus add-on requires an e-mandate for its 30-day trial and converts to paid with trial-ending and pre-debit notifications switched off.",
+    "rationale": "Silent trial conversion (SB-C-2) and recurring debit without prior notice (SB-C-1).",
+    "severity": "medium",
+    "confidence": 0.82,
+    "status": "under_review",
+    "evidence": [
+      {
+        "id": "ev-040",
+        "kind": "config_excerpt",
+        "source": "services/billing/config/subscriptions.yaml",
+        "format": "yaml",
+        "startLine": 5,
+        "endLine": 12,
+        "highlightLines": [8, 11, 12],
+        "content": "wellness_plus:\n  trial_days: 30\n  price_monthly: 99\n  convert_on_trial_end: true\n  mandate_required_for_trial: true\n  notifications:\n    trial_ending: false\n    pre_debit: false",
+        "caption": "Wellness Plus subscription configuration"
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Enable trial-ending and pre-debit notifications and ask for explicit confirmation before conversion.",
+      "effort": "low",
+      "ownerTeam": "Customer Service"
+    },
+    "createdAt": "2026-08-04T07:55:00Z",
+    "updatedAt": "2026-08-10T10:40:00Z"
+  },
+  {
+    "id": "fnd-h1-037",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-repo",
+    "reference": "ELI-2026-037",
+    "patternId": "saas_billing",
+    "rulePackId": "dp-12-saas-billing",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["SB-C-1"],
+    "stageId": "stg-renewal",
+    "engine": "backend_logic",
+    "title": "Premium auto-debit flagged as recurring billing",
+    "summary": "The recurring premium debit was flagged by the recurring-billing check. Pre-debit notices are sent 48 hours ahead.",
+    "rationale": "Recurring premiums for a policy the customer knowingly bought, with pre-debit notices, fall under the exclusion.",
+    "severity": "low",
+    "confidence": 0.35,
+    "status": "dismissed",
+    "evidence": [
+      {
+        "id": "ev-041",
+        "kind": "config_excerpt",
+        "source": "services/billing/config/premium-autodebit.yaml",
+        "format": "yaml",
+        "startLine": 1,
+        "endLine": 4,
+        "highlightLines": [3],
+        "content": "premium_autodebit:\n  mandate_type: e_mandate\n  pre_debit_notification_hours: 48\n  channels: [sms, email]",
+        "caption": "Premium auto-debit configuration"
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "No change needed.",
+      "effort": "low"
+    },
+    "createdAt": "2026-08-04T07:55:00Z",
+    "updatedAt": "2026-08-17T11:50:00Z"
+  },
+  {
+    "id": "fnd-h1-038",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-android",
+    "reference": "ELI-2026-038",
+    "patternId": "rogue_malware",
+    "rulePackId": "dp-13-rogue-malware",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["RM-C-1"],
+    "stageId": "stg-servicing",
+    "engine": "software_risk",
+    "title": "Third-party SDK flagged by the risk scan",
+    "summary": "The SDK inventory flagged an unfamiliar SDK. Review found it is an analytics library that does not show ads or install packages.",
+    "rationale": "No scare messaging or install prompts; the SDK is not on the known adware list.",
+    "severity": "low",
+    "confidence": 0.3,
+    "status": "dismissed",
+    "evidence": [
+      {
+        "id": "ev-042",
+        "kind": "config_excerpt",
+        "source": "android/app/build/reports/sdk-inventory.yaml",
+        "format": "yaml",
+        "startLine": 1,
+        "endLine": 6,
+        "highlightLines": [2, 5, 6],
+        "content": "sdks:\n  - name: sample-analytics-sdk\n    version: 3.4.1\n    category: analytics\n    shows_ads: false\n    requests_install_packages: false",
+        "caption": "SDK inventory entry"
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "No change needed. Keep the SDK inventory in the release checklist.",
+      "effort": "low"
+    },
+    "createdAt": "2026-08-04T08:30:00Z",
+    "updatedAt": "2026-08-18T13:00:00Z"
+  },
+  {
+    "id": "fnd-h1-039",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-039",
+    "patternId": "false_urgency",
+    "rulePackId": "dp-01-false-urgency",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["FU-C-1", "FU-C-2"],
+    "stageId": "stg-payment",
+    "journeyStepId": "stp-wb-15",
+    "engine": "screen_capture",
+    "title": "\"Price held for 10:00\" timer on the payment page",
+    "summary": "The payment page showed a 10-minute price hold timer that did not correspond to any server-side hold. Removed in release 2026.09.1.",
+    "rationale": "Unverifiable urgency on the payment step. Retest on 15 September 2026 confirmed the timer is gone.",
+    "severity": "medium",
+    "confidence": 0.8,
+    "status": "closed",
+    "evidence": [
+      {
+        "id": "ev-043",
+        "kind": "screenshot",
+        "artifactId": "art-web-payment",
+        "caption": "Payment page header",
+        "boxes": [
+          {
+            "x": 0.5556,
+            "y": 0.1333,
+            "width": 0.3611,
+            "height": 0.0556,
+            "label": "Price hold timer (since removed)",
+            "criterionId": "FU-C-2"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Removed. Keep a regression check in the payment page tests.",
+      "effort": "low",
+      "ownerTeam": "Digital Sales",
+      "targetDate": "2026-09-10"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-09-16T14:10:00Z"
+  },
+  {
+    "id": "fnd-h1-040",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-040",
+    "patternId": "confirm_shaming",
+    "rulePackId": "dp-03-confirm-shaming",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["CS-C-1", "CS-C-2"],
+    "stageId": "stg-grievance",
+    "journeyStepId": "stp-ws-03",
+    "engine": "screen_capture",
+    "title": "Grievance page link: \"I'd rather complain than read FAQs\"",
+    "summary": "The link to continue to the complaint path mocked customers who skip the FAQs. The copy was replaced with \"Continue to raise a grievance\".",
+    "rationale": "Ridicule attached to the complaint path. Remediated and retested.",
+    "severity": "medium",
+    "confidence": 0.77,
+    "status": "closed",
+    "evidence": [
+      {
+        "id": "ev-044",
+        "kind": "screenshot",
+        "artifactId": "art-web-grievance",
+        "caption": "Grievance page footer link",
+        "boxes": [
+          {
+            "x": 0.375,
+            "y": 0.7778,
+            "width": 0.25,
+            "height": 0.0333,
+            "label": "Mocking link text (since replaced)",
+            "criterionId": "CS-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Replaced with neutral copy.",
+      "effort": "low",
+      "ownerTeam": "Customer Service",
+      "targetDate": "2026-09-05"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-09-13T14:30:00Z"
+  },
+  {
+    "id": "fnd-h1-041",
+    "assessmentId": "asm-digital-h1",
+    "analysisRunId": "run-digital-h1",
+    "targetId": "tgt-web",
+    "reference": "ELI-2026-041",
+    "patternId": "interface_interference",
+    "rulePackId": "dp-06-interface-interference",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["II-C-1"],
+    "stageId": "stg-claims",
+    "journeyStepId": "stp-ws-01",
+    "engine": "screen_capture",
+    "title": "\"Save draft\" is a faint text link next to a large \"Submit claim\"",
+    "summary": "The claim form gives a small grey \"Save draft\" link beside the primary button, so claimants may submit incomplete claims.",
+    "rationale": "Unequal prominence between two relevant choices on the claim form.",
+    "severity": "medium",
+    "confidence": 0.64,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-045",
+        "kind": "screenshot",
+        "artifactId": "art-web-claims",
+        "caption": "Claim form actions",
+        "boxes": [
+          {
+            "x": 0.1042,
+            "y": 0.7778,
+            "width": 0.2083,
+            "height": 0.0667,
+            "label": "Primary submit button",
+            "criterionId": "II-C-1"
+          },
+          {
+            "x": 0.3333,
+            "y": 0.8022,
+            "width": 0.0625,
+            "height": 0.0267,
+            "label": "Faint save draft link",
+            "criterionId": "II-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Show \"Save draft\" as a secondary button.",
+      "effort": "low",
+      "ownerTeam": "Customer Service"
+    },
+    "createdAt": "2026-08-04T05:10:00Z",
+    "updatedAt": "2026-08-04T05:10:00Z"
+  },
+  {
+    "id": "fnd-rn-001",
+    "assessmentId": "asm-renewal-prelaunch",
+    "analysisRunId": "run-renewal-prelaunch",
+    "targetId": "tgt-uat-app",
+    "reference": "ELI-2026-R01",
+    "patternId": "false_urgency",
+    "rulePackId": "dp-01-false-urgency",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["FU-C-1", "FU-C-3"],
+    "stageId": "stg-renewal",
+    "journeyStepId": "stp-ur-01",
+    "engine": "screen_capture",
+    "title": "\"Loyalty price ends in 04:59\" countdown on renewal",
+    "summary": "The redesigned renewal screen opens with a five-minute countdown for a \"loyalty price\".",
+    "rationale": "Countdown on a renewal decision with no deadline in the renewal API.",
+    "severity": "high",
+    "confidence": 0.9,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-046",
+        "kind": "screenshot",
+        "artifactId": "art-uat-renewal",
+        "caption": "Renewal offer screen",
+        "boxes": [
+          {
+            "x": 0.041,
+            "y": 0.1303,
+            "width": 0.9179,
+            "height": 0.0592,
+            "label": "Countdown on renewal price",
+            "criterionId": "FU-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Remove the countdown before release.",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering"
+    },
+    "createdAt": "2026-09-29T04:48:00Z",
+    "updatedAt": "2026-09-29T04:48:00Z"
+  },
+  {
+    "id": "fnd-rn-002",
+    "assessmentId": "asm-renewal-prelaunch",
+    "analysisRunId": "run-renewal-prelaunch",
+    "targetId": "tgt-uat-app",
+    "reference": "ELI-2026-R02",
+    "patternId": "basket_sneaking",
+    "rulePackId": "dp-02-basket-sneaking",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["BS-C-1", "BS-C-3"],
+    "stageId": "stg-renewal",
+    "journeyStepId": "stp-ur-01",
+    "engine": "screen_capture",
+    "title": "Renewal Shield add-on pre-selected",
+    "summary": "\"Renewal Shield ₹349/year\" is ticked by default on the new renewal screen.",
+    "rationale": "Optional paid add-on included by default.",
+    "severity": "high",
+    "confidence": 0.88,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-047",
+        "kind": "screenshot",
+        "artifactId": "art-uat-renewal",
+        "caption": "Renewal add-ons",
+        "boxes": [
+          {
+            "x": 0.041,
+            "y": 0.4265,
+            "width": 0.9179,
+            "height": 0.0711,
+            "label": "Pre-selected add-on",
+            "criterionId": "BS-C-3"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Default the add-on to unselected.",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering"
+    },
+    "createdAt": "2026-09-29T04:48:00Z",
+    "updatedAt": "2026-09-29T04:48:00Z"
+  },
+  {
+    "id": "fnd-rn-003",
+    "assessmentId": "asm-renewal-prelaunch",
+    "analysisRunId": "run-renewal-prelaunch",
+    "targetId": "tgt-uat-app",
+    "reference": "ELI-2026-R03",
+    "patternId": "confirm_shaming",
+    "rulePackId": "dp-03-confirm-shaming",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["CS-C-1"],
+    "stageId": "stg-renewal",
+    "journeyStepId": "stp-ur-01",
+    "engine": "screen_capture",
+    "title": "Decline link \"No, I'll pay more later\"",
+    "summary": "Leaving the renewal offer uses a link that implies the customer is choosing to overpay.",
+    "rationale": "Loaded decline wording on a renewal decision.",
+    "severity": "medium",
+    "confidence": 0.78,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-048",
+        "kind": "screenshot",
+        "artifactId": "art-uat-renewal",
+        "caption": "Renewal footer",
+        "boxes": [
+          {
+            "x": 0.1795,
+            "y": 0.8507,
+            "width": 0.641,
+            "height": 0.0332,
+            "label": "Loaded decline text",
+            "criterionId": "CS-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Use \"Not now\".",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering"
+    },
+    "createdAt": "2026-09-29T04:48:00Z",
+    "updatedAt": "2026-09-29T04:48:00Z"
+  },
+  {
+    "id": "fnd-rn-004",
+    "assessmentId": "asm-renewal-prelaunch",
+    "analysisRunId": "run-renewal-prelaunch",
+    "targetId": "tgt-uat-app",
+    "reference": "ELI-2026-R04",
+    "patternId": "drip_pricing",
+    "rulePackId": "dp-08-drip-pricing",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["DP-C-1"],
+    "stageId": "stg-payment",
+    "journeyStepId": "stp-ur-03",
+    "engine": "screen_capture",
+    "title": "Convenience fee appears on the final payment screen",
+    "summary": "A ₹49 convenience fee is added on the payment screen and was not shown on the renewal offer.",
+    "rationale": "Mandatory fee revealed at the last step.",
+    "severity": "high",
+    "confidence": 0.86,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-049",
+        "kind": "screenshot",
+        "artifactId": "art-uat-payment",
+        "caption": "Payment summary",
+        "boxes": [
+          {
+            "x": 0.041,
+            "y": 0.391,
+            "width": 0.9179,
+            "height": 0.0474,
+            "label": "Fee first shown at payment",
+            "criterionId": "DP-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Show the fee on the renewal offer total.",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering"
+    },
+    "createdAt": "2026-09-29T04:48:00Z",
+    "updatedAt": "2026-09-29T04:48:00Z"
+  },
+  {
+    "id": "fnd-rn-005",
+    "assessmentId": "asm-renewal-prelaunch",
+    "analysisRunId": "run-renewal-prelaunch",
+    "targetId": "tgt-uat-app",
+    "reference": "ELI-2026-R05",
+    "patternId": "interface_interference",
+    "rulePackId": "dp-06-interface-interference",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["II-C-1"],
+    "stageId": "stg-payment",
+    "journeyStepId": "stp-ur-03",
+    "engine": "screen_capture",
+    "title": "\"Pay with AutoPay\" dominates \"Pay once\"",
+    "summary": "AutoPay is a large primary button and one-time payment is a small grey link.",
+    "rationale": "Unequal prominence steering customers into a recurring mandate.",
+    "severity": "medium",
+    "confidence": 0.8,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-050",
+        "kind": "screenshot",
+        "artifactId": "art-uat-payment",
+        "caption": "Payment options",
+        "boxes": [
+          {
+            "x": 0.041,
+            "y": 0.7109,
+            "width": 0.9179,
+            "height": 0.0664,
+            "label": "Dominant AutoPay button",
+            "criterionId": "II-C-1"
+          },
+          {
+            "x": 0.3846,
+            "y": 0.7962,
+            "width": 0.2308,
+            "height": 0.0308,
+            "label": "Faint one-time payment link",
+            "criterionId": "II-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Offer both options as equal buttons.",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering"
+    },
+    "createdAt": "2026-09-29T04:48:00Z",
+    "updatedAt": "2026-09-29T04:48:00Z"
+  },
+  {
+    "id": "fnd-rn-006",
+    "assessmentId": "asm-renewal-prelaunch",
+    "analysisRunId": "run-renewal-prelaunch",
+    "targetId": "tgt-uat-app",
+    "reference": "ELI-2026-R06",
+    "patternId": "trick_question",
+    "rulePackId": "dp-11-trick-question",
+    "rulePackVersion": "0.1.0",
+    "violationCriterionIds": ["TQ-C-1"],
+    "stageId": "stg-payment",
+    "journeyStepId": "stp-ur-03",
+    "engine": "screen_capture",
+    "title": "\"Uncheck to not opt out of AutoPay reminders\"",
+    "summary": "A pre-ticked checkbox on the payment screen uses a double negative.",
+    "rationale": "Confusing consent wording.",
+    "severity": "medium",
+    "confidence": 0.74,
+    "status": "detected",
+    "evidence": [
+      {
+        "id": "ev-051",
+        "kind": "screenshot",
+        "artifactId": "art-uat-payment",
+        "caption": "Reminder consent",
+        "boxes": [
+          {
+            "x": 0.041,
+            "y": 0.545,
+            "width": 0.9179,
+            "height": 0.0592,
+            "label": "Double-negative checkbox",
+            "criterionId": "TQ-C-1"
+          }
+        ]
+      }
+    ],
+    "correlatedFindingIds": [],
+    "remediation": {
+      "guidance": "Rephrase positively and leave unticked.",
+      "effort": "low",
+      "ownerTeam": "Mobile Engineering"
+    },
+    "createdAt": "2026-09-29T04:48:00Z",
+    "updatedAt": "2026-09-29T04:48:00Z"
+  }
+]
