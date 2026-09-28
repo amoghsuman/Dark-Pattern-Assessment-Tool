@@ -15,7 +15,8 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 ## Current status
 
 - M0 Foundation: done (monorepo, tooling, CI, Next.js shell, theme, brand config).
-- Next: M1 Access gate.
+- M1 Access gate: done (proxy, signed cookie, access page, sign out).
+- Next: M2 Domain, schemas, rules.
 
 ## Commands (run from the repo root, PowerShell or any shell)
 
@@ -32,6 +33,8 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 
 Milestone gate: `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm e2e`, then commit.
 
+CI caches Playwright browsers (`~/.cache/ms-playwright`, keyed on the Playwright version) and uses the Node 24 majors of all actions.
+
 First-time Playwright setup: `pnpm --filter @dpat/web exec playwright install chromium`.
 
 ## Architecture
@@ -47,6 +50,7 @@ supabase          reserved (Stage B)
 - Workspace packages are consumed as TypeScript source (`exports` points at `src/index.ts`); `apps/web` lists them in `transpilePackages`. No package build step.
 - **Data seam:** screens use hooks in `apps/web/lib/data` only. Hooks call the `Repositories` interface from `@dpat/shared`. `DATA_SOURCE` (parsed by `parseDataSource`) selects the implementation; Stage A supports `sample`. Never import fixtures or a concrete repository from a screen.
 - Sample mode writes go to a browser localStorage overlay (resettable from the Sample data badge).
+- **Access gate:** `apps/web/proxy.ts` (Next 16 middleware) requires a valid `dpat_access` cookie on every route except Next internals and `/brand/*`; otherwise it redirects to `/access?next=<path>`. The cookie is `v1.<expiry>.<HMAC-SHA256(expiry, SITE_PASSCODE)>` (7-day TTL, `lib/access/token.ts`, Web Crypto), so rotating the passcode signs everyone out. Unlock and sign out are Server Actions in `app/access/actions.ts`. `next` is sanitised by `lib/access/redirect.ts`. Blank `SITE_PASSCODE` fails closed. It is a light gate, not user authentication.
 - Server-only env access goes through `apps/web/lib/env.ts` (guarded by `server-only`).
 - Branding (product name, logo, accent hue) lives only in `apps/web/config/brand.ts`.
 - Design tokens (base palette, severity, compliance-matrix colours) live only in `apps/web/app/globals.css`, exposed as Tailwind colours such as `bg-matrix-non-compliant`, `text-severity-high`.
@@ -57,7 +61,7 @@ supabase          reserved (Stage B)
 - TypeScript strict with `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`. No `any`. Use `import type` for types.
 - Domain types come from `@dpat/shared` only (inferred from zod schemas).
 - Pure derivation logic (matrix cells, KPIs, risk register) lives in `packages/shared` and is unit tested.
-- Unit tests sit next to the code as `*.test.ts(x)`; Playwright specs in `apps/web/e2e`.
+- Unit tests sit next to the code as `*.test.ts(x)`; Playwright specs in `apps/web/e2e`. The `setup` project (`e2e/auth.setup.ts`) unlocks the gate once and saves the session to `e2e/.auth/state.json` (git-ignored); `desktop` and `tablet` reuse it. Specs that must start signed out call `test.use({ storageState: { cookies: [], origins: [] } })`.
 - `apps/web/components/ui` holds generated shadcn/ui primitives; they are excluded from ESLint and Prettier. Add new ones with `pnpm dlx shadcn@latest add <name>` from `apps/web`.
 - Commits: conventional style, e.g. `feat(web): ...`, `chore: ...`, `test(shared): ...`.
 - Line endings: LF everywhere, enforced by `.gitattributes` and `.editorconfig`. Keep `package.json` scripts cross-platform (no bash-only syntax).

@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+import { AUTH_STATE_PATH } from './e2e/support/env';
+
 const PORT = Number(process.env.PORT ?? 3100);
 const baseURL = `http://localhost:${PORT}`;
 const isCI = Boolean(process.env.CI);
@@ -24,10 +26,20 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+    {
+      name: 'desktop',
+      use: { ...devices['Desktop Chrome'], storageState: AUTH_STATE_PATH },
+      dependencies: ['setup'],
+    },
     {
       name: 'tablet',
-      use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 } },
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 768, height: 1024 },
+        storageState: AUTH_STATE_PATH,
+      },
+      dependencies: ['setup'],
     },
   ],
   webServer: {
