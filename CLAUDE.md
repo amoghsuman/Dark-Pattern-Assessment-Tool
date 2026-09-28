@@ -75,6 +75,7 @@ supabase          reserved (Stage B)
 - `eslint.config.mjs` drops Next's `next/typescript` preset entry and restores the typescript-eslint parser for `apps/web`, because Next's preset otherwise clashes with the type-aware config.
 - pnpm 12 blocks unapproved dependency build scripts; approvals live under `allowBuilds` in `pnpm-workspace.yaml`.
 - Next.js 16 names middleware `proxy.ts`.
+- Playwright starts the server with the `next` binary directly, not `pnpm start`: on Linux a server started through the pnpm 12 wrapper can outlive Playwright's shutdown and hang CI. CI runs `pnpm build` as its own step; locally the web server command builds first.
 
 ## Environment variables
 
