@@ -1,21 +1,9 @@
-import { brand } from '@/config/brand';
-import { getServerEnv } from '@/lib/env';
+import type { Metadata } from 'next';
 
-import { AssessmentPreviewList } from './assessment-preview-list';
+import { AssessmentsHome } from '@/components/assessments/assessments-home';
+
+export const metadata: Metadata = { title: 'Assessments' };
 
 export default function HomePage() {
-  const { dataSource } = getServerEnv();
-
-  return (
-    <section className="mx-auto max-w-5xl space-y-4">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Assessments</h1>
-        <p className="text-muted-foreground">{brand.tagline}.</p>
-        <p className="text-sm text-muted-foreground" data-testid="data-source">
-          Data source: {dataSource}
-        </p>
-      </div>
-      <AssessmentPreviewList />
-    </section>
-  );
+  return <AssessmentsHome />;
 }

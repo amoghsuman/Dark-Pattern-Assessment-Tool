@@ -20,6 +20,8 @@ export default defineConfig({
   retries: isCI ? 2 : 0,
   // Hard ceiling so a stuck run fails fast instead of hanging the CI job.
   globalTimeout: isCI ? 10 * 60_000 : 0,
+  // Production server actions can take a few seconds under parallel load.
+  expect: { timeout: 10_000 },
   reporter: isCI ? [['list'], ['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL,

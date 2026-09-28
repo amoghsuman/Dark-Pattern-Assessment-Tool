@@ -51,7 +51,8 @@ test('sign out returns to the access page', async ({ page }) => {
   await page.getByLabel('Passcode').fill(TEST_PASSCODE);
   await page.getByRole('button', { name: 'Continue' }).click();
   await expect(page).toHaveURL('/');
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await page.getByRole('button', { name: /Account:/ }).click();
+  await page.getByRole('menuitem', { name: 'Sign out' }).click();
   await expect(page).toHaveURL('/access');
   await page.goto('/');
   await expect(page).toHaveURL('/access');

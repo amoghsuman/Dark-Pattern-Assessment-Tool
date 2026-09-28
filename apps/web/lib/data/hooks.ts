@@ -224,18 +224,18 @@ export function useRulePack(patternId: PatternId) {
 
 // ------------------------------------------------------------------ sample mode
 
-/** Sample-mode role switcher and reset. Clears the query cache so every screen refetches. */
+/**
+ * Sample-mode role switcher and reset. The current role is read from `useCurrentUser()`, which
+ * refetches after a switch; clearing the query cache makes every screen reflect the change.
+ */
 export function useSampleMode() {
   const controls = useSampleControls();
   const qc = useQueryClient();
-  const [role, setRoleState] = useState<Role | null>(() => controls?.getRole() ?? null);
 
   return {
     enabled: controls !== null,
-    role,
     setRole(next: Role) {
       controls?.setRole(next);
-      setRoleState(next);
       void qc.invalidateQueries();
     },
     reset() {

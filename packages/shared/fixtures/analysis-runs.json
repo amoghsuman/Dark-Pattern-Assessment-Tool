@@ -179,26 +179,26 @@
     "assessmentId": "asm-renewal-prelaunch",
     "status": "running",
     "rulePackSetVersion": "ccpa-2023@0.1.0-draft",
-    "startedAt": "2026-09-29T04:30:00Z",
+    "startedAt": "2026-09-28T04:30:00Z",
     "engines": [
       {
         "engine": "screen_capture",
         "status": "succeeded",
-        "startedAt": "2026-09-29T04:30:00Z",
-        "completedAt": "2026-09-29T04:48:00Z",
+        "startedAt": "2026-09-28T04:30:00Z",
+        "completedAt": "2026-09-28T04:48:00Z",
         "events": [
           {
-            "at": "2026-09-29T04:30:00Z",
+            "at": "2026-09-28T04:30:00Z",
             "level": "info",
             "message": "Starting 1 journey on the UAT build"
           },
           {
-            "at": "2026-09-29T04:41:02Z",
+            "at": "2026-09-28T04:41:02Z",
             "level": "warn",
             "message": "Captured 2 of 4 screens; 2 steps blocked by UAT login timeout"
           },
           {
-            "at": "2026-09-29T04:48:00Z",
+            "at": "2026-09-28T04:48:00Z",
             "level": "info",
             "message": "Screen analysis complete: 6 findings raised"
           }
@@ -212,15 +212,15 @@
       {
         "engine": "code_analysis",
         "status": "running",
-        "startedAt": "2026-09-29T04:49:00Z",
+        "startedAt": "2026-09-28T04:49:00Z",
         "events": [
           {
-            "at": "2026-09-29T04:49:00Z",
+            "at": "2026-09-28T04:49:00Z",
             "level": "info",
             "message": "Decompiling ExampleLife-5.0.0-rc2.apk"
           },
           {
-            "at": "2026-09-29T04:52:30Z",
+            "at": "2026-09-28T04:52:30Z",
             "level": "info",
             "message": "Indexed 212 of 540 classes"
           }

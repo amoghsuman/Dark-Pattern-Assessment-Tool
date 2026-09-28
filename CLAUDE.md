@@ -18,7 +18,8 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 - M1 Access gate: done (proxy, signed cookie, access page, sign out).
 - M2 Domain, schemas, rules: done (zod domain schemas, finding workflow, repository interfaces, 13 draft rule packs).
 - M3 Sample data layer: done (fixtures, 14 SVG evidence screens, SampleDataRepository with localStorage overlay, derive functions, RepositoryProvider and hooks).
-- Next: M4 App shell, Home, Settings.
+- M4 App shell, Home, Settings: done (sidebar, header with Sample data badge, role switcher and reset, Home list, Settings tabs).
+- Next: M5 Wizard and run view.
 
 ## Commands (run from the repo root, PowerShell or any shell)
 
@@ -34,6 +35,8 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 | `pnpm format` / `pnpm format:check` | Prettier                                                                     |
 
 Milestone gate: `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm e2e`, then commit.
+
+Vercel builds every push (`main` → Production). Check both CI and the Vercel commit status after pushing: `gh run list --commit <sha>` and `gh api repos/amoghsuman/Dark-Pattern-Assessment-Tool/commits/<sha>/status`. If `gh` is not on the shell PATH, call `"/c/Program Files/GitHub CLI/gh.exe"`.
 
 CI caches Playwright browsers (`~/.cache/ms-playwright`, keyed on the Playwright version) and uses the Node 24 majors of all actions.
 
@@ -60,7 +63,10 @@ supabase          reserved (Stage B)
 - **Web data access:** `apps/web/lib/data/repository-provider.tsx` (client) creates repositories from `DATA_SOURCE` (passed from the `(app)` layout, which calls `connection()` so env is read per request) and a TanStack Query client; `lib/data/hooks.ts` holds every query/mutation hook and the query keys.
 - **Access gate:** `apps/web/proxy.ts` (Next 16 middleware) requires a valid `dpat_access` cookie on every route except Next internals and `/brand/*`; otherwise it redirects to `/access?next=<path>`. The cookie is `v1.<expiry>.<HMAC-SHA256(expiry, SITE_PASSCODE)>` (7-day TTL, `lib/access/token.ts`, Web Crypto), so rotating the passcode signs everyone out. Unlock and sign out are Server Actions in `app/access/actions.ts`. `next` is sanitised by `lib/access/redirect.ts`. Blank `SITE_PASSCODE` fails closed. It is a light gate, not user authentication.
 - Server-only env access goes through `apps/web/lib/env.ts` (guarded by `server-only`).
-- Branding (product name, logo, accent hue) lives only in `apps/web/config/brand.ts`.
+- Branding (product name, logo, accent hue) lives only in `apps/web/config/brand.ts`. The hue is applied as `--brand-hue` on `<html>` and drives the `brand` colour (active nav, running status, links) and focus ring.
+- **App shell** (`components/layout`): `AppSidebar` (full from `lg`, icon rail from `md`), `MobileNav` sheet below `md`, `AppHeader` (organisation, `SampleDataBadge`, theme toggle, `UserMenu` with sign out). Shared UI: `components/common` (severity/status badges, risk chips, target icons, `PageHeader`, `EmptyState`, `ErrorState`). Formatting helpers in `lib/format.ts` (dates always in IST). UI permission helpers in `lib/permissions.ts` mirror the repository rules.
+- shadcn/ui components are added with the CLI from `apps/web`. The CLI currently mis-resolves the utils alias and adds a stray `cn` npm package: after adding, replace `from "cn"` with `from "@/lib/utils"` and remove the `cn` dependency. Two generated components needed small fixes for `exactOptionalPropertyTypes` (dropdown-menu checkbox item, sonner theme).
+- Typed routes are on: links to pages that do not exist yet need `as Route` (remove the cast when the page lands; currently `/rules`, `/assessments/new`).
 - Design tokens (base palette, severity, compliance-matrix colours) live only in `apps/web/app/globals.css`, exposed as Tailwind colours such as `bg-matrix-non-compliant`, `text-severity-high`.
 - PDF export uses the print stylesheet `apps/web/styles/print.css` (`.print-hidden`, `.print-break-before`, `.print-avoid-break`).
 
