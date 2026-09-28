@@ -11,7 +11,7 @@
     "dev": "pnpm --filter @dpat/web dev",
     "build": "pnpm --filter @dpat/web build",
     "start": "pnpm --filter @dpat/web start",
-    "lint": "eslint . && pnpm lint:words",
+    "lint": "pnpm --filter @dpat/web typegen && eslint . && pnpm lint:words",
     "lint:words": "node scripts/check-avoided-words.mjs",
     "typecheck": "pnpm -r --parallel typecheck",
     "test": "vitest run",

@@ -25,7 +25,7 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 | `pnpm install`                      | Install all workspace dependencies                                           |
 | `pnpm dev`                          | Next.js dev server for `apps/web` on http://localhost:3000                   |
 | `pnpm build` / `pnpm start`         | Production build / serve                                                     |
-| `pnpm lint`                         | ESLint (type-aware) across the repo + avoided-word check                     |
+| `pnpm lint`                         | Next route typegen, then ESLint (type-aware) + avoided-word check            |
 | `pnpm typecheck`                    | `tsc --noEmit` in every package (web runs `next typegen` first)              |
 | `pnpm test`                         | Vitest across all projects (`packages/*`, `apps/web`)                        |
 | `pnpm e2e`                          | Playwright (builds and serves the app on port 3100; desktop + 768 px tablet) |
