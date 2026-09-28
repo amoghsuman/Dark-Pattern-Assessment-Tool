@@ -16,7 +16,8 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 
 - M0 Foundation: done (monorepo, tooling, CI, Next.js shell, theme, brand config).
 - M1 Access gate: done (proxy, signed cookie, access page, sign out).
-- Next: M2 Domain, schemas, rules.
+- M2 Domain, schemas, rules: done (zod domain schemas, finding workflow, repository interfaces, 13 draft rule packs).
+- Next: M3 Sample data layer.
 
 ## Commands (run from the repo root, PowerShell or any shell)
 
@@ -42,11 +43,14 @@ First-time Playwright setup: `pnpm --filter @dpat/web exec playwright install ch
 ```
 apps/web          Next.js 16 App Router, Tailwind v4, shadcn/ui (new-york, slate)
 packages/shared   Domain types, zod schemas, repository interfaces, sample data layer
-packages/rules    13 rule packs (YAML) + zod schema (arrives in M2)
+packages/rules    Pattern catalogue (PatternId), rule pack zod schema, 13 YAML packs + generated JSON bundle
 apps/worker       reserved (Stage B)
 supabase          reserved (Stage B)
 ```
 
+- Dependency direction: `@dpat/web` → `@dpat/shared` → `@dpat/rules`. `PatternId` and the rule pack schema live in `@dpat/rules` (the regulatory catalogue); `@dpat/shared` re-exports `PatternId`/`Severity` and holds the app domain.
+- **Rule packs:** edit `packages/rules/patterns/NN-name.yaml`, then run `pnpm --filter @dpat/rules bundle` to regenerate `src/generated/rule-packs.json` (committed; a unit test fails if it is stale). The browser imports only the JSON via `@dpat/rules`; `@dpat/rules/load` (YAML loader) is Node-only. IDs follow `<CODE>-C-n` (criteria), `<CODE>-SIG-CODE|BE|SCR-n` (signals), `<CODE>-DC-n` (checks), where CODE is the two-letter pattern code in `src/patterns.ts`. Every pack keeps `status: 'draft, pending compliance review'` until compliance sign-off (the schema enforces it).
+- **Domain:** zod schemas in `packages/shared/src/schemas` (types via `z.infer`); finding status workflow and role permissions in `src/domain/finding-workflow.ts`; display labels in `src/domain/labels.ts`; repository interfaces in `src/data/repositories.ts`. Findings store `rulePackId` + `rulePackVersion`; assessments store `rulePackSetVersion`.
 - Workspace packages are consumed as TypeScript source (`exports` points at `src/index.ts`); `apps/web` lists them in `transpilePackages`. No package build step.
 - **Data seam:** screens use hooks in `apps/web/lib/data` only. Hooks call the `Repositories` interface from `@dpat/shared`. `DATA_SOURCE` (parsed by `parseDataSource`) selects the implementation; Stage A supports `sample`. Never import fixtures or a concrete repository from a screen.
 - Sample mode writes go to a browser localStorage overlay (resettable from the Sample data badge).

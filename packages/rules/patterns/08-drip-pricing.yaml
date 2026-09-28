@@ -1,0 +1,120 @@
+id: dp-08-drip-pricing
+pattern_id: drip_pricing
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: Drip Pricing
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 8
+
+definition: >-
+  Not showing all elements of the price upfront, revealing them gradually or discreetly during
+  the journey, charging more than the amount shown at checkout, advertising something as free
+  without disclosing that continued use needs payment, or blocking use of something already
+  paid for unless the user pays more.
+
+illustrations:
+  - A "policy administration fee" that first appears on the payment page.
+  - A convenience fee added after the user confirms the premium.
+  - An app advertised as a free policy tracker that locks core features behind a paid plan after purchase.
+
+violation_criteria:
+  - id: DP-C-1
+    description: A mandatory charge, fee or price component is not shown when the price is first presented.
+  - id: DP-C-2
+    description: The amount charged or payable at the end is higher than the amount shown earlier, without clear prior disclosure.
+  - id: DP-C-3
+    description: A product is presented as free while continued or full use requires payment, and this is not disclosed upfront.
+
+exclusions:
+  - Taxes and statutory charges shown clearly as "plus GST" from the first price display.
+
+detection_signals:
+  code:
+    - id: DP-SIG-CODE-1
+      description: Fee calculation invoked only in the final checkout or payment step.
+      examples:
+        - 'if (step === "payment") total += adminFee'
+    - id: DP-SIG-CODE-2
+      description: Displayed price components that differ from the components sent to the payment gateway.
+  backend:
+    - id: DP-SIG-BE-1
+      description: Pricing rules that apply a fee conditioned on the journey step or channel.
+    - id: DP-SIG-BE-2
+      description: Payment order amount greater than the last quote amount returned to the client.
+  screen:
+    - id: DP-SIG-SCR-1
+      description: New line items or a higher total appearing on later screens.
+
+deterministic_checks:
+  - id: DP-DC-1
+    description: Compare the total shown on the quote step with the total on the payment step.
+    engine: screen_capture
+    method: visual_heuristic
+    on_match: raise_finding
+  - id: DP-DC-2
+    description: Find pricing rules conditioned on the journey step.
+    engine: backend_logic
+    method: config_assertion
+    expression: 'rule.condition references step|stage == payment|checkout'
+    on_match: raise_finding
+  - id: DP-DC-3
+    description: Compare the quote API total with the payment order amount in a network trace.
+    engine: backend_logic
+    method: network_trace
+    on_match: raise_finding
+
+llm_rubric:
+  instructions: >-
+    Trace the price through the journey and decide whether any mandatory component appears late
+    or whether the final amount exceeds what was first shown.
+  questions:
+    - What price was first shown, and what did it include?
+    - Which components appear later, and are they mandatory?
+    - Was the user told about them before investing effort in the journey?
+    - Is anything described as free that later requires payment?
+  decision_rule: >-
+    Raise a finding when any of DP-C-1, DP-C-2 or DP-C-3 is met and no exclusion applies.
+  confidence_guidance: >-
+    High when backend rules or traces show a step-conditioned fee. Medium when only screens
+    differ.
+
+severity_logic:
+  - severity: critical
+    when: The amount charged exceeds the amount confirmed by the user.
+  - severity: high
+    when: A mandatory fee first appears on the payment step.
+  - severity: medium
+    when: A fee is disclosed before payment but after the main price display.
+  - severity: low
+    when: A fee is disclosed upfront but in low-prominence text.
+
+evidence_required:
+  - screenshot
+  - config_excerpt
+
+remediation_template:
+  summary: Show the full price, including every mandatory fee, from the first price display.
+  steps:
+    - Include all mandatory fees in the first quoted total, itemised.
+    - Remove step- or channel-conditioned fee rules, or disclose them upfront.
+    - Assert in tests that the payment order amount equals the confirmed total.
+    - Disclose any paid features before download or purchase.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 8
+
+sector_variants:
+  insurance:
+    applicability: high
+    notes: Administration, convenience or payment-mode fees added at the payment step; instalment loading shown late.
+    additional_criteria:
+      - Loading for monthly or quarterly premium modes must be visible when the mode is selected.
+  banking:
+    applicability: medium
+    notes: Processing fees and card annual fees revealed after application.
+  lending:
+    applicability: high
+    notes: Processing fees, insurance and other charges must match the key fact statement shown before sanction.
+    regulatory_cross_references:
+      - RBI directions on key fact statements for loans (to be confirmed by compliance)

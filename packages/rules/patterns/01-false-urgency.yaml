@@ -1,0 +1,129 @@
+id: dp-01-false-urgency
+pattern_id: false_urgency
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: False Urgency
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 1
+
+definition: >-
+  Stating or implying, falsely, that a product, price or offer is scarce, popular or about to
+  expire, so that the user decides or acts immediately instead of making an informed choice.
+
+illustrations:
+  - A countdown that claims an offer ends soon but restarts whenever the page is reloaded.
+  - A banner saying "Only 3 policies left at this price" when no such limit exists.
+  - Showing inflated counts of people viewing or buying a product to create pressure.
+
+violation_criteria:
+  - id: FU-C-1
+    description: An urgency or scarcity claim is shown to the user during a purchase or decision flow.
+  - id: FU-C-2
+    description: The claim is not backed by a real, verifiable deadline, stock limit or demand figure.
+  - id: FU-C-3
+    description: The claim is likely to push the user to act immediately (buy, pay, renew, accept).
+
+exclusions:
+  - Genuine statutory or contractual deadlines, such as a grace period end date or a free-look period expiry, stated accurately.
+  - Time-limited offers whose end date is fixed server-side, the same for all users and honoured.
+
+detection_signals:
+  code:
+    - id: FU-SIG-CODE-1
+      description: Countdown timers initialised from the client clock or a hard-coded duration rather than a server-provided deadline.
+      examples:
+        - 'useState(600) feeding a countdown component'
+        - 'Date.now() + 10 * 60 * 1000 used as offer expiry'
+    - id: FU-SIG-CODE-2
+      description: Scarcity or popularity numbers generated randomly or from constants.
+      examples:
+        - 'Math.random() used to compute "people viewing now"'
+  backend:
+    - id: FU-SIG-BE-1
+      description: Offer expiry values that are recalculated per session or per request instead of stored once.
+    - id: FU-SIG-BE-2
+      description: Inventory or quota endpoints that return fixed low values irrespective of real capacity.
+  screen:
+    - id: FU-SIG-SCR-1
+      description: Visible countdowns, "ends tonight", "last chance" or "only N left" copy near a call to action.
+    - id: FU-SIG-SCR-2
+      description: The same urgency message reappears with a reset value after reload or a new session.
+
+deterministic_checks:
+  - id: FU-DC-1
+    description: Reload the page twice and compare countdown values; a reset indicates a fake timer.
+    engine: screen_capture
+    method: visual_heuristic
+    on_match: raise_finding
+  - id: FU-DC-2
+    description: Search client code for countdowns seeded from constants or the client clock.
+    engine: code_analysis
+    method: regex
+    expression: '(useState|setInterval)\([^)]*(\d{3,}|Date\.now\(\))'
+    on_match: raise_signal
+  - id: FU-DC-3
+    description: Search for random numbers feeding scarcity or popularity labels.
+    engine: code_analysis
+    method: regex
+    expression: 'Math\.random\(\).*(viewing|left|remaining|bought)'
+    on_match: raise_finding
+
+llm_rubric:
+  instructions: >-
+    Decide whether the screen or code presents an urgency or scarcity claim that is false or
+    unverifiable, and whether it pressures the user to act at once. Consider the user's
+    position: a retail customer buying insurance or a financial product.
+  questions:
+    - Is there a claim that time, stock, price or availability is limited?
+    - Is there evidence the claim is real (server deadline, fixed end date, actual quota)?
+    - Does the claim sit next to a purchase, payment or consent action?
+    - Would an average user feel pressured to decide without comparing or reading terms?
+  decision_rule: >-
+    Raise a finding when FU-C-1 and FU-C-3 are met and there is no evidence the claim is true
+    (FU-C-2). Code evidence of a client-side or randomised value is sufficient for FU-C-2.
+  confidence_guidance: >-
+    High (0.8+) when a reset timer or random number is shown in code or on reload. Medium when
+    only copy is visible and no backing data can be found. Low when the claim may be genuine.
+
+severity_logic:
+  - severity: critical
+    when: The false urgency sits on a payment, premium or loan acceptance step and code proves it is fabricated.
+  - severity: high
+    when: The false urgency is on a purchase or proposal step and is proven fabricated.
+  - severity: medium
+    when: The urgency claim is unverifiable but not proven false, or is on a discovery page.
+  - severity: low
+    when: Mild urgency copy with no timer or number, away from any decision point.
+
+evidence_required:
+  - screenshot
+  - code_snippet
+
+remediation_template:
+  summary: Remove fabricated urgency and show only deadlines or limits that are real and verifiable.
+  steps:
+    - Drive every countdown from a server-stored end time that is the same for all users.
+    - Remove randomised or constant viewer, stock and popularity counts.
+    - Where an offer is genuinely time-bound, state the exact end date and time in IST.
+    - Add a regression test that reloading does not reset the timer.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 1
+
+sector_variants:
+  insurance:
+    applicability: high
+    notes: Common on quote pages ("premium rises tomorrow") and renewal reminders. Premium changes tied to age or birthday are genuine only if the date is accurate.
+    additional_criteria:
+      - Claims that a premium will increase must match the product's actual rating rules.
+    regulatory_cross_references:
+      - IRDAI regulations on protection of policyholders' interests (to be confirmed by compliance)
+  banking:
+    applicability: medium
+    notes: Seen in limited-period fixed deposit rates and card offers. Rate validity must match the published rate card.
+  lending:
+    applicability: high
+    notes: Pre-approved loan offers that "expire today" put pressure on borrowers; offers must reflect the lender's actual validity period.
+    regulatory_cross_references:
+      - RBI directions on digital lending (to be confirmed by compliance)

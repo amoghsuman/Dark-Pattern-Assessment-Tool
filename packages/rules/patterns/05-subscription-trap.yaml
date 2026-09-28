@@ -1,0 +1,116 @@
+id: dp-05-subscription-trap
+pattern_id: subscription_trap
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: Subscription Trap
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 5
+
+definition: >-
+  Making it impossible, or much harder than signing up, to cancel a paid subscription or
+  recurring payment; hiding the cancellation option; requiring payment details or auto-debit
+  authorisation to get a free trial; or giving unclear or confusing cancellation instructions.
+
+illustrations:
+  - An auto-debit mandate that can be set up in two taps but cancelled only after five screens and a call.
+  - A cancellation option hidden under "Help > More > Account > Manage".
+  - A free trial that requires an e-mandate and converts to paid without a clear reminder.
+
+violation_criteria:
+  - id: ST-C-1
+    description: Cancelling a subscription, auto-renewal or recurring mandate takes materially more steps or effort than setting it up.
+  - id: ST-C-2
+    description: The cancellation option is hidden, unlabelled or not reachable from obvious places.
+  - id: ST-C-3
+    description: A free trial or free benefit requires payment details or auto-debit authorisation without clear justification.
+  - id: ST-C-4
+    description: Cancellation instructions are ambiguous, hidden or confusing, or cancellation needs an offline channel when sign-up was online.
+
+exclusions:
+  - A single confirmation step or a brief retention offer that can be dismissed in one action.
+
+detection_signals:
+  code:
+    - id: ST-SIG-CODE-1
+      description: Cancellation routes behind feature flags, deep navigation or support-only paths.
+    - id: ST-SIG-CODE-2
+      description: Cancel flows with multiple mandatory retention screens.
+  backend:
+    - id: ST-SIG-BE-1
+      description: No self-service API for mandate or auto-renewal cancellation, while creation is self-service.
+    - id: ST-SIG-BE-2
+      description: Cancellation requests queued for manual handling with long service levels.
+  screen:
+    - id: ST-SIG-SCR-1
+      description: Count of screens and taps to cancel versus to subscribe.
+    - id: ST-SIG-SCR-2
+      description: Cancellation link styled as low-contrast text or placed only in legal pages.
+
+deterministic_checks:
+  - id: ST-DC-1
+    description: Script both the sign-up and the cancellation journeys and compare step counts; flag a ratio above 2.
+    engine: screen_capture
+    method: visual_heuristic
+    on_match: raise_finding
+  - id: ST-DC-2
+    description: Check that an API endpoint exists for cancelling mandates and auto-renewal.
+    engine: backend_logic
+    method: config_assertion
+    expression: 'routes contain DELETE|POST .*/(mandate|autorenew|subscription)/.*cancel'
+    on_match: raise_signal
+
+llm_rubric:
+  instructions: >-
+    Compare how easy it is to start and to stop a recurring payment, subscription or
+    auto-renewal, and whether the way out is clearly shown.
+  questions:
+    - How many steps does it take to set up the subscription or mandate?
+    - How many steps, and which channels, does it take to cancel?
+    - Is the cancellation option easy to find and clearly labelled?
+    - Was payment authorisation required for something presented as free?
+  decision_rule: >-
+    Raise a finding when any of ST-C-1 to ST-C-4 is clearly met.
+  confidence_guidance: >-
+    High when the journey step counts are measured. Medium when based on code routes alone.
+
+severity_logic:
+  - severity: critical
+    when: Cancellation is impossible through self-service, or needs an offline channel while sign-up was online.
+  - severity: high
+    when: Cancellation takes more than twice the steps of sign-up or is hidden.
+  - severity: medium
+    when: Cancellation is available but instructions are confusing.
+  - severity: low
+    when: Minor friction such as a dismissible retention offer that is hard to skip.
+
+evidence_required:
+  - screenshot
+  - journey_recording
+
+remediation_template:
+  summary: Make cancelling as easy as subscribing, through the same channel.
+  steps:
+    - Provide a clearly labelled "Cancel auto-debit" or "Turn off auto-renewal" option in account settings.
+    - Keep the cancellation journey no longer than the sign-up journey.
+    - Confirm cancellation on screen and by message, with the effective date.
+    - Do not require an e-mandate for free trials unless the conversion terms are shown upfront.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 5
+    - RBI framework for e-mandates on recurring transactions (to be confirmed by compliance)
+
+sector_variants:
+  insurance:
+    applicability: high
+    notes: Auto-debit mandates for premium payment and auto-renewal of health or motor policies.
+    additional_criteria:
+      - Withdrawal of the premium auto-debit mandate must be available through the channel where it was set up.
+  banking:
+    applicability: high
+    notes: Standing instructions, recurring deposits and card-on-file subscriptions.
+    regulatory_cross_references:
+      - RBI framework for e-mandates on recurring transactions (to be confirmed by compliance)
+  lending:
+    applicability: medium
+    notes: EMI mandates must continue per loan terms, but add-on subscriptions bundled with loans must be cancellable.

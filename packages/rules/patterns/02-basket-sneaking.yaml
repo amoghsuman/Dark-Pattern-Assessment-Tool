@@ -1,0 +1,126 @@
+id: dp-02-basket-sneaking
+pattern_id: basket_sneaking
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: Basket Sneaking
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 2
+
+definition: >-
+  Adding extra products, services, add-ons or contributions (such as donations) to the user's
+  purchase without the user's clear consent, so that the total payable is more than the price
+  of what the user actually chose.
+
+illustrations:
+  - A rider or add-on cover pre-selected in a proposal form so it is bought unless the user removes it.
+  - A paid membership or extended warranty added automatically at checkout.
+  - A charity contribution included in the total by default.
+
+violation_criteria:
+  - id: BS-C-1
+    description: An item, service or charge the user did not choose is included in the order or proposal by default.
+  - id: BS-C-2
+    description: The inclusion increases the total amount payable.
+  - id: BS-C-3
+    description: The user has not given an explicit, affirmative choice (for example, the option is pre-ticked or added silently).
+
+exclusions:
+  - Free samples or complimentary services that do not change the amount payable.
+  - Mandatory charges disclosed at the time of purchase, such as taxes, stamp duty or statutory fees.
+
+detection_signals:
+  code:
+    - id: BS-SIG-CODE-1
+      description: Form state or component props that default an add-on, rider or donation to selected.
+      examples:
+        - 'criticalIllnessRider: true in initial proposal state'
+        - 'defaultChecked on an add-on checkbox'
+    - id: BS-SIG-CODE-2
+      description: Cart or premium calculation that includes optional items unless explicitly removed.
+  backend:
+    - id: BS-SIG-BE-1
+      description: Order or proposal APIs that attach optional products when the client omits a field.
+    - id: BS-SIG-BE-2
+      description: Pricing configuration that bundles an optional cover into the base plan.
+  screen:
+    - id: BS-SIG-SCR-1
+      description: Pre-ticked checkboxes or pre-enabled toggles for paid extras.
+    - id: BS-SIG-SCR-2
+      description: Line items in the summary that the user never selected.
+
+deterministic_checks:
+  - id: BS-DC-1
+    description: Find checked inputs for paid extras on first render of proposal and checkout screens.
+    engine: screen_capture
+    method: dom_query
+    expression: 'input[type=checkbox]:checked, [role=switch][aria-checked=true]'
+    on_match: raise_signal
+  - id: BS-DC-2
+    description: Find optional items whose initial state is true in client state.
+    engine: code_analysis
+    method: ast_query
+    expression: 'ObjectProperty[key.name=/rider|addon|addOn|donation|protect/i][value.value=true]'
+    on_match: raise_finding
+  - id: BS-DC-3
+    description: Submit a minimal order without optional fields and check whether the server adds items.
+    engine: backend_logic
+    method: network_trace
+    on_match: raise_finding
+
+llm_rubric:
+  instructions: >-
+    Decide whether anything with a cost was added to the user's basket, proposal or payment
+    without an explicit choice by the user.
+  questions:
+    - Which items in the total did the user actively select?
+    - Is any paid item selected by default or added without an action by the user?
+    - Is the extra item mandatory by law or product design, and was that disclosed upfront?
+    - Would the user reasonably notice and understand the extra charge before paying?
+  decision_rule: >-
+    Raise a finding when BS-C-1, BS-C-2 and BS-C-3 are all met and no exclusion applies.
+  confidence_guidance: >-
+    High when code or DOM shows the default selection and the price increases. Medium when only
+    the summary shows an unexplained line item.
+
+severity_logic:
+  - severity: critical
+    when: A paid item is added silently (not shown as a selectable option) and charged.
+  - severity: high
+    when: A paid item is pre-selected on a proposal or checkout step and increases the premium or price.
+  - severity: medium
+    when: A pre-selected item is clearly labelled with its price and easy to remove.
+  - severity: low
+    when: A zero-cost or refundable item is pre-selected.
+
+evidence_required:
+  - screenshot
+  - code_snippet
+
+remediation_template:
+  summary: Make every optional paid item opt-in and show its price before selection.
+  steps:
+    - Default every optional rider, add-on and contribution to not selected.
+    - Show the price of each optional item next to its control.
+    - Ensure the server ignores optional items unless the client explicitly sends them.
+    - Show an itemised summary before payment and highlight user-selected extras.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 2
+
+sector_variants:
+  insurance:
+    applicability: high
+    notes: Pre-selected riders (critical illness, accidental death, waiver of premium) in proposal forms are the most common form in insurance.
+    additional_criteria:
+      - A rider that changes the premium must be presented as an explicit choice in the proposal.
+    regulatory_cross_references:
+      - IRDAI regulations on product filing and rider disclosure (to be confirmed by compliance)
+  banking:
+    applicability: medium
+    notes: Card protection plans or insurance bundled with account opening or card issuance.
+  lending:
+    applicability: high
+    notes: Credit protection insurance or processing add-ons bundled into loan disbursal without explicit consent.
+    regulatory_cross_references:
+      - RBI directions on digital lending and key fact statements (to be confirmed by compliance)

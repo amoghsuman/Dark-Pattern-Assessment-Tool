@@ -1,0 +1,107 @@
+id: dp-09-disguised-advertisement
+pattern_id: disguised_advertisement
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: Disguised Advertisement
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 9
+
+definition: >-
+  Presenting advertisements as if they were other content, such as user reviews, news
+  articles, independent comparisons or ordinary interface elements, so that users do not
+  recognise them as paid promotion. The seller or advertiser is responsible for disclosing it.
+
+illustrations:
+  - A "Top rated plans" comparison that ranks sponsored partner plans first without saying so.
+  - A blog post styled as independent advice that is paid promotion for one insurer's plan.
+  - Promoted cards in a product list that look identical to organic results.
+
+violation_criteria:
+  - id: DA-C-1
+    description: Content is paid for, sponsored, or placed because of a commercial arrangement.
+  - id: DA-C-2
+    description: The content is styled to resemble editorial, user-generated, comparative or organic content.
+  - id: DA-C-3
+    description: There is no clear and prominent disclosure (such as "Ad" or "Sponsored") where the content appears.
+
+detection_signals:
+  code:
+    - id: DA-SIG-CODE-1
+      description: Components rendering sponsored or partner items with the same styles as organic items and no disclosure label.
+      examples:
+        - 'isSponsored flag read but not rendered'
+  backend:
+    - id: DA-SIG-BE-1
+      description: Ranking or sorting logic that boosts partner products by commercial weighting.
+      examples:
+        - 'sortScore = rating + partnerBoost'
+  screen:
+    - id: DA-SIG-SCR-1
+      description: Lists or comparisons where some entries are promoted but no label distinguishes them.
+    - id: DA-SIG-SCR-2
+      description: Disclosure labels that are tiny, low-contrast or placed away from the content.
+
+deterministic_checks:
+  - id: DA-DC-1
+    description: Find items flagged sponsored in data or props that render without a visible disclosure.
+    engine: code_analysis
+    method: ast_query
+    expression: 'MemberExpression[property.name=/isSponsored|isPromoted|partner/]'
+    on_match: raise_signal
+  - id: DA-DC-2
+    description: Find commercial weighting in ranking configuration.
+    engine: backend_logic
+    method: config_assertion
+    expression: 'ranking weights include partner|commission|sponsor'
+    on_match: raise_finding
+
+llm_rubric:
+  instructions: >-
+    Decide whether any content the user sees is commercial promotion presented as neutral,
+    editorial or user content without clear disclosure.
+  questions:
+    - Is any content on screen paid for or commercially influenced?
+    - Does it look like editorial, review, comparison or organic content?
+    - Is there a clear, prominent disclosure next to it?
+  decision_rule: >-
+    Raise a finding when DA-C-1, DA-C-2 and DA-C-3 are all met.
+  confidence_guidance: >-
+    High when code or configuration proves commercial weighting or an unused sponsored flag.
+    Medium when promotion is inferred from placement.
+
+severity_logic:
+  - severity: high
+    when: Sponsored ranking in a comparison presented as independent, influencing product choice.
+  - severity: medium
+    when: Promoted content without a clear disclosure in product lists.
+  - severity: low
+    when: A disclosure exists but is not prominent enough.
+
+evidence_required:
+  - screenshot
+  - config_excerpt
+
+remediation_template:
+  summary: Label every sponsored or commercially ranked item clearly and prominently.
+  steps:
+    - Show a visible "Sponsored" or "Ad" label on each promoted item.
+    - Disclose any commercial weighting in comparison or ranking logic.
+    - Offer a sort order based only on user-relevant criteria.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 9
+    - ASCI code and guidelines for advertising (to be confirmed by compliance)
+
+sector_variants:
+  insurance:
+    applicability: medium
+    notes: Relevant for aggregator-style comparisons and plan recommendation widgets on insurer or partner sites.
+    regulatory_cross_references:
+      - IRDAI regulations on insurance advertisements and web aggregators (to be confirmed by compliance)
+  banking:
+    applicability: medium
+    notes: Partner offers in banking apps presented as bank recommendations.
+  lending:
+    applicability: medium
+    notes: Loan marketplaces ranking lenders by commission.

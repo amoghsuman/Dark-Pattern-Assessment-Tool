@@ -1,0 +1,108 @@
+id: dp-06-interface-interference
+pattern_id: interface_interference
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: Interface Interference
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 6
+
+definition: >-
+  Designing the interface so that some information or options are made prominent and other
+  relevant information or options are obscured, to steer the user away from the choice they
+  intended to make.
+
+illustrations:
+  - A bright, large "Continue with add-ons" button next to a small grey "Skip" link.
+  - A close icon that, when tapped, opens another offer instead of closing the pop-up.
+  - Important exclusions shown in faint, tiny text below a prominent benefits list.
+
+violation_criteria:
+  - id: II-C-1
+    description: Choices of comparable importance are given visibly unequal prominence (size, colour, contrast, position).
+  - id: II-C-2
+    description: Relevant information (costs, exclusions, the option to decline) is visually hidden or de-emphasised.
+  - id: II-C-3
+    description: A control behaves differently from what its appearance suggests (for example a close icon that opens an ad).
+
+exclusions:
+  - A clear visual hierarchy for a single primary action where the alternative remains easy to see and use.
+
+detection_signals:
+  code:
+    - id: II-SIG-CODE-1
+      description: Decline or skip options rendered with disabled-looking or low-contrast styles.
+      examples:
+        - 'className="text-gray-300 text-xs" on the Skip link'
+    - id: II-SIG-CODE-2
+      description: Close-button handlers that navigate or open offers instead of dismissing.
+  backend:
+    - id: II-SIG-BE-1
+      description: Remote config that switches decline options to a hidden or reduced variant.
+  screen:
+    - id: II-SIG-SCR-1
+      description: Contrast ratio of decline text below WCAG AA while the accept control is high-contrast.
+    - id: II-SIG-SCR-2
+      description: Size ratio between accept and decline controls above 3:1.
+
+deterministic_checks:
+  - id: II-DC-1
+    description: Measure contrast and area of paired accept and decline controls.
+    engine: screen_capture
+    method: visual_heuristic
+    on_match: raise_signal
+  - id: II-DC-2
+    description: Find close handlers that call navigation or offer APIs.
+    engine: code_analysis
+    method: ast_query
+    expression: 'JSXAttribute[name.name="onClose"] CallExpression[callee.name=/navigate|openOffer|push/]'
+    on_match: raise_finding
+
+llm_rubric:
+  instructions: >-
+    Assess whether the visual design unfairly favours one option or hides information the user
+    needs, in a way that could change the user's decision.
+  questions:
+    - What choices are presented, and which does the design favour?
+    - Is the less favoured option still easy to see and understand?
+    - Is any cost, exclusion or condition visually buried?
+    - Does any control do something different from what it appears to do?
+  decision_rule: >-
+    Raise a finding when II-C-1, II-C-2 or II-C-3 is met and the effect is to steer the user
+    towards a choice that benefits the business at the user's expense.
+  confidence_guidance: >-
+    High with measured contrast or size ratios, or code proving a misleading control. Medium
+    when based on visual judgement alone.
+
+severity_logic:
+  - severity: high
+    when: The interference hides a cost or the option to decline on a payment or proposal step, or a control misleads.
+  - severity: medium
+    when: Unequal prominence on an upsell or add-on screen where the decline option is still visible.
+  - severity: low
+    when: Minor styling imbalance outside decision points.
+
+evidence_required:
+  - screenshot
+
+remediation_template:
+  summary: Present comparable choices with comparable prominence and keep key information legible.
+  steps:
+    - Style accept and decline options as buttons of similar size and contrast.
+    - Ensure all text meets WCAG AA contrast, including exclusions and fees.
+    - Make close controls only close the dialog.
+    - Include visual parity checks in design review.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 6
+
+sector_variants:
+  insurance:
+    applicability: high
+    notes: Common on add-on and rider upsell screens and in how exclusions are displayed.
+  banking:
+    applicability: medium
+    notes: Card upgrade and overdraft opt-in screens.
+  lending:
+    applicability: medium
+    notes: Loan amount sliders defaulting to the maximum, with lower amounts visually de-emphasised.

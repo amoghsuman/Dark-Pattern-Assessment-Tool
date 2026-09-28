@@ -1,0 +1,108 @@
+id: dp-07-bait-and-switch
+pattern_id: bait_and_switch
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: Bait and Switch
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 7
+
+definition: >-
+  Advertising a particular outcome, product or price for the user's action, and then
+  deliberately delivering a different, usually costlier or inferior, outcome instead.
+
+illustrations:
+  - Advertising a premium of Rs 499 a month, then showing Rs 899 after the proposal is filled, without explaining why.
+  - Promoting a plan that is "not available" once the user tries to buy it, with a pricier plan offered instead.
+  - A "Get free quote" button that leads to a mandatory paid consultation.
+
+violation_criteria:
+  - id: BW-C-1
+    description: A specific product, price, feature or outcome is advertised or promised.
+  - id: BW-C-2
+    description: After the user acts, a materially different product, price or outcome is presented.
+  - id: BW-C-3
+    description: The difference is not explained by clearly disclosed conditions that apply to this user.
+
+exclusions:
+  - Price changes caused by the user's own disclosed information (for example age or medical history) where the advertised price was clearly labelled "starting from" with conditions.
+
+detection_signals:
+  code:
+    - id: BW-SIG-CODE-1
+      description: Advertised prices hard-coded in marketing components, separate from the pricing engine.
+    - id: BW-SIG-CODE-2
+      description: Product availability checks that always fail for the advertised plan.
+  backend:
+    - id: BW-SIG-BE-1
+      description: Quote APIs that substitute a different plan code from the one requested.
+    - id: BW-SIG-BE-2
+      description: Base premium in the pricing engine that no customer profile can achieve.
+  screen:
+    - id: BW-SIG-SCR-1
+      description: Price or plan on the landing page differs from the price or plan on the quote or payment page.
+
+deterministic_checks:
+  - id: BW-DC-1
+    description: Compare advertised price on discovery screens with the quote for the most favourable profile.
+    engine: screen_capture
+    method: visual_heuristic
+    on_match: raise_signal
+  - id: BW-DC-2
+    description: Check whether any rating rule combination yields the advertised price.
+    engine: backend_logic
+    method: config_assertion
+    on_match: raise_finding
+
+llm_rubric:
+  instructions: >-
+    Compare what was promised to the user with what was delivered after they acted, and decide
+    whether the difference is deceptive.
+  questions:
+    - What was advertised or promised, and where?
+    - What was presented after the user acted?
+    - Is the difference explained by disclosed conditions that genuinely apply?
+    - Could any real user obtain the advertised outcome?
+  decision_rule: >-
+    Raise a finding when BW-C-1, BW-C-2 and BW-C-3 are all met.
+  confidence_guidance: >-
+    High when backend rules show the advertised outcome is unattainable. Medium when only the
+    screens differ and conditions are unclear.
+
+severity_logic:
+  - severity: critical
+    when: The advertised price or product is unattainable for any customer.
+  - severity: high
+    when: A materially higher price or different product is substituted without explanation.
+  - severity: medium
+    when: The substitution is explained, but only after the user has invested significant effort.
+  - severity: low
+    when: Minor feature differences between advertised and delivered plans.
+
+evidence_required:
+  - screenshot
+  - config_excerpt
+
+remediation_template:
+  summary: Make sure advertised outcomes are attainable and explain any difference upfront.
+  steps:
+    - Generate advertised prices from the live pricing engine for a stated reference profile.
+    - Label "starting from" prices with the profile and conditions they assume.
+    - Explain any price change on the quote page, with the factors that caused it.
+    - Remove promotions for plans that are not available.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 7
+
+sector_variants:
+  insurance:
+    applicability: high
+    notes: Advertised starting premiums versus premiums after medical or lifestyle questions.
+    additional_criteria:
+      - Illustrative premiums must state the reference age, sum assured and term.
+  banking:
+    applicability: medium
+    notes: Advertised deposit rates or card benefits not available at account opening.
+  lending:
+    applicability: high
+    notes: Advertised interest rates versus the rate in the sanction letter or key fact statement.

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@dpat/rules": "workspace:*",
     "zod": "^4.6.5"
   }
 }

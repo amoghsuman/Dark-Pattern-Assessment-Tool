@@ -1,0 +1,119 @@
+id: dp-10-nagging
+pattern_id: nagging
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: Nagging
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 10
+
+definition: >-
+  Repeatedly interrupting or overloading the user with requests, information, options or
+  prompts that are unrelated to what the user is trying to do, disrupting the intended
+  transaction or wearing the user down.
+
+illustrations:
+  - Renewal reminders sent several times a day with no frequency limit.
+  - A pop-up asking the user to rate the app or enable notifications on every screen.
+  - Repeated prompts to buy a top-up cover each time the user opens their policy.
+
+violation_criteria:
+  - id: NG-C-1
+    description: The same or similar request, prompt or message is shown or sent repeatedly.
+  - id: NG-C-2
+    description: The request is unrelated to, or interrupts, what the user is currently doing.
+  - id: NG-C-3
+    description: The user cannot stop the repetition in a simple, lasting way (for example "Don't ask again" is missing or ignored).
+
+exclusions:
+  - Legally required notices sent at the required frequency, such as a renewal notice before the due date.
+
+detection_signals:
+  code:
+    - id: NG-SIG-CODE-1
+      description: Prompts triggered on every screen load or session start without a dismissal record.
+      examples:
+        - 'showRatingPrompt() in useEffect with no persisted flag'
+  backend:
+    - id: NG-SIG-BE-1
+      description: Notification schedulers with no frequency cap, quiet hours or per-user suppression.
+      examples:
+        - 'renewal_reminder cron every 4 hours, max_per_day absent'
+    - id: NG-SIG-BE-2
+      description: Opt-out flags that are not checked before sending.
+  screen:
+    - id: NG-SIG-SCR-1
+      description: The same interstitial or modal appearing on multiple consecutive screens.
+
+deterministic_checks:
+  - id: NG-DC-1
+    description: Check notification scheduler configuration for frequency caps and quiet hours.
+    engine: backend_logic
+    method: config_assertion
+    expression: 'jobs[*] has max_per_day and quiet_hours'
+    on_match: raise_finding
+  - id: NG-DC-2
+    description: Count modal appearances over a scripted ten-screen session.
+    engine: screen_capture
+    method: visual_heuristic
+    on_match: raise_signal
+  - id: NG-DC-3
+    description: Find prompt triggers without a persisted dismissal check.
+    engine: code_analysis
+    method: regex
+    expression: '(show|open)(Rating|Upsell|Notification|Install)Prompt\('
+    on_match: raise_signal
+
+llm_rubric:
+  instructions: >-
+    Decide whether the user is subjected to repeated, unrelated interruptions or messages that
+    they cannot easily stop.
+  questions:
+    - How often is the request made, and through which channels?
+    - Is it related to what the user is doing at that moment?
+    - Can the user stop it, and does the choice stick?
+    - Is there a legal requirement for the message and its frequency?
+  decision_rule: >-
+    Raise a finding when NG-C-1 is met together with NG-C-2 or NG-C-3, and no exclusion applies.
+  confidence_guidance: >-
+    High when scheduler configuration shows no cap or opt-out handling. Medium when repetition is
+    observed but the cause is not visible.
+
+severity_logic:
+  - severity: high
+    when: Uncapped messages or prompts that ignore opt-outs.
+  - severity: medium
+    when: Repeated prompts in the app that can be dismissed but come back every session.
+  - severity: low
+    when: Occasional repeated prompts with a working "Don't ask again".
+
+evidence_required:
+  - config_excerpt
+  - screenshot
+
+remediation_template:
+  summary: Cap frequency, respect dismissals and keep prompts relevant.
+  steps:
+    - Add per-user daily and weekly frequency caps and quiet hours to every notification job.
+    - Check opt-out and dismissal flags before every prompt or message.
+    - Add "Don't ask again" to in-app prompts and persist it server-side.
+    - Show upsell prompts only where relevant to the user's current task.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 10
+    - TRAI regulations on unsolicited commercial communication (to be confirmed by compliance)
+
+sector_variants:
+  insurance:
+    applicability: high
+    notes: Renewal and payment reminders across SMS, e-mail, push and WhatsApp are frequent sources.
+    additional_criteria:
+      - Reminder frequency must stay within the insurer's communication policy and customer preferences.
+  banking:
+    applicability: high
+    notes: Pre-approved offer pushes and card upgrade prompts.
+  lending:
+    applicability: high
+    notes: Repeated loan offer and collection messages; collection contact is also subject to separate conduct rules.
+    regulatory_cross_references:
+      - RBI directions on recovery agents and fair practices (to be confirmed by compliance)

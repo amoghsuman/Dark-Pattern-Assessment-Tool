@@ -1,0 +1,104 @@
+id: dp-11-trick-question
+pattern_id: trick_question
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: Trick Question
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 11
+
+definition: >-
+  Deliberately using confusing, vague or ambiguous language, such as double negatives or
+  unclear wording, to mislead the user or steer them into giving a particular answer.
+
+illustrations:
+  - '"Untick this box if you do not wish to not receive offers."'
+  - A consent question where "Yes" means opting out and "No" means opting in.
+  - A toggle labelled "Disable paperless" that is on by default.
+
+violation_criteria:
+  - id: TQ-C-1
+    description: A question, consent statement or control label uses double negatives, reversed logic or ambiguous wording.
+  - id: TQ-C-2
+    description: The wording makes it likely the user will choose something they did not intend (typically consenting to marketing, data sharing or a purchase).
+
+exclusions:
+  - Plain questions that are merely long, where the meaning is clear.
+
+detection_signals:
+  code:
+    - id: TQ-SIG-CODE-1
+      description: Consent labels containing two or more negations, or labels whose checked state maps to an opt-in named as an opt-out.
+      examples:
+        - 'label: "Do not uncheck to avoid missing offers"'
+        - 'marketingOptOut: false wired to a checkbox reading "Send me updates"'
+  backend:
+    - id: TQ-SIG-BE-1
+      description: Consent fields stored with inverted semantics relative to the UI label.
+  screen:
+    - id: TQ-SIG-SCR-1
+      description: Consent statements with double negatives or mismatched Yes/No answers.
+
+deterministic_checks:
+  - id: TQ-DC-1
+    description: Count negations in consent and preference labels; flag two or more.
+    engine: screen_capture
+    method: dom_query
+    expression: 'label, [role=checkbox], [role=switch]'
+    on_match: raise_signal
+  - id: TQ-DC-2
+    description: Find consent copy with double negatives in source.
+    engine: code_analysis
+    method: regex
+    expression: "(not|don't|do not|un)\\w*[^.]{0,40}(not|don't|do not|un)\\w*"
+    on_match: raise_signal
+
+llm_rubric:
+  instructions: >-
+    Read each consent or preference question as an average user would. Decide whether the
+    wording is confusing in a way that pushes the user towards a particular answer.
+  questions:
+    - What does the user have to do to say yes, and to say no?
+    - Does the wording use double negatives or reversed meanings?
+    - Would an average user be likely to misunderstand what they are agreeing to?
+    - Which answer benefits the business, and is that the one confusion leads to?
+  decision_rule: >-
+    Raise a finding when TQ-C-1 and TQ-C-2 are met.
+  confidence_guidance: >-
+    High for explicit double negatives in consent text. Medium for ambiguous but not reversed
+    wording.
+
+severity_logic:
+  - severity: high
+    when: Confusing wording obtains consent to data sharing, marketing or a purchase.
+  - severity: medium
+    when: Confusing wording on preferences with limited financial impact.
+  - severity: low
+    when: Ambiguous but not misleading wording.
+
+evidence_required:
+  - screenshot
+  - code_snippet
+
+remediation_template:
+  summary: Write every question and consent statement in plain, positive language.
+  steps:
+    - Phrase consents positively ("Send me offers by SMS"), unticked by default.
+    - Remove double negatives and reversed Yes/No mappings.
+    - Store consent with the same meaning as the label shown to the user.
+    - Test consent copy with users or a plain-language review.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 11
+    - Digital Personal Data Protection Act, 2023 (clear and specific consent, to be confirmed by compliance)
+
+sector_variants:
+  insurance:
+    applicability: high
+    notes: Marketing and data-sharing consents in proposal forms and onboarding.
+  banking:
+    applicability: high
+    notes: Consent for cross-selling and third-party data sharing in account opening.
+  lending:
+    applicability: high
+    notes: Consents for credit bureau pulls, data sharing and auto-debit.

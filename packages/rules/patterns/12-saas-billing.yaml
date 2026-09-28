@@ -1,0 +1,104 @@
+id: dp-12-saas-billing
+pattern_id: saas_billing
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: SaaS Billing
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 12
+
+definition: >-
+  Generating and collecting recurring payments in a subscription or software-as-a-service
+  model in a way that exploits users, for example by converting free trials to paid without
+  notice, charging silently, or collecting payments as unnoticeably as possible.
+
+illustrations:
+  - A free trial of a premium policy-management feature that converts to a paid plan without a reminder.
+  - Recurring charges for a feature the user never actively used, with no notice before each debit.
+  - Charging for more seats or a higher tier than the user selected.
+
+violation_criteria:
+  - id: SB-C-1
+    description: A recurring charge begins or continues without clear notice to the user before the debit.
+  - id: SB-C-2
+    description: A free trial converts to paid without an explicit reminder and an easy way to stop.
+  - id: SB-C-3
+    description: The user is billed for a tier, quantity or feature they did not choose.
+
+exclusions:
+  - Recurring premiums for an insurance policy the customer knowingly bought, where pre-debit notices are sent.
+
+detection_signals:
+  code:
+    - id: SB-SIG-CODE-1
+      description: Trial-to-paid conversion logic with no reminder event before conversion.
+  backend:
+    - id: SB-SIG-BE-1
+      description: Recurring debit jobs that do not send a pre-debit notification.
+      examples:
+        - 'debit job executes without calling notifyPreDebit'
+    - id: SB-SIG-BE-2
+      description: Plan changes applied automatically on renewal.
+  screen:
+    - id: SB-SIG-SCR-1
+      description: Trial sign-up screens that do not state the conversion date and price.
+
+deterministic_checks:
+  - id: SB-DC-1
+    description: Check that each recurring debit job emits a notification at least 24 hours before the debit.
+    engine: backend_logic
+    method: config_assertion
+    expression: 'debit_jobs[*].pre_notification_hours >= 24'
+    on_match: raise_finding
+  - id: SB-DC-2
+    description: Check trial sign-up screens for the conversion date and price.
+    engine: screen_capture
+    method: visual_heuristic
+    on_match: raise_signal
+
+llm_rubric:
+  instructions: >-
+    Decide whether recurring charges are set up and collected transparently, with notice before
+    each charge and before any trial converts to paid.
+  questions:
+    - Is the user told when a trial ends and what it will cost afterwards?
+    - Is there notice before each recurring debit?
+    - Is the user charged only for what they chose?
+  decision_rule: >-
+    Raise a finding when any of SB-C-1, SB-C-2 or SB-C-3 is met and no exclusion applies.
+  confidence_guidance: >-
+    High when backend jobs show no pre-debit notice. Medium when based on screens only.
+
+severity_logic:
+  - severity: high
+    when: Silent recurring debits or trial conversions without notice.
+  - severity: medium
+    when: Notice exists but is late, unclear or hard to act on.
+  - severity: low
+    when: Minor gaps in billing transparency with no unexpected charge.
+
+evidence_required:
+  - config_excerpt
+  - screenshot
+
+remediation_template:
+  summary: Notify before every recurring charge and before any trial converts.
+  steps:
+    - Send a pre-debit notice with the amount, date and a cancel link before each recurring debit.
+    - Remind users before a free trial converts, and require an explicit choice to continue where feasible.
+    - Bill only for the tier and quantity the user selected.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 12
+    - RBI framework for e-mandates on recurring transactions (pre-debit notification, to be confirmed by compliance)
+
+sector_variants:
+  insurance:
+    applicability: low
+    notes: Mostly relevant to paid value-added services (wellness apps, premium servicing features) rather than premiums.
+  banking:
+    applicability: medium
+    notes: Paid account packages, card add-on services and subscriptions billed to accounts.
+  lending:
+    applicability: low
+    notes: Paid credit-score or membership subscriptions sold alongside loans.

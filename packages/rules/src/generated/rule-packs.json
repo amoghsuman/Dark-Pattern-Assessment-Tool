@@ -1,0 +1,1988 @@
+{
+  "pack_set_id": "ccpa-2023",
+  "pack_set_version": "0.1.0-draft",
+  "packs": [
+    {
+      "id": "dp-01-false-urgency",
+      "pattern_id": "false_urgency",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "False Urgency",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 1"
+      },
+      "definition": "Stating or implying, falsely, that a product, price or offer is scarce, popular or about to expire, so that the user decides or acts immediately instead of making an informed choice.",
+      "illustrations": [
+        "A countdown that claims an offer ends soon but restarts whenever the page is reloaded.",
+        "A banner saying \"Only 3 policies left at this price\" when no such limit exists.",
+        "Showing inflated counts of people viewing or buying a product to create pressure."
+      ],
+      "violation_criteria": [
+        {
+          "id": "FU-C-1",
+          "description": "An urgency or scarcity claim is shown to the user during a purchase or decision flow."
+        },
+        {
+          "id": "FU-C-2",
+          "description": "The claim is not backed by a real, verifiable deadline, stock limit or demand figure."
+        },
+        {
+          "id": "FU-C-3",
+          "description": "The claim is likely to push the user to act immediately (buy, pay, renew, accept)."
+        }
+      ],
+      "exclusions": [
+        "Genuine statutory or contractual deadlines, such as a grace period end date or a free-look period expiry, stated accurately.",
+        "Time-limited offers whose end date is fixed server-side, the same for all users and honoured."
+      ],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "FU-SIG-CODE-1",
+            "description": "Countdown timers initialised from the client clock or a hard-coded duration rather than a server-provided deadline.",
+            "examples": [
+              "useState(600) feeding a countdown component",
+              "Date.now() + 10 * 60 * 1000 used as offer expiry"
+            ]
+          },
+          {
+            "id": "FU-SIG-CODE-2",
+            "description": "Scarcity or popularity numbers generated randomly or from constants.",
+            "examples": [
+              "Math.random() used to compute \"people viewing now\""
+            ]
+          }
+        ],
+        "backend": [
+          {
+            "id": "FU-SIG-BE-1",
+            "description": "Offer expiry values that are recalculated per session or per request instead of stored once.",
+            "examples": []
+          },
+          {
+            "id": "FU-SIG-BE-2",
+            "description": "Inventory or quota endpoints that return fixed low values irrespective of real capacity.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "FU-SIG-SCR-1",
+            "description": "Visible countdowns, \"ends tonight\", \"last chance\" or \"only N left\" copy near a call to action.",
+            "examples": []
+          },
+          {
+            "id": "FU-SIG-SCR-2",
+            "description": "The same urgency message reappears with a reset value after reload or a new session.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "FU-DC-1",
+          "description": "Reload the page twice and compare countdown values; a reset indicates a fake timer.",
+          "engine": "screen_capture",
+          "method": "visual_heuristic",
+          "on_match": "raise_finding"
+        },
+        {
+          "id": "FU-DC-2",
+          "description": "Search client code for countdowns seeded from constants or the client clock.",
+          "engine": "code_analysis",
+          "method": "regex",
+          "expression": "(useState|setInterval)\\([^)]*(\\d{3,}|Date\\.now\\(\\))",
+          "on_match": "raise_signal"
+        },
+        {
+          "id": "FU-DC-3",
+          "description": "Search for random numbers feeding scarcity or popularity labels.",
+          "engine": "code_analysis",
+          "method": "regex",
+          "expression": "Math\\.random\\(\\).*(viewing|left|remaining|bought)",
+          "on_match": "raise_finding"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Decide whether the screen or code presents an urgency or scarcity claim that is false or unverifiable, and whether it pressures the user to act at once. Consider the user's position: a retail customer buying insurance or a financial product.",
+        "questions": [
+          "Is there a claim that time, stock, price or availability is limited?",
+          "Is there evidence the claim is real (server deadline, fixed end date, actual quota)?",
+          "Does the claim sit next to a purchase, payment or consent action?",
+          "Would an average user feel pressured to decide without comparing or reading terms?"
+        ],
+        "decision_rule": "Raise a finding when FU-C-1 and FU-C-3 are met and there is no evidence the claim is true (FU-C-2). Code evidence of a client-side or randomised value is sufficient for FU-C-2.",
+        "confidence_guidance": "High (0.8+) when a reset timer or random number is shown in code or on reload. Medium when only copy is visible and no backing data can be found. Low when the claim may be genuine."
+      },
+      "severity_logic": [
+        {
+          "severity": "critical",
+          "when": "The false urgency sits on a payment, premium or loan acceptance step and code proves it is fabricated."
+        },
+        {
+          "severity": "high",
+          "when": "The false urgency is on a purchase or proposal step and is proven fabricated."
+        },
+        {
+          "severity": "medium",
+          "when": "The urgency claim is unverifiable but not proven false, or is on a discovery page."
+        },
+        {
+          "severity": "low",
+          "when": "Mild urgency copy with no timer or number, away from any decision point."
+        }
+      ],
+      "evidence_required": [
+        "screenshot",
+        "code_snippet"
+      ],
+      "remediation_template": {
+        "summary": "Remove fabricated urgency and show only deadlines or limits that are real and verifiable.",
+        "steps": [
+          "Drive every countdown from a server-stored end time that is the same for all users.",
+          "Remove randomised or constant viewer, stock and popularity counts.",
+          "Where an offer is genuinely time-bound, state the exact end date and time in IST.",
+          "Add a regression test that reloading does not reset the timer."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 1"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "high",
+          "notes": "Common on quote pages (\"premium rises tomorrow\") and renewal reminders. Premium changes tied to age or birthday are genuine only if the date is accurate.",
+          "additional_criteria": [
+            "Claims that a premium will increase must match the product's actual rating rules."
+          ],
+          "regulatory_cross_references": [
+            "IRDAI regulations on protection of policyholders' interests (to be confirmed by compliance)"
+          ]
+        },
+        "banking": {
+          "applicability": "medium",
+          "notes": "Seen in limited-period fixed deposit rates and card offers. Rate validity must match the published rate card.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "high",
+          "notes": "Pre-approved loan offers that \"expire today\" put pressure on borrowers; offers must reflect the lender's actual validity period.",
+          "additional_criteria": [],
+          "regulatory_cross_references": [
+            "RBI directions on digital lending (to be confirmed by compliance)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "dp-02-basket-sneaking",
+      "pattern_id": "basket_sneaking",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "Basket Sneaking",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 2"
+      },
+      "definition": "Adding extra products, services, add-ons or contributions (such as donations) to the user's purchase without the user's clear consent, so that the total payable is more than the price of what the user actually chose.",
+      "illustrations": [
+        "A rider or add-on cover pre-selected in a proposal form so it is bought unless the user removes it.",
+        "A paid membership or extended warranty added automatically at checkout.",
+        "A charity contribution included in the total by default."
+      ],
+      "violation_criteria": [
+        {
+          "id": "BS-C-1",
+          "description": "An item, service or charge the user did not choose is included in the order or proposal by default."
+        },
+        {
+          "id": "BS-C-2",
+          "description": "The inclusion increases the total amount payable."
+        },
+        {
+          "id": "BS-C-3",
+          "description": "The user has not given an explicit, affirmative choice (for example, the option is pre-ticked or added silently)."
+        }
+      ],
+      "exclusions": [
+        "Free samples or complimentary services that do not change the amount payable.",
+        "Mandatory charges disclosed at the time of purchase, such as taxes, stamp duty or statutory fees."
+      ],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "BS-SIG-CODE-1",
+            "description": "Form state or component props that default an add-on, rider or donation to selected.",
+            "examples": [
+              "criticalIllnessRider: true in initial proposal state",
+              "defaultChecked on an add-on checkbox"
+            ]
+          },
+          {
+            "id": "BS-SIG-CODE-2",
+            "description": "Cart or premium calculation that includes optional items unless explicitly removed.",
+            "examples": []
+          }
+        ],
+        "backend": [
+          {
+            "id": "BS-SIG-BE-1",
+            "description": "Order or proposal APIs that attach optional products when the client omits a field.",
+            "examples": []
+          },
+          {
+            "id": "BS-SIG-BE-2",
+            "description": "Pricing configuration that bundles an optional cover into the base plan.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "BS-SIG-SCR-1",
+            "description": "Pre-ticked checkboxes or pre-enabled toggles for paid extras.",
+            "examples": []
+          },
+          {
+            "id": "BS-SIG-SCR-2",
+            "description": "Line items in the summary that the user never selected.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "BS-DC-1",
+          "description": "Find checked inputs for paid extras on first render of proposal and checkout screens.",
+          "engine": "screen_capture",
+          "method": "dom_query",
+          "expression": "input[type=checkbox]:checked, [role=switch][aria-checked=true]",
+          "on_match": "raise_signal"
+        },
+        {
+          "id": "BS-DC-2",
+          "description": "Find optional items whose initial state is true in client state.",
+          "engine": "code_analysis",
+          "method": "ast_query",
+          "expression": "ObjectProperty[key.name=/rider|addon|addOn|donation|protect/i][value.value=true]",
+          "on_match": "raise_finding"
+        },
+        {
+          "id": "BS-DC-3",
+          "description": "Submit a minimal order without optional fields and check whether the server adds items.",
+          "engine": "backend_logic",
+          "method": "network_trace",
+          "on_match": "raise_finding"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Decide whether anything with a cost was added to the user's basket, proposal or payment without an explicit choice by the user.",
+        "questions": [
+          "Which items in the total did the user actively select?",
+          "Is any paid item selected by default or added without an action by the user?",
+          "Is the extra item mandatory by law or product design, and was that disclosed upfront?",
+          "Would the user reasonably notice and understand the extra charge before paying?"
+        ],
+        "decision_rule": "Raise a finding when BS-C-1, BS-C-2 and BS-C-3 are all met and no exclusion applies.",
+        "confidence_guidance": "High when code or DOM shows the default selection and the price increases. Medium when only the summary shows an unexplained line item."
+      },
+      "severity_logic": [
+        {
+          "severity": "critical",
+          "when": "A paid item is added silently (not shown as a selectable option) and charged."
+        },
+        {
+          "severity": "high",
+          "when": "A paid item is pre-selected on a proposal or checkout step and increases the premium or price."
+        },
+        {
+          "severity": "medium",
+          "when": "A pre-selected item is clearly labelled with its price and easy to remove."
+        },
+        {
+          "severity": "low",
+          "when": "A zero-cost or refundable item is pre-selected."
+        }
+      ],
+      "evidence_required": [
+        "screenshot",
+        "code_snippet"
+      ],
+      "remediation_template": {
+        "summary": "Make every optional paid item opt-in and show its price before selection.",
+        "steps": [
+          "Default every optional rider, add-on and contribution to not selected.",
+          "Show the price of each optional item next to its control.",
+          "Ensure the server ignores optional items unless the client explicitly sends them.",
+          "Show an itemised summary before payment and highlight user-selected extras."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 2"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "high",
+          "notes": "Pre-selected riders (critical illness, accidental death, waiver of premium) in proposal forms are the most common form in insurance.",
+          "additional_criteria": [
+            "A rider that changes the premium must be presented as an explicit choice in the proposal."
+          ],
+          "regulatory_cross_references": [
+            "IRDAI regulations on product filing and rider disclosure (to be confirmed by compliance)"
+          ]
+        },
+        "banking": {
+          "applicability": "medium",
+          "notes": "Card protection plans or insurance bundled with account opening or card issuance.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "high",
+          "notes": "Credit protection insurance or processing add-ons bundled into loan disbursal without explicit consent.",
+          "additional_criteria": [],
+          "regulatory_cross_references": [
+            "RBI directions on digital lending and key fact statements (to be confirmed by compliance)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "dp-03-confirm-shaming",
+      "pattern_id": "confirm_shaming",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "Confirm Shaming",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 3"
+      },
+      "definition": "Using words, images, audio, video or other means to make the user feel fear, shame, guilt or ridicule, so that the user is nudged into buying something or continuing a subscription.",
+      "illustrations": [
+        "An opt-out link that reads \"No thanks, I don't care about my family's future\".",
+        "Declining add-on cover labelled \"I'll risk paying hospital bills myself\".",
+        "A cancellation button that says \"I don't want to stay protected\"."
+      ],
+      "violation_criteria": [
+        {
+          "id": "CS-C-1",
+          "description": "The option to decline, skip or cancel is worded or presented to provoke fear, shame, guilt or ridicule."
+        },
+        {
+          "id": "CS-C-2",
+          "description": "The framing steers the user towards a purchase, upgrade, add-on or continued subscription."
+        }
+      ],
+      "exclusions": [
+        "Neutral, factual statements of what the user will lose, such as \"Your cover will end on 12 March\"."
+      ],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "CS-SIG-CODE-1",
+            "description": "Decline or cancel button labels in code or copy files with emotionally loaded phrasing.",
+            "examples": [
+              "declineLabel: \"No, I don't care about my family\""
+            ]
+          }
+        ],
+        "backend": [
+          {
+            "id": "CS-SIG-BE-1",
+            "description": "CMS or remote-config entries for opt-out copy that include shaming phrases.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "CS-SIG-SCR-1",
+            "description": "Secondary or decline links whose text refers to irresponsibility, risk to family, or foolishness.",
+            "examples": []
+          },
+          {
+            "id": "CS-SIG-SCR-2",
+            "description": "Imagery or icons (sad faces, warning symbols) attached only to the decline choice.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "CS-DC-1",
+          "description": "Extract decline, skip and cancel control labels and match against a lexicon of shaming phrases.",
+          "engine": "screen_capture",
+          "method": "dom_query",
+          "expression": "a, button, [role=button]",
+          "on_match": "raise_signal"
+        },
+        {
+          "id": "CS-DC-2",
+          "description": "Search copy resources for first-person negative statements on decline options.",
+          "engine": "code_analysis",
+          "method": "regex",
+          "expression": "(No|Nah),? I (don't|do not) (care|want|need).*(family|protect|safe|future|health)",
+          "on_match": "raise_finding"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Judge whether the wording or imagery of the decline, skip or cancel option is designed to make the user feel bad about declining, rather than neutrally stating the consequence.",
+        "questions": [
+          "What exactly does the decline option say or show?",
+          "Does it attribute a negative trait or motive to the user for declining?",
+          "Would a neutral rewording convey the same information without the emotional pressure?",
+          "Is the pressure aimed at a purchase, add-on or continued subscription?"
+        ],
+        "decision_rule": "Raise a finding when CS-C-1 and CS-C-2 are met. Neutral consequence statements do not qualify.",
+        "confidence_guidance": "High when the decline text is explicitly self-deprecating. Medium for implied guilt through imagery or tone."
+      },
+      "severity_logic": [
+        {
+          "severity": "high",
+          "when": "Shaming copy relates to family, health or financial security on a purchase, renewal or cancellation step."
+        },
+        {
+          "severity": "medium",
+          "when": "Shaming copy on an add-on or upsell prompt."
+        },
+        {
+          "severity": "low",
+          "when": "Mildly loaded language on a non-financial choice such as a newsletter."
+        }
+      ],
+      "evidence_required": [
+        "screenshot"
+      ],
+      "remediation_template": {
+        "summary": "Use neutral, equal-weight wording for accept and decline choices.",
+        "steps": [
+          "Replace decline labels with neutral text such as \"No, thanks\" or \"Continue without add-on\".",
+          "State consequences factually in body copy, not in the button label.",
+          "Review all opt-out copy, including CMS and remote-config strings, against a shaming lexicon."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 3"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "high",
+          "notes": "Insurance copy often appeals to family protection; the decline option must not blame the user.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "banking": {
+          "applicability": "medium",
+          "notes": "Seen in card upgrade and account closure retention screens.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "low",
+          "notes": "Less common; check top-up loan and insurance cross-sell prompts.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        }
+      }
+    },
+    {
+      "id": "dp-04-forced-action",
+      "pattern_id": "forced_action",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "Forced Action",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 4"
+      },
+      "definition": "Making the user do something unrelated to what they came for, such as buying something else, signing up for an unrelated service, installing another app, or sharing personal data that is not needed, before they can get the product or service they originally intended.",
+      "illustrations": [
+        "Requiring an app download before a customer can file a grievance on the website.",
+        "Making a newsletter subscription mandatory to download a policy document.",
+        "Asking for contacts or location access that the service does not need, and blocking progress if refused."
+      ],
+      "violation_criteria": [
+        {
+          "id": "FA-C-1",
+          "description": "Progress towards the user's intended goal is blocked until the user takes another action."
+        },
+        {
+          "id": "FA-C-2",
+          "description": "The required action is unrelated or unnecessary for the intended product or service (extra purchase, sign-up, app install, or data not needed)."
+        },
+        {
+          "id": "FA-C-3",
+          "description": "No reasonable alternative path to the intended goal is offered."
+        }
+      ],
+      "exclusions": [
+        "Information genuinely required by law or for underwriting, such as KYC or medical disclosures, when the purpose is explained."
+      ],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "FA-SIG-CODE-1",
+            "description": "Route guards or form validations that require unrelated consents, sign-ups or permissions.",
+            "examples": [
+              "if (!user.hasInstalledApp) redirect(\"/get-app\")"
+            ]
+          },
+          {
+            "id": "FA-SIG-CODE-2",
+            "description": "Runtime permission requests (contacts, location, SMS) with no fallback when denied.",
+            "examples": []
+          }
+        ],
+        "backend": [
+          {
+            "id": "FA-SIG-BE-1",
+            "description": "APIs that reject a service request unless an unrelated flag (marketing consent, app registration) is set.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "FA-SIG-SCR-1",
+            "description": "Interstitials that demand an app install, account creation or marketing consent to continue.",
+            "examples": []
+          },
+          {
+            "id": "FA-SIG-SCR-2",
+            "description": "Mandatory fields that collect data unrelated to the transaction.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "FA-DC-1",
+          "description": "Attempt the journey while refusing optional consents and permissions; record whether progress is blocked.",
+          "engine": "screen_capture",
+          "method": "visual_heuristic",
+          "on_match": "raise_finding"
+        },
+        {
+          "id": "FA-DC-2",
+          "description": "Flag required inputs whose names suggest marketing or unrelated data.",
+          "engine": "code_analysis",
+          "method": "regex",
+          "expression": "required.*(marketing|newsletter|contacts|referral)",
+          "on_match": "raise_signal"
+        },
+        {
+          "id": "FA-DC-3",
+          "description": "Compare Android manifest permissions with features that use them.",
+          "engine": "software_risk",
+          "method": "config_assertion",
+          "expression": "uses-permission READ_CONTACTS|ACCESS_FINE_LOCATION|READ_SMS",
+          "on_match": "raise_signal"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Decide whether the user is made to take an unrelated action or give unnecessary data before they can complete what they came to do.",
+        "questions": [
+          "What is the user's intended goal on this journey?",
+          "What action or data is demanded before the goal can be reached?",
+          "Is that action or data genuinely necessary for the goal, or required by law?",
+          "Is there an alternative way to complete the goal without it?"
+        ],
+        "decision_rule": "Raise a finding when FA-C-1 and FA-C-2 are met and no alternative path exists (FA-C-3).",
+        "confidence_guidance": "High when blocking is shown in code or observed in the journey. Medium when the requirement seems unrelated but its purpose is unclear."
+      },
+      "severity_logic": [
+        {
+          "severity": "critical",
+          "when": "Access to grievance redressal, claims or cancellation is blocked behind an unrelated action."
+        },
+        {
+          "severity": "high",
+          "when": "Purchase or servicing is blocked behind an unrelated sign-up, install or data demand."
+        },
+        {
+          "severity": "medium",
+          "when": "The unrelated action is required but low effort and clearly explained."
+        },
+        {
+          "severity": "low",
+          "when": "The unrelated action is strongly encouraged but can be skipped with some effort."
+        }
+      ],
+      "evidence_required": [
+        "screenshot",
+        "code_snippet"
+      ],
+      "remediation_template": {
+        "summary": "Let users reach their goal without unrelated sign-ups, installs or data.",
+        "steps": [
+          "Remove blocking gates for app installs, newsletter sign-ups and marketing consent.",
+          "Collect only data needed for the transaction and explain why each item is needed.",
+          "Provide a fallback when optional permissions are denied.",
+          "Keep grievance, claims and cancellation channels available on every platform the product is sold on."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 4",
+          "Digital Personal Data Protection Act, 2023 (data minimisation, to be confirmed by compliance)"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "high",
+          "notes": "Watch grievance and claims intake that require the mobile app, and proposal forms asking for unrelated data.",
+          "additional_criteria": [
+            "Grievance submission must be possible through the channel where the policy was sold."
+          ],
+          "regulatory_cross_references": [
+            "IRDAI guidelines on grievance redressal (to be confirmed by compliance)"
+          ]
+        },
+        "banking": {
+          "applicability": "high",
+          "notes": "Account services gated behind app registration or marketing consent.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "high",
+          "notes": "Loan apps requesting contacts, gallery or SMS access unrelated to underwriting.",
+          "additional_criteria": [],
+          "regulatory_cross_references": [
+            "RBI directions on digital lending (access to device data, to be confirmed by compliance)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "dp-05-subscription-trap",
+      "pattern_id": "subscription_trap",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "Subscription Trap",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 5"
+      },
+      "definition": "Making it impossible, or much harder than signing up, to cancel a paid subscription or recurring payment; hiding the cancellation option; requiring payment details or auto-debit authorisation to get a free trial; or giving unclear or confusing cancellation instructions.",
+      "illustrations": [
+        "An auto-debit mandate that can be set up in two taps but cancelled only after five screens and a call.",
+        "A cancellation option hidden under \"Help > More > Account > Manage\".",
+        "A free trial that requires an e-mandate and converts to paid without a clear reminder."
+      ],
+      "violation_criteria": [
+        {
+          "id": "ST-C-1",
+          "description": "Cancelling a subscription, auto-renewal or recurring mandate takes materially more steps or effort than setting it up."
+        },
+        {
+          "id": "ST-C-2",
+          "description": "The cancellation option is hidden, unlabelled or not reachable from obvious places."
+        },
+        {
+          "id": "ST-C-3",
+          "description": "A free trial or free benefit requires payment details or auto-debit authorisation without clear justification."
+        },
+        {
+          "id": "ST-C-4",
+          "description": "Cancellation instructions are ambiguous, hidden or confusing, or cancellation needs an offline channel when sign-up was online."
+        }
+      ],
+      "exclusions": [
+        "A single confirmation step or a brief retention offer that can be dismissed in one action."
+      ],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "ST-SIG-CODE-1",
+            "description": "Cancellation routes behind feature flags, deep navigation or support-only paths.",
+            "examples": []
+          },
+          {
+            "id": "ST-SIG-CODE-2",
+            "description": "Cancel flows with multiple mandatory retention screens.",
+            "examples": []
+          }
+        ],
+        "backend": [
+          {
+            "id": "ST-SIG-BE-1",
+            "description": "No self-service API for mandate or auto-renewal cancellation, while creation is self-service.",
+            "examples": []
+          },
+          {
+            "id": "ST-SIG-BE-2",
+            "description": "Cancellation requests queued for manual handling with long service levels.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "ST-SIG-SCR-1",
+            "description": "Count of screens and taps to cancel versus to subscribe.",
+            "examples": []
+          },
+          {
+            "id": "ST-SIG-SCR-2",
+            "description": "Cancellation link styled as low-contrast text or placed only in legal pages.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "ST-DC-1",
+          "description": "Script both the sign-up and the cancellation journeys and compare step counts; flag a ratio above 2.",
+          "engine": "screen_capture",
+          "method": "visual_heuristic",
+          "on_match": "raise_finding"
+        },
+        {
+          "id": "ST-DC-2",
+          "description": "Check that an API endpoint exists for cancelling mandates and auto-renewal.",
+          "engine": "backend_logic",
+          "method": "config_assertion",
+          "expression": "routes contain DELETE|POST .*/(mandate|autorenew|subscription)/.*cancel",
+          "on_match": "raise_signal"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Compare how easy it is to start and to stop a recurring payment, subscription or auto-renewal, and whether the way out is clearly shown.",
+        "questions": [
+          "How many steps does it take to set up the subscription or mandate?",
+          "How many steps, and which channels, does it take to cancel?",
+          "Is the cancellation option easy to find and clearly labelled?",
+          "Was payment authorisation required for something presented as free?"
+        ],
+        "decision_rule": "Raise a finding when any of ST-C-1 to ST-C-4 is clearly met.",
+        "confidence_guidance": "High when the journey step counts are measured. Medium when based on code routes alone."
+      },
+      "severity_logic": [
+        {
+          "severity": "critical",
+          "when": "Cancellation is impossible through self-service, or needs an offline channel while sign-up was online."
+        },
+        {
+          "severity": "high",
+          "when": "Cancellation takes more than twice the steps of sign-up or is hidden."
+        },
+        {
+          "severity": "medium",
+          "when": "Cancellation is available but instructions are confusing."
+        },
+        {
+          "severity": "low",
+          "when": "Minor friction such as a dismissible retention offer that is hard to skip."
+        }
+      ],
+      "evidence_required": [
+        "screenshot",
+        "journey_recording"
+      ],
+      "remediation_template": {
+        "summary": "Make cancelling as easy as subscribing, through the same channel.",
+        "steps": [
+          "Provide a clearly labelled \"Cancel auto-debit\" or \"Turn off auto-renewal\" option in account settings.",
+          "Keep the cancellation journey no longer than the sign-up journey.",
+          "Confirm cancellation on screen and by message, with the effective date.",
+          "Do not require an e-mandate for free trials unless the conversion terms are shown upfront."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 5",
+          "RBI framework for e-mandates on recurring transactions (to be confirmed by compliance)"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "high",
+          "notes": "Auto-debit mandates for premium payment and auto-renewal of health or motor policies.",
+          "additional_criteria": [
+            "Withdrawal of the premium auto-debit mandate must be available through the channel where it was set up."
+          ],
+          "regulatory_cross_references": []
+        },
+        "banking": {
+          "applicability": "high",
+          "notes": "Standing instructions, recurring deposits and card-on-file subscriptions.",
+          "additional_criteria": [],
+          "regulatory_cross_references": [
+            "RBI framework for e-mandates on recurring transactions (to be confirmed by compliance)"
+          ]
+        },
+        "lending": {
+          "applicability": "medium",
+          "notes": "EMI mandates must continue per loan terms, but add-on subscriptions bundled with loans must be cancellable.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        }
+      }
+    },
+    {
+      "id": "dp-06-interface-interference",
+      "pattern_id": "interface_interference",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "Interface Interference",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 6"
+      },
+      "definition": "Designing the interface so that some information or options are made prominent and other relevant information or options are obscured, to steer the user away from the choice they intended to make.",
+      "illustrations": [
+        "A bright, large \"Continue with add-ons\" button next to a small grey \"Skip\" link.",
+        "A close icon that, when tapped, opens another offer instead of closing the pop-up.",
+        "Important exclusions shown in faint, tiny text below a prominent benefits list."
+      ],
+      "violation_criteria": [
+        {
+          "id": "II-C-1",
+          "description": "Choices of comparable importance are given visibly unequal prominence (size, colour, contrast, position)."
+        },
+        {
+          "id": "II-C-2",
+          "description": "Relevant information (costs, exclusions, the option to decline) is visually hidden or de-emphasised."
+        },
+        {
+          "id": "II-C-3",
+          "description": "A control behaves differently from what its appearance suggests (for example a close icon that opens an ad)."
+        }
+      ],
+      "exclusions": [
+        "A clear visual hierarchy for a single primary action where the alternative remains easy to see and use."
+      ],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "II-SIG-CODE-1",
+            "description": "Decline or skip options rendered with disabled-looking or low-contrast styles.",
+            "examples": [
+              "className=\"text-gray-300 text-xs\" on the Skip link"
+            ]
+          },
+          {
+            "id": "II-SIG-CODE-2",
+            "description": "Close-button handlers that navigate or open offers instead of dismissing.",
+            "examples": []
+          }
+        ],
+        "backend": [
+          {
+            "id": "II-SIG-BE-1",
+            "description": "Remote config that switches decline options to a hidden or reduced variant.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "II-SIG-SCR-1",
+            "description": "Contrast ratio of decline text below WCAG AA while the accept control is high-contrast.",
+            "examples": []
+          },
+          {
+            "id": "II-SIG-SCR-2",
+            "description": "Size ratio between accept and decline controls above 3:1.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "II-DC-1",
+          "description": "Measure contrast and area of paired accept and decline controls.",
+          "engine": "screen_capture",
+          "method": "visual_heuristic",
+          "on_match": "raise_signal"
+        },
+        {
+          "id": "II-DC-2",
+          "description": "Find close handlers that call navigation or offer APIs.",
+          "engine": "code_analysis",
+          "method": "ast_query",
+          "expression": "JSXAttribute[name.name=\"onClose\"] CallExpression[callee.name=/navigate|openOffer|push/]",
+          "on_match": "raise_finding"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Assess whether the visual design unfairly favours one option or hides information the user needs, in a way that could change the user's decision.",
+        "questions": [
+          "What choices are presented, and which does the design favour?",
+          "Is the less favoured option still easy to see and understand?",
+          "Is any cost, exclusion or condition visually buried?",
+          "Does any control do something different from what it appears to do?"
+        ],
+        "decision_rule": "Raise a finding when II-C-1, II-C-2 or II-C-3 is met and the effect is to steer the user towards a choice that benefits the business at the user's expense.",
+        "confidence_guidance": "High with measured contrast or size ratios, or code proving a misleading control. Medium when based on visual judgement alone."
+      },
+      "severity_logic": [
+        {
+          "severity": "high",
+          "when": "The interference hides a cost or the option to decline on a payment or proposal step, or a control misleads."
+        },
+        {
+          "severity": "medium",
+          "when": "Unequal prominence on an upsell or add-on screen where the decline option is still visible."
+        },
+        {
+          "severity": "low",
+          "when": "Minor styling imbalance outside decision points."
+        }
+      ],
+      "evidence_required": [
+        "screenshot"
+      ],
+      "remediation_template": {
+        "summary": "Present comparable choices with comparable prominence and keep key information legible.",
+        "steps": [
+          "Style accept and decline options as buttons of similar size and contrast.",
+          "Ensure all text meets WCAG AA contrast, including exclusions and fees.",
+          "Make close controls only close the dialog.",
+          "Include visual parity checks in design review."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 6"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "high",
+          "notes": "Common on add-on and rider upsell screens and in how exclusions are displayed.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "banking": {
+          "applicability": "medium",
+          "notes": "Card upgrade and overdraft opt-in screens.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "medium",
+          "notes": "Loan amount sliders defaulting to the maximum, with lower amounts visually de-emphasised.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        }
+      }
+    },
+    {
+      "id": "dp-07-bait-and-switch",
+      "pattern_id": "bait_and_switch",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "Bait and Switch",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 7"
+      },
+      "definition": "Advertising a particular outcome, product or price for the user's action, and then deliberately delivering a different, usually costlier or inferior, outcome instead.",
+      "illustrations": [
+        "Advertising a premium of Rs 499 a month, then showing Rs 899 after the proposal is filled, without explaining why.",
+        "Promoting a plan that is \"not available\" once the user tries to buy it, with a pricier plan offered instead.",
+        "A \"Get free quote\" button that leads to a mandatory paid consultation."
+      ],
+      "violation_criteria": [
+        {
+          "id": "BW-C-1",
+          "description": "A specific product, price, feature or outcome is advertised or promised."
+        },
+        {
+          "id": "BW-C-2",
+          "description": "After the user acts, a materially different product, price or outcome is presented."
+        },
+        {
+          "id": "BW-C-3",
+          "description": "The difference is not explained by clearly disclosed conditions that apply to this user."
+        }
+      ],
+      "exclusions": [
+        "Price changes caused by the user's own disclosed information (for example age or medical history) where the advertised price was clearly labelled \"starting from\" with conditions."
+      ],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "BW-SIG-CODE-1",
+            "description": "Advertised prices hard-coded in marketing components, separate from the pricing engine.",
+            "examples": []
+          },
+          {
+            "id": "BW-SIG-CODE-2",
+            "description": "Product availability checks that always fail for the advertised plan.",
+            "examples": []
+          }
+        ],
+        "backend": [
+          {
+            "id": "BW-SIG-BE-1",
+            "description": "Quote APIs that substitute a different plan code from the one requested.",
+            "examples": []
+          },
+          {
+            "id": "BW-SIG-BE-2",
+            "description": "Base premium in the pricing engine that no customer profile can achieve.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "BW-SIG-SCR-1",
+            "description": "Price or plan on the landing page differs from the price or plan on the quote or payment page.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "BW-DC-1",
+          "description": "Compare advertised price on discovery screens with the quote for the most favourable profile.",
+          "engine": "screen_capture",
+          "method": "visual_heuristic",
+          "on_match": "raise_signal"
+        },
+        {
+          "id": "BW-DC-2",
+          "description": "Check whether any rating rule combination yields the advertised price.",
+          "engine": "backend_logic",
+          "method": "config_assertion",
+          "on_match": "raise_finding"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Compare what was promised to the user with what was delivered after they acted, and decide whether the difference is deceptive.",
+        "questions": [
+          "What was advertised or promised, and where?",
+          "What was presented after the user acted?",
+          "Is the difference explained by disclosed conditions that genuinely apply?",
+          "Could any real user obtain the advertised outcome?"
+        ],
+        "decision_rule": "Raise a finding when BW-C-1, BW-C-2 and BW-C-3 are all met.",
+        "confidence_guidance": "High when backend rules show the advertised outcome is unattainable. Medium when only the screens differ and conditions are unclear."
+      },
+      "severity_logic": [
+        {
+          "severity": "critical",
+          "when": "The advertised price or product is unattainable for any customer."
+        },
+        {
+          "severity": "high",
+          "when": "A materially higher price or different product is substituted without explanation."
+        },
+        {
+          "severity": "medium",
+          "when": "The substitution is explained, but only after the user has invested significant effort."
+        },
+        {
+          "severity": "low",
+          "when": "Minor feature differences between advertised and delivered plans."
+        }
+      ],
+      "evidence_required": [
+        "screenshot",
+        "config_excerpt"
+      ],
+      "remediation_template": {
+        "summary": "Make sure advertised outcomes are attainable and explain any difference upfront.",
+        "steps": [
+          "Generate advertised prices from the live pricing engine for a stated reference profile.",
+          "Label \"starting from\" prices with the profile and conditions they assume.",
+          "Explain any price change on the quote page, with the factors that caused it.",
+          "Remove promotions for plans that are not available."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 7"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "high",
+          "notes": "Advertised starting premiums versus premiums after medical or lifestyle questions.",
+          "additional_criteria": [
+            "Illustrative premiums must state the reference age, sum assured and term."
+          ],
+          "regulatory_cross_references": []
+        },
+        "banking": {
+          "applicability": "medium",
+          "notes": "Advertised deposit rates or card benefits not available at account opening.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "high",
+          "notes": "Advertised interest rates versus the rate in the sanction letter or key fact statement.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        }
+      }
+    },
+    {
+      "id": "dp-08-drip-pricing",
+      "pattern_id": "drip_pricing",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "Drip Pricing",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 8"
+      },
+      "definition": "Not showing all elements of the price upfront, revealing them gradually or discreetly during the journey, charging more than the amount shown at checkout, advertising something as free without disclosing that continued use needs payment, or blocking use of something already paid for unless the user pays more.",
+      "illustrations": [
+        "A \"policy administration fee\" that first appears on the payment page.",
+        "A convenience fee added after the user confirms the premium.",
+        "An app advertised as a free policy tracker that locks core features behind a paid plan after purchase."
+      ],
+      "violation_criteria": [
+        {
+          "id": "DP-C-1",
+          "description": "A mandatory charge, fee or price component is not shown when the price is first presented."
+        },
+        {
+          "id": "DP-C-2",
+          "description": "The amount charged or payable at the end is higher than the amount shown earlier, without clear prior disclosure."
+        },
+        {
+          "id": "DP-C-3",
+          "description": "A product is presented as free while continued or full use requires payment, and this is not disclosed upfront."
+        }
+      ],
+      "exclusions": [
+        "Taxes and statutory charges shown clearly as \"plus GST\" from the first price display."
+      ],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "DP-SIG-CODE-1",
+            "description": "Fee calculation invoked only in the final checkout or payment step.",
+            "examples": [
+              "if (step === \"payment\") total += adminFee"
+            ]
+          },
+          {
+            "id": "DP-SIG-CODE-2",
+            "description": "Displayed price components that differ from the components sent to the payment gateway.",
+            "examples": []
+          }
+        ],
+        "backend": [
+          {
+            "id": "DP-SIG-BE-1",
+            "description": "Pricing rules that apply a fee conditioned on the journey step or channel.",
+            "examples": []
+          },
+          {
+            "id": "DP-SIG-BE-2",
+            "description": "Payment order amount greater than the last quote amount returned to the client.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "DP-SIG-SCR-1",
+            "description": "New line items or a higher total appearing on later screens.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "DP-DC-1",
+          "description": "Compare the total shown on the quote step with the total on the payment step.",
+          "engine": "screen_capture",
+          "method": "visual_heuristic",
+          "on_match": "raise_finding"
+        },
+        {
+          "id": "DP-DC-2",
+          "description": "Find pricing rules conditioned on the journey step.",
+          "engine": "backend_logic",
+          "method": "config_assertion",
+          "expression": "rule.condition references step|stage == payment|checkout",
+          "on_match": "raise_finding"
+        },
+        {
+          "id": "DP-DC-3",
+          "description": "Compare the quote API total with the payment order amount in a network trace.",
+          "engine": "backend_logic",
+          "method": "network_trace",
+          "on_match": "raise_finding"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Trace the price through the journey and decide whether any mandatory component appears late or whether the final amount exceeds what was first shown.",
+        "questions": [
+          "What price was first shown, and what did it include?",
+          "Which components appear later, and are they mandatory?",
+          "Was the user told about them before investing effort in the journey?",
+          "Is anything described as free that later requires payment?"
+        ],
+        "decision_rule": "Raise a finding when any of DP-C-1, DP-C-2 or DP-C-3 is met and no exclusion applies.",
+        "confidence_guidance": "High when backend rules or traces show a step-conditioned fee. Medium when only screens differ."
+      },
+      "severity_logic": [
+        {
+          "severity": "critical",
+          "when": "The amount charged exceeds the amount confirmed by the user."
+        },
+        {
+          "severity": "high",
+          "when": "A mandatory fee first appears on the payment step."
+        },
+        {
+          "severity": "medium",
+          "when": "A fee is disclosed before payment but after the main price display."
+        },
+        {
+          "severity": "low",
+          "when": "A fee is disclosed upfront but in low-prominence text."
+        }
+      ],
+      "evidence_required": [
+        "screenshot",
+        "config_excerpt"
+      ],
+      "remediation_template": {
+        "summary": "Show the full price, including every mandatory fee, from the first price display.",
+        "steps": [
+          "Include all mandatory fees in the first quoted total, itemised.",
+          "Remove step- or channel-conditioned fee rules, or disclose them upfront.",
+          "Assert in tests that the payment order amount equals the confirmed total.",
+          "Disclose any paid features before download or purchase."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 8"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "high",
+          "notes": "Administration, convenience or payment-mode fees added at the payment step; instalment loading shown late.",
+          "additional_criteria": [
+            "Loading for monthly or quarterly premium modes must be visible when the mode is selected."
+          ],
+          "regulatory_cross_references": []
+        },
+        "banking": {
+          "applicability": "medium",
+          "notes": "Processing fees and card annual fees revealed after application.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "high",
+          "notes": "Processing fees, insurance and other charges must match the key fact statement shown before sanction.",
+          "additional_criteria": [],
+          "regulatory_cross_references": [
+            "RBI directions on key fact statements for loans (to be confirmed by compliance)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "dp-09-disguised-advertisement",
+      "pattern_id": "disguised_advertisement",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "Disguised Advertisement",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 9"
+      },
+      "definition": "Presenting advertisements as if they were other content, such as user reviews, news articles, independent comparisons or ordinary interface elements, so that users do not recognise them as paid promotion. The seller or advertiser is responsible for disclosing it.",
+      "illustrations": [
+        "A \"Top rated plans\" comparison that ranks sponsored partner plans first without saying so.",
+        "A blog post styled as independent advice that is paid promotion for one insurer's plan.",
+        "Promoted cards in a product list that look identical to organic results."
+      ],
+      "violation_criteria": [
+        {
+          "id": "DA-C-1",
+          "description": "Content is paid for, sponsored, or placed because of a commercial arrangement."
+        },
+        {
+          "id": "DA-C-2",
+          "description": "The content is styled to resemble editorial, user-generated, comparative or organic content."
+        },
+        {
+          "id": "DA-C-3",
+          "description": "There is no clear and prominent disclosure (such as \"Ad\" or \"Sponsored\") where the content appears."
+        }
+      ],
+      "exclusions": [],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "DA-SIG-CODE-1",
+            "description": "Components rendering sponsored or partner items with the same styles as organic items and no disclosure label.",
+            "examples": [
+              "isSponsored flag read but not rendered"
+            ]
+          }
+        ],
+        "backend": [
+          {
+            "id": "DA-SIG-BE-1",
+            "description": "Ranking or sorting logic that boosts partner products by commercial weighting.",
+            "examples": [
+              "sortScore = rating + partnerBoost"
+            ]
+          }
+        ],
+        "screen": [
+          {
+            "id": "DA-SIG-SCR-1",
+            "description": "Lists or comparisons where some entries are promoted but no label distinguishes them.",
+            "examples": []
+          },
+          {
+            "id": "DA-SIG-SCR-2",
+            "description": "Disclosure labels that are tiny, low-contrast or placed away from the content.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "DA-DC-1",
+          "description": "Find items flagged sponsored in data or props that render without a visible disclosure.",
+          "engine": "code_analysis",
+          "method": "ast_query",
+          "expression": "MemberExpression[property.name=/isSponsored|isPromoted|partner/]",
+          "on_match": "raise_signal"
+        },
+        {
+          "id": "DA-DC-2",
+          "description": "Find commercial weighting in ranking configuration.",
+          "engine": "backend_logic",
+          "method": "config_assertion",
+          "expression": "ranking weights include partner|commission|sponsor",
+          "on_match": "raise_finding"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Decide whether any content the user sees is commercial promotion presented as neutral, editorial or user content without clear disclosure.",
+        "questions": [
+          "Is any content on screen paid for or commercially influenced?",
+          "Does it look like editorial, review, comparison or organic content?",
+          "Is there a clear, prominent disclosure next to it?"
+        ],
+        "decision_rule": "Raise a finding when DA-C-1, DA-C-2 and DA-C-3 are all met.",
+        "confidence_guidance": "High when code or configuration proves commercial weighting or an unused sponsored flag. Medium when promotion is inferred from placement."
+      },
+      "severity_logic": [
+        {
+          "severity": "high",
+          "when": "Sponsored ranking in a comparison presented as independent, influencing product choice."
+        },
+        {
+          "severity": "medium",
+          "when": "Promoted content without a clear disclosure in product lists."
+        },
+        {
+          "severity": "low",
+          "when": "A disclosure exists but is not prominent enough."
+        }
+      ],
+      "evidence_required": [
+        "screenshot",
+        "config_excerpt"
+      ],
+      "remediation_template": {
+        "summary": "Label every sponsored or commercially ranked item clearly and prominently.",
+        "steps": [
+          "Show a visible \"Sponsored\" or \"Ad\" label on each promoted item.",
+          "Disclose any commercial weighting in comparison or ranking logic.",
+          "Offer a sort order based only on user-relevant criteria."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 9",
+          "ASCI code and guidelines for advertising (to be confirmed by compliance)"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "medium",
+          "notes": "Relevant for aggregator-style comparisons and plan recommendation widgets on insurer or partner sites.",
+          "additional_criteria": [],
+          "regulatory_cross_references": [
+            "IRDAI regulations on insurance advertisements and web aggregators (to be confirmed by compliance)"
+          ]
+        },
+        "banking": {
+          "applicability": "medium",
+          "notes": "Partner offers in banking apps presented as bank recommendations.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "medium",
+          "notes": "Loan marketplaces ranking lenders by commission.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        }
+      }
+    },
+    {
+      "id": "dp-10-nagging",
+      "pattern_id": "nagging",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "Nagging",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 10"
+      },
+      "definition": "Repeatedly interrupting or overloading the user with requests, information, options or prompts that are unrelated to what the user is trying to do, disrupting the intended transaction or wearing the user down.",
+      "illustrations": [
+        "Renewal reminders sent several times a day with no frequency limit.",
+        "A pop-up asking the user to rate the app or enable notifications on every screen.",
+        "Repeated prompts to buy a top-up cover each time the user opens their policy."
+      ],
+      "violation_criteria": [
+        {
+          "id": "NG-C-1",
+          "description": "The same or similar request, prompt or message is shown or sent repeatedly."
+        },
+        {
+          "id": "NG-C-2",
+          "description": "The request is unrelated to, or interrupts, what the user is currently doing."
+        },
+        {
+          "id": "NG-C-3",
+          "description": "The user cannot stop the repetition in a simple, lasting way (for example \"Don't ask again\" is missing or ignored)."
+        }
+      ],
+      "exclusions": [
+        "Legally required notices sent at the required frequency, such as a renewal notice before the due date."
+      ],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "NG-SIG-CODE-1",
+            "description": "Prompts triggered on every screen load or session start without a dismissal record.",
+            "examples": [
+              "showRatingPrompt() in useEffect with no persisted flag"
+            ]
+          }
+        ],
+        "backend": [
+          {
+            "id": "NG-SIG-BE-1",
+            "description": "Notification schedulers with no frequency cap, quiet hours or per-user suppression.",
+            "examples": [
+              "renewal_reminder cron every 4 hours, max_per_day absent"
+            ]
+          },
+          {
+            "id": "NG-SIG-BE-2",
+            "description": "Opt-out flags that are not checked before sending.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "NG-SIG-SCR-1",
+            "description": "The same interstitial or modal appearing on multiple consecutive screens.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "NG-DC-1",
+          "description": "Check notification scheduler configuration for frequency caps and quiet hours.",
+          "engine": "backend_logic",
+          "method": "config_assertion",
+          "expression": "jobs[*] has max_per_day and quiet_hours",
+          "on_match": "raise_finding"
+        },
+        {
+          "id": "NG-DC-2",
+          "description": "Count modal appearances over a scripted ten-screen session.",
+          "engine": "screen_capture",
+          "method": "visual_heuristic",
+          "on_match": "raise_signal"
+        },
+        {
+          "id": "NG-DC-3",
+          "description": "Find prompt triggers without a persisted dismissal check.",
+          "engine": "code_analysis",
+          "method": "regex",
+          "expression": "(show|open)(Rating|Upsell|Notification|Install)Prompt\\(",
+          "on_match": "raise_signal"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Decide whether the user is subjected to repeated, unrelated interruptions or messages that they cannot easily stop.",
+        "questions": [
+          "How often is the request made, and through which channels?",
+          "Is it related to what the user is doing at that moment?",
+          "Can the user stop it, and does the choice stick?",
+          "Is there a legal requirement for the message and its frequency?"
+        ],
+        "decision_rule": "Raise a finding when NG-C-1 is met together with NG-C-2 or NG-C-3, and no exclusion applies.",
+        "confidence_guidance": "High when scheduler configuration shows no cap or opt-out handling. Medium when repetition is observed but the cause is not visible."
+      },
+      "severity_logic": [
+        {
+          "severity": "high",
+          "when": "Uncapped messages or prompts that ignore opt-outs."
+        },
+        {
+          "severity": "medium",
+          "when": "Repeated prompts in the app that can be dismissed but come back every session."
+        },
+        {
+          "severity": "low",
+          "when": "Occasional repeated prompts with a working \"Don't ask again\"."
+        }
+      ],
+      "evidence_required": [
+        "config_excerpt",
+        "screenshot"
+      ],
+      "remediation_template": {
+        "summary": "Cap frequency, respect dismissals and keep prompts relevant.",
+        "steps": [
+          "Add per-user daily and weekly frequency caps and quiet hours to every notification job.",
+          "Check opt-out and dismissal flags before every prompt or message.",
+          "Add \"Don't ask again\" to in-app prompts and persist it server-side.",
+          "Show upsell prompts only where relevant to the user's current task."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 10",
+          "TRAI regulations on unsolicited commercial communication (to be confirmed by compliance)"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "high",
+          "notes": "Renewal and payment reminders across SMS, e-mail, push and WhatsApp are frequent sources.",
+          "additional_criteria": [
+            "Reminder frequency must stay within the insurer's communication policy and customer preferences."
+          ],
+          "regulatory_cross_references": []
+        },
+        "banking": {
+          "applicability": "high",
+          "notes": "Pre-approved offer pushes and card upgrade prompts.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "high",
+          "notes": "Repeated loan offer and collection messages; collection contact is also subject to separate conduct rules.",
+          "additional_criteria": [],
+          "regulatory_cross_references": [
+            "RBI directions on recovery agents and fair practices (to be confirmed by compliance)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "dp-11-trick-question",
+      "pattern_id": "trick_question",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "Trick Question",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 11"
+      },
+      "definition": "Deliberately using confusing, vague or ambiguous language, such as double negatives or unclear wording, to mislead the user or steer them into giving a particular answer.",
+      "illustrations": [
+        "\"Untick this box if you do not wish to not receive offers.\"",
+        "A consent question where \"Yes\" means opting out and \"No\" means opting in.",
+        "A toggle labelled \"Disable paperless\" that is on by default."
+      ],
+      "violation_criteria": [
+        {
+          "id": "TQ-C-1",
+          "description": "A question, consent statement or control label uses double negatives, reversed logic or ambiguous wording."
+        },
+        {
+          "id": "TQ-C-2",
+          "description": "The wording makes it likely the user will choose something they did not intend (typically consenting to marketing, data sharing or a purchase)."
+        }
+      ],
+      "exclusions": [
+        "Plain questions that are merely long, where the meaning is clear."
+      ],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "TQ-SIG-CODE-1",
+            "description": "Consent labels containing two or more negations, or labels whose checked state maps to an opt-in named as an opt-out.",
+            "examples": [
+              "label: \"Do not uncheck to avoid missing offers\"",
+              "marketingOptOut: false wired to a checkbox reading \"Send me updates\""
+            ]
+          }
+        ],
+        "backend": [
+          {
+            "id": "TQ-SIG-BE-1",
+            "description": "Consent fields stored with inverted semantics relative to the UI label.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "TQ-SIG-SCR-1",
+            "description": "Consent statements with double negatives or mismatched Yes/No answers.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "TQ-DC-1",
+          "description": "Count negations in consent and preference labels; flag two or more.",
+          "engine": "screen_capture",
+          "method": "dom_query",
+          "expression": "label, [role=checkbox], [role=switch]",
+          "on_match": "raise_signal"
+        },
+        {
+          "id": "TQ-DC-2",
+          "description": "Find consent copy with double negatives in source.",
+          "engine": "code_analysis",
+          "method": "regex",
+          "expression": "(not|don't|do not|un)\\w*[^.]{0,40}(not|don't|do not|un)\\w*",
+          "on_match": "raise_signal"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Read each consent or preference question as an average user would. Decide whether the wording is confusing in a way that pushes the user towards a particular answer.",
+        "questions": [
+          "What does the user have to do to say yes, and to say no?",
+          "Does the wording use double negatives or reversed meanings?",
+          "Would an average user be likely to misunderstand what they are agreeing to?",
+          "Which answer benefits the business, and is that the one confusion leads to?"
+        ],
+        "decision_rule": "Raise a finding when TQ-C-1 and TQ-C-2 are met.",
+        "confidence_guidance": "High for explicit double negatives in consent text. Medium for ambiguous but not reversed wording."
+      },
+      "severity_logic": [
+        {
+          "severity": "high",
+          "when": "Confusing wording obtains consent to data sharing, marketing or a purchase."
+        },
+        {
+          "severity": "medium",
+          "when": "Confusing wording on preferences with limited financial impact."
+        },
+        {
+          "severity": "low",
+          "when": "Ambiguous but not misleading wording."
+        }
+      ],
+      "evidence_required": [
+        "screenshot",
+        "code_snippet"
+      ],
+      "remediation_template": {
+        "summary": "Write every question and consent statement in plain, positive language.",
+        "steps": [
+          "Phrase consents positively (\"Send me offers by SMS\"), unticked by default.",
+          "Remove double negatives and reversed Yes/No mappings.",
+          "Store consent with the same meaning as the label shown to the user.",
+          "Test consent copy with users or a plain-language review."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 11",
+          "Digital Personal Data Protection Act, 2023 (clear and specific consent, to be confirmed by compliance)"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "high",
+          "notes": "Marketing and data-sharing consents in proposal forms and onboarding.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "banking": {
+          "applicability": "high",
+          "notes": "Consent for cross-selling and third-party data sharing in account opening.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "high",
+          "notes": "Consents for credit bureau pulls, data sharing and auto-debit.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        }
+      }
+    },
+    {
+      "id": "dp-12-saas-billing",
+      "pattern_id": "saas_billing",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "SaaS Billing",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 12"
+      },
+      "definition": "Generating and collecting recurring payments in a subscription or software-as-a-service model in a way that exploits users, for example by converting free trials to paid without notice, charging silently, or collecting payments as unnoticeably as possible.",
+      "illustrations": [
+        "A free trial of a premium policy-management feature that converts to a paid plan without a reminder.",
+        "Recurring charges for a feature the user never actively used, with no notice before each debit.",
+        "Charging for more seats or a higher tier than the user selected."
+      ],
+      "violation_criteria": [
+        {
+          "id": "SB-C-1",
+          "description": "A recurring charge begins or continues without clear notice to the user before the debit."
+        },
+        {
+          "id": "SB-C-2",
+          "description": "A free trial converts to paid without an explicit reminder and an easy way to stop."
+        },
+        {
+          "id": "SB-C-3",
+          "description": "The user is billed for a tier, quantity or feature they did not choose."
+        }
+      ],
+      "exclusions": [
+        "Recurring premiums for an insurance policy the customer knowingly bought, where pre-debit notices are sent."
+      ],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "SB-SIG-CODE-1",
+            "description": "Trial-to-paid conversion logic with no reminder event before conversion.",
+            "examples": []
+          }
+        ],
+        "backend": [
+          {
+            "id": "SB-SIG-BE-1",
+            "description": "Recurring debit jobs that do not send a pre-debit notification.",
+            "examples": [
+              "debit job executes without calling notifyPreDebit"
+            ]
+          },
+          {
+            "id": "SB-SIG-BE-2",
+            "description": "Plan changes applied automatically on renewal.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "SB-SIG-SCR-1",
+            "description": "Trial sign-up screens that do not state the conversion date and price.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "SB-DC-1",
+          "description": "Check that each recurring debit job emits a notification at least 24 hours before the debit.",
+          "engine": "backend_logic",
+          "method": "config_assertion",
+          "expression": "debit_jobs[*].pre_notification_hours >= 24",
+          "on_match": "raise_finding"
+        },
+        {
+          "id": "SB-DC-2",
+          "description": "Check trial sign-up screens for the conversion date and price.",
+          "engine": "screen_capture",
+          "method": "visual_heuristic",
+          "on_match": "raise_signal"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Decide whether recurring charges are set up and collected transparently, with notice before each charge and before any trial converts to paid.",
+        "questions": [
+          "Is the user told when a trial ends and what it will cost afterwards?",
+          "Is there notice before each recurring debit?",
+          "Is the user charged only for what they chose?"
+        ],
+        "decision_rule": "Raise a finding when any of SB-C-1, SB-C-2 or SB-C-3 is met and no exclusion applies.",
+        "confidence_guidance": "High when backend jobs show no pre-debit notice. Medium when based on screens only."
+      },
+      "severity_logic": [
+        {
+          "severity": "high",
+          "when": "Silent recurring debits or trial conversions without notice."
+        },
+        {
+          "severity": "medium",
+          "when": "Notice exists but is late, unclear or hard to act on."
+        },
+        {
+          "severity": "low",
+          "when": "Minor gaps in billing transparency with no unexpected charge."
+        }
+      ],
+      "evidence_required": [
+        "config_excerpt",
+        "screenshot"
+      ],
+      "remediation_template": {
+        "summary": "Notify before every recurring charge and before any trial converts.",
+        "steps": [
+          "Send a pre-debit notice with the amount, date and a cancel link before each recurring debit.",
+          "Remind users before a free trial converts, and require an explicit choice to continue where feasible.",
+          "Bill only for the tier and quantity the user selected."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 12",
+          "RBI framework for e-mandates on recurring transactions (pre-debit notification, to be confirmed by compliance)"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "low",
+          "notes": "Mostly relevant to paid value-added services (wellness apps, premium servicing features) rather than premiums.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "banking": {
+          "applicability": "medium",
+          "notes": "Paid account packages, card add-on services and subscriptions billed to accounts.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "low",
+          "notes": "Paid credit-score or membership subscriptions sold alongside loans.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        }
+      }
+    },
+    {
+      "id": "dp-13-rogue-malware",
+      "pattern_id": "rogue_malware",
+      "version": "0.1.0",
+      "status": "draft, pending compliance review",
+      "name": "Rogue Malware",
+      "guideline_reference": {
+        "instrument": "Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)",
+        "clause": "Guideline 4 read with Annexure 1, item 13"
+      },
+      "definition": "Using ransomware or scareware to make users believe their device is infected or at risk, in order to get them to pay for a fake security tool, which may itself install malicious software.",
+      "illustrations": [
+        "A pop-up claiming \"Your phone is infected, install our security app to protect your policy data\".",
+        "A fake system warning that leads to a paid \"cleaner\" download.",
+        "An SDK in the app that displays alarming security alerts to sell a partner product."
+      ],
+      "violation_criteria": [
+        {
+          "id": "RM-C-1",
+          "description": "The user is shown false or exaggerated warnings about device infection, security or data risk."
+        },
+        {
+          "id": "RM-C-2",
+          "description": "The warning pushes the user to pay for, download or install software."
+        },
+        {
+          "id": "RM-C-3",
+          "description": "The promoted software is unnecessary, fake or itself harmful."
+        }
+      ],
+      "exclusions": [],
+      "detection_signals": {
+        "code": [
+          {
+            "id": "RM-SIG-CODE-1",
+            "description": "Code or third-party SDKs that render system-style security warnings or install prompts.",
+            "examples": []
+          }
+        ],
+        "backend": [
+          {
+            "id": "RM-SIG-BE-1",
+            "description": "Ad or partner configuration serving security scare creatives.",
+            "examples": []
+          }
+        ],
+        "screen": [
+          {
+            "id": "RM-SIG-SCR-1",
+            "description": "Alarming security or virus warnings styled like operating-system dialogs.",
+            "examples": []
+          }
+        ]
+      },
+      "deterministic_checks": [
+        {
+          "id": "RM-DC-1",
+          "description": "Scan the app package for known adware or scareware SDK signatures and risky permissions.",
+          "engine": "software_risk",
+          "method": "config_assertion",
+          "expression": "sdk_inventory intersects known_adware_list OR permissions include REQUEST_INSTALL_PACKAGES",
+          "on_match": "raise_finding"
+        },
+        {
+          "id": "RM-DC-2",
+          "description": "Search copy for infection or virus warnings.",
+          "engine": "code_analysis",
+          "method": "regex",
+          "expression": "(virus|infected|malware|hacked).*(install|download|clean|protect)",
+          "on_match": "raise_signal"
+        }
+      ],
+      "llm_rubric": {
+        "instructions": "Decide whether the product uses fake or exaggerated security warnings to push the user into buying or installing software.",
+        "questions": [
+          "Is any security or infection warning shown?",
+          "Is it genuine and based on a real check?",
+          "Does it push the user to pay for or install something?"
+        ],
+        "decision_rule": "Raise a finding when RM-C-1 and RM-C-2 are met; RM-C-3 raises the severity.",
+        "confidence_guidance": "High when SDK or package scanning finds known scareware. Low when only copy suggests it."
+      },
+      "severity_logic": [
+        {
+          "severity": "critical",
+          "when": "The promoted software is malicious or the app contains a known adware or scareware SDK."
+        },
+        {
+          "severity": "high",
+          "when": "Fake security warnings push a paid download."
+        },
+        {
+          "severity": "medium",
+          "when": "Exaggerated security messaging promotes an unnecessary but benign product."
+        }
+      ],
+      "evidence_required": [
+        "screenshot",
+        "code_snippet"
+      ],
+      "remediation_template": {
+        "summary": "Remove scare-based security messaging and untrusted SDKs.",
+        "steps": [
+          "Remove any fabricated or exaggerated security warnings.",
+          "Audit and remove third-party SDKs that show ads or install prompts.",
+          "Remove install-package permissions that the app does not need.",
+          "Run software composition and malware scans in the release pipeline."
+        ],
+        "references": [
+          "CCPA Guidelines 2023, Annexure 1, item 13",
+          "CERT-In directions on cyber security (to be confirmed by compliance)"
+        ]
+      },
+      "sector_variants": {
+        "insurance": {
+          "applicability": "low",
+          "notes": "Unlikely in first-party insurer apps; check third-party SDKs and partner ad placements.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "banking": {
+          "applicability": "low",
+          "notes": "Check third-party SDKs; fraudulent look-alike apps are handled separately under fraud controls.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        },
+        "lending": {
+          "applicability": "medium",
+          "notes": "Some third-party loan apps bundle aggressive SDKs; include SDK inventory in the assessment.",
+          "additional_criteria": [],
+          "regulatory_cross_references": []
+        }
+      }
+    }
+  ]
+}

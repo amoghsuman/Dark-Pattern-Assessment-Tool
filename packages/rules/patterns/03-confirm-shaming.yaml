@@ -1,0 +1,102 @@
+id: dp-03-confirm-shaming
+pattern_id: confirm_shaming
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: Confirm Shaming
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 3
+
+definition: >-
+  Using words, images, audio, video or other means to make the user feel fear, shame, guilt or
+  ridicule, so that the user is nudged into buying something or continuing a subscription.
+
+illustrations:
+  - An opt-out link that reads "No thanks, I don't care about my family's future".
+  - Declining add-on cover labelled "I'll risk paying hospital bills myself".
+  - A cancellation button that says "I don't want to stay protected".
+
+violation_criteria:
+  - id: CS-C-1
+    description: The option to decline, skip or cancel is worded or presented to provoke fear, shame, guilt or ridicule.
+  - id: CS-C-2
+    description: The framing steers the user towards a purchase, upgrade, add-on or continued subscription.
+
+exclusions:
+  - Neutral, factual statements of what the user will lose, such as "Your cover will end on 12 March".
+
+detection_signals:
+  code:
+    - id: CS-SIG-CODE-1
+      description: Decline or cancel button labels in code or copy files with emotionally loaded phrasing.
+      examples:
+        - 'declineLabel: "No, I don''t care about my family"'
+  backend:
+    - id: CS-SIG-BE-1
+      description: CMS or remote-config entries for opt-out copy that include shaming phrases.
+  screen:
+    - id: CS-SIG-SCR-1
+      description: Secondary or decline links whose text refers to irresponsibility, risk to family, or foolishness.
+    - id: CS-SIG-SCR-2
+      description: Imagery or icons (sad faces, warning symbols) attached only to the decline choice.
+
+deterministic_checks:
+  - id: CS-DC-1
+    description: Extract decline, skip and cancel control labels and match against a lexicon of shaming phrases.
+    engine: screen_capture
+    method: dom_query
+    expression: 'a, button, [role=button]'
+    on_match: raise_signal
+  - id: CS-DC-2
+    description: Search copy resources for first-person negative statements on decline options.
+    engine: code_analysis
+    method: regex
+    expression: "(No|Nah),? I (don't|do not) (care|want|need).*(family|protect|safe|future|health)"
+    on_match: raise_finding
+
+llm_rubric:
+  instructions: >-
+    Judge whether the wording or imagery of the decline, skip or cancel option is designed to
+    make the user feel bad about declining, rather than neutrally stating the consequence.
+  questions:
+    - What exactly does the decline option say or show?
+    - Does it attribute a negative trait or motive to the user for declining?
+    - Would a neutral rewording convey the same information without the emotional pressure?
+    - Is the pressure aimed at a purchase, add-on or continued subscription?
+  decision_rule: >-
+    Raise a finding when CS-C-1 and CS-C-2 are met. Neutral consequence statements do not qualify.
+  confidence_guidance: >-
+    High when the decline text is explicitly self-deprecating. Medium for implied guilt through
+    imagery or tone.
+
+severity_logic:
+  - severity: high
+    when: Shaming copy relates to family, health or financial security on a purchase, renewal or cancellation step.
+  - severity: medium
+    when: Shaming copy on an add-on or upsell prompt.
+  - severity: low
+    when: Mildly loaded language on a non-financial choice such as a newsletter.
+
+evidence_required:
+  - screenshot
+
+remediation_template:
+  summary: Use neutral, equal-weight wording for accept and decline choices.
+  steps:
+    - Replace decline labels with neutral text such as "No, thanks" or "Continue without add-on".
+    - State consequences factually in body copy, not in the button label.
+    - Review all opt-out copy, including CMS and remote-config strings, against a shaming lexicon.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 3
+
+sector_variants:
+  insurance:
+    applicability: high
+    notes: Insurance copy often appeals to family protection; the decline option must not blame the user.
+  banking:
+    applicability: medium
+    notes: Seen in card upgrade and account closure retention screens.
+  lending:
+    applicability: low
+    notes: Less common; check top-up loan and insurance cross-sell prompts.

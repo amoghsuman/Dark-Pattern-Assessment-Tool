@@ -1,0 +1,123 @@
+id: dp-04-forced-action
+pattern_id: forced_action
+version: 0.1.0
+status: 'draft, pending compliance review'
+name: Forced Action
+
+guideline_reference:
+  instrument: Guidelines for Prevention and Regulation of Dark Patterns, 2023 (Central Consumer Protection Authority)
+  clause: Guideline 4 read with Annexure 1, item 4
+
+definition: >-
+  Making the user do something unrelated to what they came for, such as buying something else,
+  signing up for an unrelated service, installing another app, or sharing personal data that is
+  not needed, before they can get the product or service they originally intended.
+
+illustrations:
+  - Requiring an app download before a customer can file a grievance on the website.
+  - Making a newsletter subscription mandatory to download a policy document.
+  - Asking for contacts or location access that the service does not need, and blocking progress if refused.
+
+violation_criteria:
+  - id: FA-C-1
+    description: Progress towards the user's intended goal is blocked until the user takes another action.
+  - id: FA-C-2
+    description: The required action is unrelated or unnecessary for the intended product or service (extra purchase, sign-up, app install, or data not needed).
+  - id: FA-C-3
+    description: No reasonable alternative path to the intended goal is offered.
+
+exclusions:
+  - Information genuinely required by law or for underwriting, such as KYC or medical disclosures, when the purpose is explained.
+
+detection_signals:
+  code:
+    - id: FA-SIG-CODE-1
+      description: Route guards or form validations that require unrelated consents, sign-ups or permissions.
+      examples:
+        - 'if (!user.hasInstalledApp) redirect("/get-app")'
+    - id: FA-SIG-CODE-2
+      description: Runtime permission requests (contacts, location, SMS) with no fallback when denied.
+  backend:
+    - id: FA-SIG-BE-1
+      description: APIs that reject a service request unless an unrelated flag (marketing consent, app registration) is set.
+  screen:
+    - id: FA-SIG-SCR-1
+      description: Interstitials that demand an app install, account creation or marketing consent to continue.
+    - id: FA-SIG-SCR-2
+      description: Mandatory fields that collect data unrelated to the transaction.
+
+deterministic_checks:
+  - id: FA-DC-1
+    description: Attempt the journey while refusing optional consents and permissions; record whether progress is blocked.
+    engine: screen_capture
+    method: visual_heuristic
+    on_match: raise_finding
+  - id: FA-DC-2
+    description: Flag required inputs whose names suggest marketing or unrelated data.
+    engine: code_analysis
+    method: regex
+    expression: 'required.*(marketing|newsletter|contacts|referral)'
+    on_match: raise_signal
+  - id: FA-DC-3
+    description: Compare Android manifest permissions with features that use them.
+    engine: software_risk
+    method: config_assertion
+    expression: 'uses-permission READ_CONTACTS|ACCESS_FINE_LOCATION|READ_SMS'
+    on_match: raise_signal
+
+llm_rubric:
+  instructions: >-
+    Decide whether the user is made to take an unrelated action or give unnecessary data before
+    they can complete what they came to do.
+  questions:
+    - What is the user's intended goal on this journey?
+    - What action or data is demanded before the goal can be reached?
+    - Is that action or data genuinely necessary for the goal, or required by law?
+    - Is there an alternative way to complete the goal without it?
+  decision_rule: >-
+    Raise a finding when FA-C-1 and FA-C-2 are met and no alternative path exists (FA-C-3).
+  confidence_guidance: >-
+    High when blocking is shown in code or observed in the journey. Medium when the requirement
+    seems unrelated but its purpose is unclear.
+
+severity_logic:
+  - severity: critical
+    when: Access to grievance redressal, claims or cancellation is blocked behind an unrelated action.
+  - severity: high
+    when: Purchase or servicing is blocked behind an unrelated sign-up, install or data demand.
+  - severity: medium
+    when: The unrelated action is required but low effort and clearly explained.
+  - severity: low
+    when: The unrelated action is strongly encouraged but can be skipped with some effort.
+
+evidence_required:
+  - screenshot
+  - code_snippet
+
+remediation_template:
+  summary: Let users reach their goal without unrelated sign-ups, installs or data.
+  steps:
+    - Remove blocking gates for app installs, newsletter sign-ups and marketing consent.
+    - Collect only data needed for the transaction and explain why each item is needed.
+    - Provide a fallback when optional permissions are denied.
+    - Keep grievance, claims and cancellation channels available on every platform the product is sold on.
+  references:
+    - CCPA Guidelines 2023, Annexure 1, item 4
+    - Digital Personal Data Protection Act, 2023 (data minimisation, to be confirmed by compliance)
+
+sector_variants:
+  insurance:
+    applicability: high
+    notes: Watch grievance and claims intake that require the mobile app, and proposal forms asking for unrelated data.
+    additional_criteria:
+      - Grievance submission must be possible through the channel where the policy was sold.
+    regulatory_cross_references:
+      - IRDAI guidelines on grievance redressal (to be confirmed by compliance)
+  banking:
+    applicability: high
+    notes: Account services gated behind app registration or marketing consent.
+  lending:
+    applicability: high
+    notes: Loan apps requesting contacts, gallery or SMS access unrelated to underwriting.
+    regulatory_cross_references:
+      - RBI directions on digital lending (access to device data, to be confirmed by compliance)
