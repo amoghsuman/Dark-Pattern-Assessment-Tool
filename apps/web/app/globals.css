@@ -1,0 +1,133 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '../styles/print.css';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design tokens. Neutral slate palette with one accent; severity, finding-status
+ * and compliance-matrix colours are defined once here and used everywhere.
+ */
+:root {
+  --radius: 0.5rem;
+
+  --background: oklch(0.99 0.002 247);
+  --foreground: oklch(0.21 0.03 265);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.03 265);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.03 265);
+  --primary: oklch(0.32 0.04 257);
+  --primary-foreground: oklch(0.985 0.003 247);
+  --secondary: oklch(0.965 0.007 247);
+  --secondary-foreground: oklch(0.28 0.04 260);
+  --muted: oklch(0.965 0.007 247);
+  --muted-foreground: oklch(0.5 0.03 257);
+  --accent: oklch(0.955 0.012 250);
+  --accent-foreground: oklch(0.28 0.04 260);
+  --destructive: oklch(0.56 0.21 27);
+  --border: oklch(0.915 0.012 255);
+  --input: oklch(0.915 0.012 255);
+  --ring: oklch(0.6 0.08 250);
+
+  /* Severity */
+  --severity-critical: oklch(0.5 0.2 25);
+  --severity-high: oklch(0.62 0.19 40);
+  --severity-medium: oklch(0.72 0.15 75);
+  --severity-low: oklch(0.6 0.09 240);
+
+  /* Compliance matrix */
+  --matrix-non-compliant: oklch(0.6 0.19 27);
+  --matrix-non-compliant-foreground: oklch(0.99 0 0);
+  --matrix-in-progress: oklch(0.85 0.14 88);
+  --matrix-in-progress-foreground: oklch(0.3 0.06 70);
+  --matrix-compliant: oklch(0.66 0.13 155);
+  --matrix-compliant-foreground: oklch(0.99 0 0);
+  --matrix-not-assessed: oklch(0.9 0.008 255);
+  --matrix-not-assessed-foreground: oklch(0.45 0.02 257);
+}
+
+.dark {
+  --background: oklch(0.17 0.02 265);
+  --foreground: oklch(0.96 0.006 247);
+  --card: oklch(0.21 0.025 265);
+  --card-foreground: oklch(0.96 0.006 247);
+  --popover: oklch(0.21 0.025 265);
+  --popover-foreground: oklch(0.96 0.006 247);
+  --primary: oklch(0.9 0.02 250);
+  --primary-foreground: oklch(0.21 0.03 265);
+  --secondary: oklch(0.27 0.03 262);
+  --secondary-foreground: oklch(0.96 0.006 247);
+  --muted: oklch(0.27 0.03 262);
+  --muted-foreground: oklch(0.71 0.03 255);
+  --accent: oklch(0.29 0.035 258);
+  --accent-foreground: oklch(0.96 0.006 247);
+  --destructive: oklch(0.66 0.19 25);
+  --border: oklch(1 0 0 / 11%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.6 0.06 250);
+
+  --severity-critical: oklch(0.68 0.2 25);
+  --severity-high: oklch(0.74 0.17 45);
+  --severity-medium: oklch(0.82 0.14 85);
+  --severity-low: oklch(0.72 0.09 240);
+
+  --matrix-non-compliant: oklch(0.58 0.18 27);
+  --matrix-in-progress: oklch(0.8 0.14 88);
+  --matrix-compliant: oklch(0.6 0.12 155);
+  --matrix-not-assessed: oklch(0.32 0.02 262);
+  --matrix-not-assessed-foreground: oklch(0.75 0.02 255);
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-severity-critical: var(--severity-critical);
+  --color-severity-high: var(--severity-high);
+  --color-severity-medium: var(--severity-medium);
+  --color-severity-low: var(--severity-low);
+
+  --color-matrix-non-compliant: var(--matrix-non-compliant);
+  --color-matrix-non-compliant-foreground: var(--matrix-non-compliant-foreground);
+  --color-matrix-in-progress: var(--matrix-in-progress);
+  --color-matrix-in-progress-foreground: var(--matrix-in-progress-foreground);
+  --color-matrix-compliant: var(--matrix-compliant);
+  --color-matrix-compliant-foreground: var(--matrix-compliant-foreground);
+  --color-matrix-not-assessed: var(--matrix-not-assessed);
+  --color-matrix-not-assessed-foreground: var(--matrix-not-assessed-foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+}

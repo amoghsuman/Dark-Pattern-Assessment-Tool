@@ -1,0 +1,33 @@
+/*
+ * Print stylesheet used for PDF export (browser "Save as PDF").
+ * Elements marked .print-hidden (app chrome, controls) are removed; report
+ * sections control page breaks with .print-break-before / .print-avoid-break.
+ */
+@media print {
+  @page {
+    size: A4;
+    margin: 16mm 14mm 18mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #0f172a !important;
+  }
+
+  .print-hidden {
+    display: none !important;
+  }
+
+  .print-break-before {
+    break-before: page;
+  }
+
+  .print-avoid-break {
+    break-inside: avoid;
+  }
+
+  a[href]::after {
+    content: none !important;
+  }
+}
