@@ -19,20 +19,21 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 - M2 Domain, schemas, rules: done (zod domain schemas, finding workflow, repository interfaces, 13 draft rule packs).
 - M3 Sample data layer: done (fixtures, 14 SVG evidence screens, SampleDataRepository with localStorage overlay, derive functions, RepositoryProvider and hooks).
 - M4 App shell, Home, Settings: done (sidebar, header with Sample data badge, role switcher and reset, Home list, Settings tabs).
-- Next: M5 Wizard and run view.
+- M5 Wizard and run view: done (six-step wizard with journey builder and saved draft; assessment shell with tabs; animated engine timeline with replay).
+- Next: M6 Overview and compliance matrix.
 
 ## Commands (run from the repo root, PowerShell or any shell)
 
-| Command                             | What it does                                                                 |
-| ----------------------------------- | ---------------------------------------------------------------------------- |
-| `pnpm install`                      | Install all workspace dependencies                                           |
-| `pnpm dev`                          | Next.js dev server for `apps/web` on http://localhost:3000                   |
-| `pnpm build` / `pnpm start`         | Production build / serve                                                     |
-| `pnpm lint`                         | Next route typegen, then ESLint (type-aware) + avoided-word check            |
-| `pnpm typecheck`                    | `tsc --noEmit` in every package (web runs `next typegen` first)              |
-| `pnpm test`                         | Vitest across all projects (`packages/*`, `apps/web`)                        |
-| `pnpm e2e`                          | Playwright (builds and serves the app on port 3100; desktop + 768 px tablet) |
-| `pnpm format` / `pnpm format:check` | Prettier                                                                     |
+| Command                             | What it does                                                                            |
+| ----------------------------------- | --------------------------------------------------------------------------------------- |
+| `pnpm install`                      | Install all workspace dependencies                                                      |
+| `pnpm dev`                          | Next.js dev server for `apps/web` on http://localhost:3000                              |
+| `pnpm build` / `pnpm start`         | Production build / serve                                                                |
+| `pnpm lint`                         | Next route typegen, then ESLint (type-aware) + avoided-word check                       |
+| `pnpm typecheck`                    | `tsc --noEmit` in every package (web runs `next typegen` first)                         |
+| `pnpm test`                         | Vitest across all projects (`packages/*`, `apps/web`)                                   |
+| `pnpm e2e`                          | Playwright (builds and serves the app on port 3100; desktop + 768 px tablet; 2 workers) |
+| `pnpm format` / `pnpm format:check` | Prettier                                                                                |
 
 Milestone gate: `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm e2e`, then commit.
 
@@ -65,8 +66,10 @@ supabase          reserved (Stage B)
 - Server-only env access goes through `apps/web/lib/env.ts` (guarded by `server-only`).
 - Branding (product name, logo, accent hue) lives only in `apps/web/config/brand.ts`. The hue is applied as `--brand-hue` on `<html>` and drives the `brand` colour (active nav, running status, links) and focus ring.
 - **App shell** (`components/layout`): `AppSidebar` (full from `lg`, icon rail from `md`), `MobileNav` sheet below `md`, `AppHeader` (organisation, `SampleDataBadge`, theme toggle, `UserMenu` with sign out). Shared UI: `components/common` (severity/status badges, risk chips, target icons, `PageHeader`, `EmptyState`, `ErrorState`). Formatting helpers in `lib/format.ts` (dates always in IST). UI permission helpers in `lib/permissions.ts` mirror the repository rules.
+- **Wizard** (`components/wizard`, route `/assessments/new`): state, per-step validation and conversion to `NewAssessmentInput` live in `lib/wizard/draft.ts` (unit tested); the draft is saved to localStorage key `dpat.wizard-draft.v1` and restored on return. The wizard renders client-only because it reads that draft.
+- **Assessment pages** share `app/(app)/assessments/[assessmentId]/layout.tsx` → `AssessmentShell` (header, tabs: Overview, Run, Compliance matrix, Findings, Report). **Run view** (`components/run/run-view.tsx`): completed runs open at their final state and animate on Replay; queued/running runs stream frames from `subscribeToRun` (replay of `buildRunReplay`); a new sample assessment completes after its replay and becomes "In review".
 - shadcn/ui components are added with the CLI from `apps/web`. The CLI currently mis-resolves the utils alias and adds a stray `cn` npm package: after adding, replace `from "cn"` with `from "@/lib/utils"` and remove the `cn` dependency. Two generated components needed small fixes for `exactOptionalPropertyTypes` (dropdown-menu checkbox item, sonner theme).
-- Typed routes are on: links to pages that do not exist yet need `as Route` (remove the cast when the page lands; currently `/rules`, `/assessments/new`).
+- Typed routes are on: links to pages that do not exist yet need `as Route` (remove the cast when the page lands; currently `/rules` and the assessment tabs for findings and report).
 - Design tokens (base palette, severity, compliance-matrix colours) live only in `apps/web/app/globals.css`, exposed as Tailwind colours such as `bg-matrix-non-compliant`, `text-severity-high`.
 - PDF export uses the print stylesheet `apps/web/styles/print.css` (`.print-hidden`, `.print-break-before`, `.print-avoid-break`).
 

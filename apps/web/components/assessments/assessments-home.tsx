@@ -75,7 +75,7 @@ export function AssessmentsHome() {
   const newButton = (
     <Button asChild={canCreate} disabled={!canCreate}>
       {canCreate ? (
-        <Link href={'/assessments/new' as Route}>
+        <Link href="/assessments/new">
           <Plus />
           New assessment
         </Link>

@@ -16,6 +16,8 @@ const serverCommand = isCI
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
+  // Two workers keep a single production server responsive on laptops and CI runners alike.
+  workers: 2,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
   // Hard ceiling so a stuck run fails fast instead of hanging the CI job.

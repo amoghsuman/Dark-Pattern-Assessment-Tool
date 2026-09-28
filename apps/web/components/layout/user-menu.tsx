@@ -2,6 +2,7 @@
 
 import { ROLE_LABELS } from '@dpat/shared';
 import { LogOut } from 'lucide-react';
+import { startTransition } from 'react';
 
 import { signOut } from '@/app/access/actions';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -48,14 +49,11 @@ export function UserMenu() {
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <form action={signOut}>
-          <DropdownMenuItem asChild>
-            <button type="submit" className="w-full">
-              <LogOut />
-              Sign out
-            </button>
-          </DropdownMenuItem>
-        </form>
+        {/* Call the action directly: a form inside the menu unmounts before it can submit. */}
+        <DropdownMenuItem onSelect={() => startTransition(() => signOut())}>
+          <LogOut />
+          Sign out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
