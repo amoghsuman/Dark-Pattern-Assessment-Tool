@@ -199,10 +199,11 @@ function FindingBody({ assessmentId, finding }: { assessmentId: string; finding:
                         met &&
                           'border-matrix-non-compliant bg-matrix-non-compliant text-matrix-non-compliant-foreground',
                       )}
-                      aria-label={met ? 'Met' : 'Not met'}
+                      aria-hidden
                     >
                       {met ? <Check className="size-3" /> : null}
                     </span>
+                    <span className="sr-only">{met ? 'Met: ' : 'Not met: '}</span>
                     <span className="font-mono text-xs leading-5 text-muted-foreground">
                       {c.id}
                     </span>

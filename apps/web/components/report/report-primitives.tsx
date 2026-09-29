@@ -29,7 +29,7 @@ export function SubHeading({ children }: { children: ReactNode }) {
 /** Compact table styling tuned for screen and A4 print. */
 export function ReportTable({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className="overflow-x-auto print:overflow-visible">
+    <div className="overflow-x-auto print:overflow-visible" tabIndex={0}>
       <table
         className={cn(
           'w-full border-collapse text-left text-xs [&_td]:border-b [&_td]:px-2 [&_td]:py-1.5 [&_td]:align-top [&_th]:border-b-2 [&_th]:px-2 [&_th]:py-1.5 [&_th]:font-semibold',

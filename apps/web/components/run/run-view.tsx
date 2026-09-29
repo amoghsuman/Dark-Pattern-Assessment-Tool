@@ -246,14 +246,26 @@ function EngineStep({ engine, last }: { engine: EngineRun; last: boolean }) {
                     key={`${event.at}-${i}`}
                     className={cn(
                       'flex gap-3',
-                      event.level === 'warn' && 'text-severity-high',
+                      event.level === 'warn' && 'font-medium text-foreground',
                       event.level === 'error' && 'text-destructive',
                     )}
                   >
                     <time dateTime={event.at} className="shrink-0 text-muted-foreground">
                       {formatTime(event.at)}
                     </time>
-                    <span>{event.message}</span>
+                    <span>
+                      {event.level !== 'info' ? (
+                        <span
+                          aria-hidden
+                          className={cn(
+                            'mr-1.5 inline-block size-1.5 rounded-full align-middle',
+                            event.level === 'warn' ? 'bg-severity-high' : 'bg-destructive',
+                          )}
+                        />
+                      ) : null}
+                      {event.level === 'warn' ? <span className="sr-only">Warning: </span> : null}
+                      {event.message}
+                    </span>
                   </li>
                 ))}
               </ul>
