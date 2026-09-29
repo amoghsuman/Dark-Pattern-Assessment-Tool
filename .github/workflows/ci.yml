@@ -2,7 +2,8 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # main plus milestone branches (m6, m7, ...), which are merged fast-forward once green.
+    branches: [main, 'm[0-9]*']
   pull_request:
 
 concurrency:

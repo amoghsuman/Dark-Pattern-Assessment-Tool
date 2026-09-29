@@ -34,20 +34,20 @@
   --brand: oklch(0.5 0.15 var(--brand-hue, 250));
   --brand-foreground: oklch(0.99 0 0);
 
-  /* Severity */
-  --severity-critical: oklch(0.5 0.2 25);
-  --severity-high: oklch(0.62 0.19 40);
-  --severity-medium: oklch(0.72 0.15 75);
-  --severity-low: oklch(0.6 0.09 240);
+  /* Severity (ordered). Validated with the dataviz palette checks; every mark carries a text label. */
+  --severity-critical: oklch(0.47 0.18 22);
+  --severity-high: oklch(0.62 0.17 45);
+  --severity-medium: oklch(0.74 0.15 88);
+  --severity-low: oklch(0.56 0.14 255);
 
-  /* Compliance matrix */
-  --matrix-non-compliant: oklch(0.6 0.19 27);
-  --matrix-non-compliant-foreground: oklch(0.99 0 0);
-  --matrix-in-progress: oklch(0.85 0.14 88);
-  --matrix-in-progress-foreground: oklch(0.3 0.06 70);
-  --matrix-compliant: oklch(0.66 0.13 155);
-  --matrix-compliant-foreground: oklch(0.99 0 0);
-  --matrix-not-assessed: oklch(0.9 0.008 255);
+  /* Compliance matrix (status). Cells always show an icon and count; foregrounds meet 4.5:1. */
+  --matrix-non-compliant: oklch(0.58 0.19 27);
+  --matrix-non-compliant-foreground: oklch(1 0 0);
+  --matrix-in-progress: oklch(0.76 0.15 80);
+  --matrix-in-progress-foreground: oklch(0.23 0.03 265);
+  --matrix-compliant: oklch(0.54 0.13 155);
+  --matrix-compliant-foreground: oklch(1 0 0);
+  --matrix-not-assessed: oklch(0.93 0.006 255);
   --matrix-not-assessed-foreground: oklch(0.45 0.02 257);
 }
 
@@ -73,15 +73,18 @@
   --brand: oklch(0.74 0.12 var(--brand-hue, 250));
   --brand-foreground: oklch(0.2 0.03 265);
 
-  --severity-critical: oklch(0.68 0.2 25);
-  --severity-high: oklch(0.74 0.17 45);
-  --severity-medium: oklch(0.82 0.14 85);
-  --severity-low: oklch(0.72 0.09 240);
+  --severity-critical: oklch(0.52 0.2 5);
+  --severity-high: oklch(0.58 0.17 60);
+  --severity-medium: oklch(0.66 0.15 105);
+  --severity-low: oklch(0.57 0.14 255);
 
   --matrix-non-compliant: oklch(0.58 0.18 27);
-  --matrix-in-progress: oklch(0.8 0.14 88);
-  --matrix-compliant: oklch(0.6 0.12 155);
-  --matrix-not-assessed: oklch(0.32 0.02 262);
+  --matrix-non-compliant-foreground: oklch(1 0 0);
+  --matrix-in-progress: oklch(0.67 0.14 78);
+  --matrix-in-progress-foreground: oklch(0.2 0.03 265);
+  --matrix-compliant: oklch(0.53 0.12 155);
+  --matrix-compliant-foreground: oklch(1 0 0);
+  --matrix-not-assessed: oklch(0.28 0.02 262);
   --matrix-not-assessed-foreground: oklch(0.75 0.02 255);
 }
 

@@ -11,11 +11,19 @@ import {
 
 import { cn } from '@/lib/utils';
 
+/** Tint + ring only; text stays in text tokens and the coloured dot carries identity. */
 const SEVERITY_CLASSES: Record<Severity, string> = {
-  critical: 'bg-severity-critical/15 text-severity-critical ring-severity-critical/30',
-  high: 'bg-severity-high/15 text-severity-high ring-severity-high/30',
-  medium: 'bg-severity-medium/20 text-foreground ring-severity-medium/40',
-  low: 'bg-severity-low/15 text-severity-low ring-severity-low/30',
+  critical: 'bg-severity-critical/12 text-foreground ring-severity-critical/40',
+  high: 'bg-severity-high/12 text-foreground ring-severity-high/40',
+  medium: 'bg-severity-medium/15 text-foreground ring-severity-medium/50',
+  low: 'bg-severity-low/12 text-foreground ring-severity-low/40',
+};
+
+export const SEVERITY_DOT: Record<Severity, string> = {
+  critical: 'bg-severity-critical',
+  high: 'bg-severity-high',
+  medium: 'bg-severity-medium',
+  low: 'bg-severity-low',
 };
 
 const pill =
@@ -24,7 +32,7 @@ const pill =
 export function SeverityBadge({ severity, className }: { severity: Severity; className?: string }) {
   return (
     <span className={cn(pill, SEVERITY_CLASSES[severity], className)}>
-      <span aria-hidden className="size-1.5 rounded-full bg-current" />
+      <span aria-hidden className={cn('size-1.5 rounded-full', SEVERITY_DOT[severity])} />
       {SEVERITY_LABELS[severity]}
     </span>
   );
@@ -33,7 +41,7 @@ export function SeverityBadge({ severity, className }: { severity: Severity; cla
 const ASSESSMENT_STATUS_CLASSES: Record<AssessmentStatus, string> = {
   draft: 'bg-muted text-muted-foreground ring-border',
   queued: 'bg-muted text-muted-foreground ring-border',
-  running: 'bg-brand/10 text-brand ring-brand/30',
+  running: 'bg-brand/10 text-foreground ring-brand/40',
   in_review: 'bg-matrix-in-progress/20 text-foreground ring-matrix-in-progress/50',
   completed: 'bg-matrix-compliant/15 text-foreground ring-matrix-compliant/40',
 };
@@ -55,10 +63,10 @@ export function AssessmentStatusBadge({ status }: { status: AssessmentStatus }) 
 const FINDING_STATUS_CLASSES: Record<FindingStatus, string> = {
   detected: 'bg-muted text-foreground ring-border',
   under_review: 'bg-matrix-in-progress/20 text-foreground ring-matrix-in-progress/50',
-  confirmed: 'bg-matrix-non-compliant/15 text-matrix-non-compliant ring-matrix-non-compliant/30',
+  confirmed: 'bg-matrix-non-compliant/12 text-foreground ring-matrix-non-compliant/40',
   dismissed:
     'bg-muted text-muted-foreground ring-border line-through decoration-muted-foreground/50',
-  remediation_in_progress: 'bg-brand/10 text-brand ring-brand/30',
+  remediation_in_progress: 'bg-brand/10 text-foreground ring-brand/40',
   closed: 'bg-matrix-compliant/15 text-foreground ring-matrix-compliant/40',
 };
 
@@ -90,6 +98,7 @@ export function RiskSummaryChips({ risk }: { risk: RiskSummary }) {
           className={cn(pill, SEVERITY_CLASSES[s], 'tabular-nums')}
           title={`${risk.openBySeverity[s]} open ${SEVERITY_LABELS[s].toLowerCase()}`}
         >
+          <span aria-hidden className={cn('size-1.5 rounded-full', SEVERITY_DOT[s])} />
           {risk.openBySeverity[s]} {SEVERITY_LABELS[s]}
         </span>
       ))}

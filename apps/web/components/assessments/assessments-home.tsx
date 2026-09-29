@@ -245,7 +245,7 @@ function SummaryCards({ data }: { data: AssessmentSummary[] | undefined }) {
       {
         label: 'Open critical',
         value: all.reduce((n, s) => n + s.risk.openBySeverity.critical, 0),
-        tone: 'text-severity-critical',
+        dot: 'bg-severity-critical',
       },
     ];
   }, [data]);
@@ -257,7 +257,10 @@ function SummaryCards({ data }: { data: AssessmentSummary[] | undefined }) {
           <CardContent className="px-4">
             <p className="text-xs font-medium text-muted-foreground">{s.label}</p>
             {data ? (
-              <p className={`text-2xl font-semibold tabular-nums ${s.tone ?? ''}`}>{s.value}</p>
+              <p className="flex items-center gap-2 text-2xl font-semibold">
+                {s.dot ? <span aria-hidden className={`size-2 rounded-full ${s.dot}`} /> : null}
+                {s.value}
+              </p>
             ) : (
               <Skeleton className="mt-1 h-8 w-12" />
             )}

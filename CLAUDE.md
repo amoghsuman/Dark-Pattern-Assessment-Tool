@@ -20,7 +20,8 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 - M3 Sample data layer: done (fixtures, 14 SVG evidence screens, SampleDataRepository with localStorage overlay, derive functions, RepositoryProvider and hooks).
 - M4 App shell, Home, Settings: done (sidebar, header with Sample data badge, role switcher and reset, Home list, Settings tabs).
 - M5 Wizard and run view: done (six-step wizard with journey builder and saved draft; assessment shell with tabs; animated engine timeline with replay).
-- Next: M6 Overview and compliance matrix.
+- M6 Overview and compliance matrix: done (KPIs, severity/engine/pattern charts, scope, compact matrix; full matrix with legend, markers and cell drawer).
+- Next: M7 Findings list and detail.
 
 ## Commands (run from the repo root, PowerShell or any shell)
 
@@ -35,7 +36,7 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 | `pnpm e2e`                          | Playwright (builds and serves the app on port 3100; desktop + 768 px tablet; 2 workers) |
 | `pnpm format` / `pnpm format:check` | Prettier                                                                                |
 
-Milestone gate: `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm e2e`, then commit.
+Milestone flow: run `pnpm format:check`, `pnpm lint`, `pnpm typecheck` and `pnpm test` locally (plus only the relevant Playwright specs, under a hard `timeout`); commit to a branch named after the milestone (`m6`, `m7`, ...), push, check the CI run once with `gh run view` (Playwright runs there), then fast-forward merge into `main` and push. Wrap any long-running command (tests, servers, `gh run watch`) in `timeout`, and stop background servers explicitly.
 
 Vercel builds every push (`main` → Production). Check both CI and the Vercel commit status after pushing: `gh run list --commit <sha>` and `gh api repos/amoghsuman/Dark-Pattern-Assessment-Tool/commits/<sha>/status`. If `gh` is not on the shell PATH, call `"/c/Program Files/GitHub CLI/gh.exe"`.
 
@@ -71,6 +72,8 @@ supabase          reserved (Stage B)
 - shadcn/ui components are added with the CLI from `apps/web`. The CLI currently mis-resolves the utils alias and adds a stray `cn` npm package: after adding, replace `from "cn"` with `from "@/lib/utils"` and remove the `cn` dependency. Two generated components needed small fixes for `exactOptionalPropertyTypes` (dropdown-menu checkbox item, sonner theme).
 - Typed routes are on: links to pages that do not exist yet need `as Route` (remove the cast when the page lands; currently `/rules` and the assessment tabs for findings and report).
 - Design tokens (base palette, severity, compliance-matrix colours) live only in `apps/web/app/globals.css`, exposed as Tailwind colours such as `bg-matrix-non-compliant`, `text-severity-high`.
+- **Colour palettes are validated**, not eyeballed: severity (ordered) and compliance-matrix (status) tokens in `globals.css` were checked with the dataviz skill's `validate_palette.js` for light (`#ffffff`) and dark (`#131824`) surfaces; remaining WARNs are covered by visible labels/icons. Text never uses a severity or status colour: badges use a tint + coloured dot, matrix cells use foreground tokens that meet 4.5:1. Re-run the validator if you change these tokens.
+- **Analysis screens** use `useAssessmentAnalysis(assessmentId)` (`lib/data/use-assessment-analysis.ts`), which derives matrix and KPIs with the shared rules. Charts are plain HTML bar lists (`components/charts/bar-list.tsx`: ≤24px bars, 4px rounded data end, values printed, per-row tooltip and link). The compliance matrix (`components/matrix`) keeps the open cell in the URL (`?pattern=&stage=`); exceptions are solid, compliant cells a green tint, every cell has an icon and an accessible label.
 - PDF export uses the print stylesheet `apps/web/styles/print.css` (`.print-hidden`, `.print-break-before`, `.print-avoid-break`).
 
 ## Conventions
