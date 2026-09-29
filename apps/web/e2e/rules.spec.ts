@@ -33,7 +33,7 @@ test('rule pack detail shows every section', async ({ page }) => {
   await page.getByRole('tab', { name: /Backend/ }).click();
   await expect(page.getByText('DP-SIG-BE-1')).toBeVisible();
   await page.getByRole('tab', { name: 'lending' }).click();
-  await expect(page.getByText(/key fact statement/)).toBeVisible();
+  await expect(page.getByText(/must match the key fact statement/)).toBeVisible();
   await page.getByRole('link', { name: 'Disguised Advertisement' }).click();
   await expect(page).toHaveURL('/rules/disguised_advertisement');
 });
