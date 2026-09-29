@@ -40,9 +40,11 @@ function Section({
   return (
     <Card className="gap-3">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-sm">
-          {icon}
-          {title}
+        <CardTitle>
+          <h3 className="flex items-center gap-2 text-sm">
+            {icon}
+            {title}
+          </h3>
         </CardTitle>
       </CardHeader>
       <CardContent>{children}</CardContent>

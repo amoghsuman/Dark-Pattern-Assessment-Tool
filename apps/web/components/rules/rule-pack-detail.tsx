@@ -38,8 +38,10 @@ function Section({ id, title, children }: { id: string; title: string; children:
   return (
     <Card className="gap-3" aria-labelledby={id}>
       <CardHeader>
-        <CardTitle id={id} className="text-base">
-          {title}
+        <CardTitle>
+          <h2 id={id} className="text-base">
+            {title}
+          </h2>
         </CardTitle>
       </CardHeader>
       <CardContent>{children}</CardContent>
