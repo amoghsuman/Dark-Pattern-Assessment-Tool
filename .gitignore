@@ -34,3 +34,6 @@ Thumbs.db
 
 # Playwright signed-in state
 apps/web/e2e/.auth/
+
+# Screens captured by e2e/screens.spec.ts
+apps/web/screens/

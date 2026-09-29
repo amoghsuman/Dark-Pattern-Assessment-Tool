@@ -59,8 +59,8 @@ export function AssessmentShell({
       : pathname === `${base}${segment}` || pathname.startsWith(`${base}${segment}/`);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      <div className="space-y-3">
+    <div className="mx-auto max-w-7xl space-y-6 print:max-w-none print:space-y-0">
+      <div className="print-hidden space-y-3">
         <Link
           href="/"
           className="print-hidden inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"

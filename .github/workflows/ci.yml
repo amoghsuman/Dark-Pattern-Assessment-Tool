@@ -79,6 +79,14 @@ jobs:
       - run: pnpm e2e
 
       - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: screens
+          path: apps/web/screens
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report

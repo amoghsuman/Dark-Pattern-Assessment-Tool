@@ -17,7 +17,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, ListFilter, Search, X } from 'lucide-r
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { FindingStatusBadge, SEVERITY_DOT, SeverityBadge } from '@/components/common/badges';
@@ -102,18 +102,27 @@ export function FindingsList({ assessmentId }: { assessmentId: string }) {
   const [bulkStatus, setBulkStatus] = useState<FindingStatus | ''>('');
   const [bulkNote, setBulkNote] = useState('');
 
+  // The most recently requested query. router.replace applies asynchronously, so a debounced
+  // search must build on this, not on a render-time `filter` that may predate "Clear filters".
+  const latest = useRef(query);
+  useEffect(() => {
+    latest.current = query;
+  }, [query]);
+
   const navigate = (next: FindingsQuery) => {
+    latest.current = next;
     const qs = serializeFindingsQuery(next);
     router.replace((qs ? `${pathname}?${qs}` : pathname) as Route, { scroll: false });
   };
   /** `undefined` or an empty list clears that filter. */
   const setFilter = (patch: { [K in keyof FindingFilter]?: FindingFilter[K] | undefined }) => {
-    const merged = { ...filter, ...patch } as FindingFilter;
+    const base = latest.current;
+    const merged = { ...base.filter, ...patch } as FindingFilter;
     for (const key of Object.keys(merged) as (keyof FindingFilter)[]) {
       const v = merged[key];
       if (v === undefined || (Array.isArray(v) && v.length === 0) || v === '') delete merged[key];
     }
-    navigate({ ...query, filter: merged });
+    navigate({ ...base, filter: merged });
   };
 
   // Debounce free-text search into the URL.

@@ -22,7 +22,8 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 - M5 Wizard and run view: done (six-step wizard with journey builder and saved draft; assessment shell with tabs; animated engine timeline with replay).
 - M6 Overview and compliance matrix: done (KPIs, severity/engine/pattern charts, scope, compact matrix; full matrix with legend, markers and cell drawer).
 - M7 Findings list and detail: done (URL filters, facets with counts, sort, bulk status; screenshot viewer, Shiki code viewer, criteria, review workflow, comments, audit trail).
-- Next: M8 Rule library and reports; M9 hardening; M10 production-grade assessment inputs.
+- M8 Rule library and reports: done (library and pack detail; report preview with modular sections; Excel risk register; PDF via print).
+- Next: M9 hardening; M10 production-grade assessment inputs.
 
 ## Commands (run from the repo root, PowerShell or any shell)
 
@@ -72,10 +73,13 @@ supabase          reserved (Stage B)
 - **Assessment pages** share `app/(app)/assessments/[assessmentId]/layout.tsx` → `AssessmentShell` (header, tabs: Overview, Run, Compliance matrix, Findings, Report). **Run view** (`components/run/run-view.tsx`): completed runs open at their final state and animate on Replay; queued/running runs stream frames from `subscribeToRun` (replay of `buildRunReplay`); a new sample assessment completes after its replay and becomes "In review".
 - **Findings** (`components/findings`): list filters live in the URL (`lib/findings/filter-params.ts`, unit tested) and go to `FindingRepository.list` as a `FindingFilter`; facet counts respect the other active filters; bulk updates report skipped findings with reasons. Detail page: `ScreenshotViewer` (zoom/pan/fit, boxes in the transformed layer, regions linked to criteria), `CodeViewer` (Shiki loaded on demand, dual theme, file line numbers, highlighted lines; styles in `globals.css`), `ReviewPanel` (transitions from `allowedTransitions`), comments and audit trail.
 - shadcn/ui components are added with the CLI from `apps/web`. The CLI currently mis-resolves the utils alias and adds a stray `cn` npm package: after adding, replace `from "cn"` with `from "@/lib/utils"` and remove the `cn` dependency. Two generated components needed small fixes for `exactOptionalPropertyTypes` (dropdown-menu checkbox item, sonner theme).
-- Typed routes are on: links to pages that do not exist yet need `as Route` (remove the cast when the page lands; currently `/rules`, `/rules/:pattern` and the report tab).
+- Typed routes are on: links to pages that do not exist yet need `as Route` (remove the cast when the page lands).
 - Design tokens (base palette, severity, compliance-matrix colours) live only in `apps/web/app/globals.css`, exposed as Tailwind colours such as `bg-matrix-non-compliant`, `text-severity-high`.
 - **Colour palettes are validated**, not eyeballed: severity (ordered) and compliance-matrix (status) tokens in `globals.css` were checked with the dataviz skill's `validate_palette.js` for light (`#ffffff`) and dark (`#131824`) surfaces; remaining WARNs are covered by visible labels/icons. Text never uses a severity or status colour: badges use a tint + coloured dot, matrix cells use foreground tokens that meet 4.5:1. Re-run the validator if you change these tokens.
 - **Analysis screens** use `useAssessmentAnalysis(assessmentId)` (`lib/data/use-assessment-analysis.ts`), which derives matrix and KPIs with the shared rules. Charts are plain HTML bar lists (`components/charts/bar-list.tsx`: ≤24px bars, 4px rounded data end, values printed, per-row tooltip and link). The compliance matrix (`components/matrix`) keeps the open cell in the URL (`?pattern=&stage=`); exceptions are solid, compliant cells a green tint, every cell has an icon and an accessible label.
+- **Rule library** (`components/rules`, `/rules`, `/rules/[patternId]`): reads packs through `RuleRepository`; every page shows the draft banner.
+- **Report** (`components/report`): `REPORT_SECTIONS` in `report-sections.ts` is the template (ordered list of self-contained section components receiving `ReportData`); swap entries to adopt a house template. Excel export: `lib/export/risk-register-xlsx.ts` (exceljs, loaded on click; sheets Risk register 13 × stages, Findings, About; unit tested by reading the file back).
+- **Visual review without local Playwright:** `e2e/screens.spec.ts` captures key screens in light and dark; CI uploads them as the `screens` artifact (`gh run download <id> -n screens`).
 - PDF export uses the print stylesheet `apps/web/styles/print.css` (`.print-hidden`, `.print-break-before`, `.print-avoid-break`).
 
 ## Conventions

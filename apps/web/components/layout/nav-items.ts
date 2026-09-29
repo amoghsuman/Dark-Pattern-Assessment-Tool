@@ -18,7 +18,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   // Route cast until the Rule library page lands (M8).
   {
-    href: '/rules' as Route,
+    href: '/rules',
     label: 'Rule library',
     icon: BookOpen,
     matches: (p) => p.startsWith('/rules'),

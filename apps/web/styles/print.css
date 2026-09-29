@@ -30,4 +30,15 @@
   a[href]::after {
     content: none !important;
   }
+
+  main {
+    padding: 0 !important;
+  }
+
+  /* Keep heatmap fills, severity dots and evidence boxes in the PDF. */
+  .report-document,
+  .report-document * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }
