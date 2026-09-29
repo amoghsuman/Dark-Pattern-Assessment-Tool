@@ -395,7 +395,6 @@ export function FindingsList({ assessmentId }: { assessmentId: string }) {
                 ) : null}
                 {sortHeader('reference', 'Reference', 'w-32')}
                 <TableHead className="min-w-80">Finding</TableHead>
-                <TableHead className="hidden xl:table-cell">Stage</TableHead>
                 {sortHeader('severity', 'Severity')}
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden lg:table-cell">Engine</TableHead>
@@ -437,11 +436,9 @@ export function FindingsList({ assessmentId }: { assessmentId: string }) {
                         {f.title}
                       </Link>
                       <p className="text-xs text-muted-foreground">
-                        {getPatternInfo(f.patternId).name}
+                        {getPatternInfo(f.patternId).name} ·{' '}
+                        {stages.find((s) => s.id === f.stageId)?.name ?? f.stageId}
                       </p>
-                    </TableCell>
-                    <TableCell className="hidden text-sm text-muted-foreground xl:table-cell">
-                      {stages.find((s) => s.id === f.stageId)?.name ?? f.stageId}
                     </TableCell>
                     <TableCell>
                       <SeverityBadge severity={f.severity} />

@@ -4,6 +4,15 @@ An AI-assisted tool for Indian regulated entities (banks, insurers, fintechs) to
 
 > **Stage A:** the complete frontend runs on realistic sample data for a fictitious insurer ("Example Life Insurance"). The backend (Supabase, analysis worker, Claude API pipeline) arrives in Stage B. See [PLAN.md](PLAN.md).
 
+**Production (Stage A):** https://dark-pattern-assessment-tool.vercel.app (passcode protected; region `bom1`).
+
+## Using the app
+
+1. Enter the passcode on the access page.
+2. The **Sample data** badge in the header shows the app is running on fictitious sample data. Its menu lets you act as each role (Admin, Assessor, Reviewer, Viewer) and reset the sample data. Changes you make (review actions, comments, new assessments, settings) are saved only in your browser.
+3. A suggested walkthrough: Assessments → _Digital Journeys Review, H1 FY2026-27_ → Overview → Compliance matrix (select a red cell) → Open finding → switch to Reviewer and confirm or dismiss → Report → Export Excel risk register or Download PDF. Then create your own assessment with **New assessment** and watch it run.
+4. The Rule library shows the 13 draft rule packs (pending compliance review).
+
 ## Repository layout
 
 ```
@@ -88,7 +97,7 @@ pnpm --filter @dpat/web exec playwright install chromium
 pnpm e2e
 ```
 
-The same checks run in GitHub Actions on every push and pull request (`.github/workflows/ci.yml`).
+The same checks run in GitHub Actions on every push to `main` or a milestone branch (`m6`, `m7`, ...) and on pull requests (`.github/workflows/ci.yml`). Playwright runs in CI; screens it captures are uploaded as the `screens` artifact.
 
 ## Deployment (Vercel)
 

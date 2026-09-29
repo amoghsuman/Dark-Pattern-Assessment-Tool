@@ -23,7 +23,8 @@ The approved build plan and milestone list are in [PLAN.md](PLAN.md).
 - M6 Overview and compliance matrix: done (KPIs, severity/engine/pattern charts, scope, compact matrix; full matrix with legend, markers and cell drawer).
 - M7 Findings list and detail: done (URL filters, facets with counts, sort, bulk status; screenshot viewer, Shiki code viewer, criteria, review workflow, comments, audit trail).
 - M8 Rule library and reports: done (library and pack detail; report preview with modular sections; Excel risk register; PDF via print).
-- Next: M9 hardening; M10 production-grade assessment inputs.
+- M9 Hardening: done (full walkthrough spec, axe accessibility checks on every screen in both themes, error and not-found pages, security headers, robots, README usage and production URL).
+- Next: M10 production-grade assessment inputs.
 
 ## Commands (run from the repo root, PowerShell or any shell)
 
@@ -80,6 +81,8 @@ supabase          reserved (Stage B)
 - **Rule library** (`components/rules`, `/rules`, `/rules/[patternId]`): reads packs through `RuleRepository`; every page shows the draft banner.
 - **Report** (`components/report`): `REPORT_SECTIONS` in `report-sections.ts` is the template (ordered list of self-contained section components receiving `ReportData`); swap entries to adopt a house template. Excel export: `lib/export/risk-register-xlsx.ts` (exceljs, loaded on click; sheets Risk register 13 × stages, Findings, About; unit tested by reading the file back).
 - **Visual review without local Playwright:** `e2e/screens.spec.ts` captures key screens in light and dark; CI uploads them as the `screens` artifact (`gh run download <id> -n screens`).
+- **Hardening:** security headers (`next.config.ts`: nosniff, DENY framing, referrer policy, permissions policy, `frame-ancestors 'none'` CSP, noindex) and `app/robots.ts` (disallow all). `app/(app)/error.tsx` is the route error boundary; `app/not-found.tsx` the 404. `e2e/accessibility.spec.ts` runs axe (WCAG 2.1 AA, serious and critical impacts fail) on every screen in light and dark; `e2e/full-flow.spec.ts` is the end-to-end walkthrough. Section titles inside cards wrap a real `h2`/`h3` (shadcn `CardTitle` renders a `div`).
+- Production: https://dark-pattern-assessment-tool.vercel.app (region `bom1`; team and per-deployment URLs sit behind Vercel SSO).
 - PDF export uses the print stylesheet `apps/web/styles/print.css` (`.print-hidden`, `.print-break-before`, `.print-avoid-break`).
 
 ## Conventions
