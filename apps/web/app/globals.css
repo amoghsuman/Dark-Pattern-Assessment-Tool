@@ -142,3 +142,41 @@
     font-feature-settings: 'cv11', 'ss01';
   }
 }
+
+/* Code evidence (Shiki dual theme, file line numbers, highlighted lines). */
+@layer components {
+  .code-viewer pre,
+  pre.code-viewer {
+    margin: 0;
+    padding: 0.75rem 0;
+    background: var(--card) !important;
+    font-family: var(--font-mono);
+    line-height: 1.6;
+  }
+  .code-viewer .shiki span {
+    color: var(--shiki-light);
+  }
+  .dark .code-viewer .shiki span {
+    color: var(--shiki-dark);
+  }
+  .code-viewer .line {
+    display: inline-block;
+    min-width: 100%;
+    padding-right: 1rem;
+  }
+  .code-viewer .line::before {
+    content: attr(data-line);
+    display: inline-block;
+    width: 3.25rem;
+    margin-right: 1rem;
+    padding-right: 0.75rem;
+    text-align: right;
+    color: var(--muted-foreground);
+    border-right: 1px solid var(--border);
+    user-select: none;
+  }
+  .code-viewer .line.highlighted {
+    background: color-mix(in oklch, var(--matrix-in-progress) 22%, transparent);
+    box-shadow: inset 3px 0 0 var(--matrix-in-progress);
+  }
+}
