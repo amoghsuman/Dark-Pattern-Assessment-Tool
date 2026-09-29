@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createRepositories } from '../create-repositories';
 import { NotFoundError, PermissionError } from '../errors';
-import type { NewAssessmentInput } from '../repositories';
+import type { NewAssessmentInput, StoredUpload } from '../repositories';
 import { createLocalStorageOverlayStore, createMemoryOverlayStore, emptyOverlay } from './overlay';
 import { createSampleRepositories } from './sample-repositories';
 
@@ -28,7 +28,7 @@ describe('sample repositories: reads', () => {
     const list = await repos.assessments.list();
     expect(list.map((s) => s.assessment.id)).toEqual(['asm-renewal-prelaunch', A1]);
     const h1 = list.find((s) => s.assessment.id === A1)!;
-    expect(h1.targets).toHaveLength(3);
+    expect(h1.targets).toHaveLength(4);
     expect(h1.risk.rating).toBe('critical');
     expect(h1.risk.totalFindings).toBe(41);
   });
@@ -199,6 +199,21 @@ describe('sample repositories: new assessments and runs', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
+  const stored = (
+    uploadId: string,
+    fileName: string,
+    kind: StoredUpload['kind'],
+  ): StoredUpload => ({
+    uploadId,
+    fileName,
+    sizeBytes: 2048,
+    mimeType: 'application/octet-stream',
+    kind,
+    sha256: 'a'.repeat(64),
+    storage: 'metadata_only',
+    completedAt: NOW.toISOString(),
+  });
+
   const input: NewAssessmentInput = {
     name: 'Motor renewal check',
     targets: [
@@ -207,6 +222,24 @@ describe('sample repositories: new assessments and runs', () => {
         name: 'Motor site',
         baseUrl: 'https://motor.examplelife.example',
         environment: 'uat',
+        environmentLabel: 'UAT-2',
+        credentials: [],
+        testDataSetIds: ['tds-customer-anita'],
+        otpHandling: {
+          mode: 'live_assessor_entry',
+          assessorUserId: 'usr-arjun',
+          timeoutSeconds: 180,
+        },
+      },
+      {
+        type: 'mobile_app',
+        name: 'Motor app',
+        platform: 'android',
+        appId: 'com.examplelife.motor',
+        version: '2.1.0',
+        environment: 'uat',
+        appIdSource: 'read_from_file',
+        buildArtifactId: 'upl-apk',
       },
     ],
     journeys: [
@@ -227,7 +260,29 @@ describe('sample repositories: new assessments and runs', () => {
     ],
     patternIds: ['false_urgency', 'nagging'],
     stageIds: ['stg-renewal'],
-    uploads: [{ fileName: 'motor.apk', sizeBytes: 1024, kind: 'apk' }],
+    artifacts: [
+      { upload: stored('upl-apk', 'motor.apk', 'apk'), targetIndex: 1 },
+      {
+        upload: stored('upl-shot', 'otp-screen.png', 'screenshot'),
+        targetIndex: 0,
+        manual: {
+          journeyIndex: 0,
+          stageId: 'stg-renewal',
+          note: 'Captured manually: OTP-gated screen',
+        },
+      },
+    ],
+    coverageGaps: [
+      {
+        stageId: 'stg-renewal',
+        patternIds: ['nagging'],
+        reason: 'Push notifications out of scope',
+      },
+    ],
+    clientAccess: [
+      { id: 'android-build', category: 'android', label: 'Android build', status: 'provided' },
+    ],
+    launchedWithOutstanding: false,
   };
 
   it('creates an assessment whose run replays to completion and persists', async () => {
@@ -238,7 +293,25 @@ describe('sample repositories: new assessments and runs', () => {
       createdBy: 'usr-arjun',
       progress: { totalSteps: 2 },
     });
-    expect((await repos.assessments.listArtifacts(assessment.id))[0]?.fileName).toBe('motor.apk');
+    expect(assessment.coverageGaps).toEqual(input.coverageGaps);
+    expect(assessment.clientAccess).toHaveLength(1);
+    const artifacts = await repos.assessments.listArtifacts(assessment.id);
+    const apk = artifacts.find((a) => a.fileName === 'motor.apk');
+    const manual = artifacts.find((a) => a.origin === 'manual_capture');
+    expect(apk).toMatchObject({
+      kind: 'apk',
+      origin: 'uploaded',
+      storage: 'metadata_only',
+      sha256: 'a'.repeat(64),
+    });
+    const created = await repos.assessments.get(assessment.id);
+    const app = created.targets.find((t) => t.type === 'mobile_app');
+    expect(app?.type === 'mobile_app' && app.buildArtifactId).toBe(apk?.id);
+    expect(manual).toMatchObject({
+      stageId: 'stg-renewal',
+      journeyId: created.journeys[0]?.id,
+      targetId: created.targets[0]?.id,
+    });
 
     const run = await repos.assessments.getLatestRun(assessment.id);
     expect(run?.status).toBe('queued');
@@ -309,5 +382,117 @@ describe('overlay stores', () => {
     });
     expect(bundle.repositories.source).toBe('sample');
     expect(bundle.sampleControls?.getRole()).toBe('admin');
+  });
+});
+
+describe('sample repositories: uploads, secrets and test data', () => {
+  it('runs a chunked upload session and records metadata with the checksum', async () => {
+    const { repos } = setup();
+    const size = 20 * 1024 * 1024;
+    let session = await repos.uploads.start({
+      fileName: 'app.aab',
+      sizeBytes: size,
+      mimeType: 'application/octet-stream',
+      kind: 'aab',
+    });
+    expect(session.chunkSize).toBe(8 * 1024 * 1024);
+    await expect(repos.uploads.complete(session.id, 'b'.repeat(64))).rejects.toThrow(/incomplete/);
+    await expect(repos.uploads.appendChunk(session.id, { offset: 5, size: 10 })).rejects.toThrow(
+      /Expected a chunk at byte 0/,
+    );
+    for (let offset = 0; offset < size; offset += session.chunkSize) {
+      session = await repos.uploads.appendChunk(session.id, {
+        offset,
+        size: Math.min(session.chunkSize, size - offset),
+      });
+    }
+    expect((await repos.uploads.getSession(session.id)).uploadedBytes).toBe(size);
+    await expect(repos.uploads.complete(session.id, 'not-a-hash')).rejects.toThrow(
+      /Invalid SHA-256/,
+    );
+    const stored = await repos.uploads.complete(session.id, 'b'.repeat(64));
+    expect(stored).toMatchObject({
+      fileName: 'app.aab',
+      kind: 'aab',
+      sizeBytes: size,
+      storage: 'metadata_only',
+    });
+  });
+
+  it('never stores secrets in sample mode', async () => {
+    const { repos, store } = setup();
+    const ref = await repos.credentials.store({
+      label: 'UAT login',
+      username: 'qa.user',
+      secret: 'S3cret-42',
+    });
+    expect(ref).toMatchObject({
+      storage: 'not_stored',
+      secretRef: 'not-stored',
+      maskedHint: '\u2022\u2022\u2022\u202242',
+    });
+    expect(JSON.stringify(store.load())).not.toContain('S3cret-42');
+    await expect(
+      repos.credentials.store({ label: 'x', username: 'y', secret: '' }),
+    ).rejects.toThrow(/empty/);
+  });
+
+  it('lists, saves, edits and deletes reusable test data sets', async () => {
+    const { repos } = setup('assessor');
+    expect((await repos.organizations.listTestDataSets()).map((t) => t.id)).toContain(
+      'tds-payment-sandbox',
+    );
+    const saved = await repos.organizations.saveTestDataSet({
+      kind: 'payment_sandbox',
+      name: 'UPI failure sandbox',
+      fields: {
+        gateway: 'Gateway (test)',
+        cardNumber: '4000000000000002',
+        cardExpiry: '01/29',
+        upiId: 'failure@razorpay',
+        netbankingBank: 'Test Bank',
+      },
+    });
+    expect(saved.id).toMatch(/^tds-/);
+    const edited = await repos.organizations.saveTestDataSet({
+      ...saved,
+      name: 'UPI failure cases',
+    });
+    expect(edited).toMatchObject({
+      id: saved.id,
+      name: 'UPI failure cases',
+      createdAt: saved.createdAt,
+    });
+    await repos.organizations.deleteTestDataSet('tds-customer-senior');
+    const ids = (await repos.organizations.listTestDataSets()).map((t) => t.id);
+    expect(ids).toContain(saved.id);
+    expect(ids).not.toContain('tds-customer-senior');
+  });
+
+  it('rejects invalid test data', async () => {
+    const { repos } = setup();
+    await expect(
+      repos.organizations.saveTestDataSet({
+        kind: 'customer',
+        name: 'Bad data',
+        fields: {
+          fullName: 'X Y',
+          dateOfBirth: '1990-01-01',
+          gender: 'female',
+          mobile: '12345',
+          email: 'x@example.com',
+          pan: 'BAD',
+          pincode: '000000',
+          city: 'Pune',
+        },
+      }),
+    ).rejects.toThrow();
+  });
+
+  it('keeps test data management away from viewers', async () => {
+    const { repos } = setup('viewer');
+    await expect(
+      repos.organizations.deleteTestDataSet('tds-customer-anita'),
+    ).rejects.toBeInstanceOf(PermissionError);
   });
 });

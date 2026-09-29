@@ -1,6 +1,8 @@
 import { getPatternInfo } from '@dpat/rules';
 import { ENGINE_LABELS, ENGINE_ORDER, TARGET_TYPE_LABELS } from '@dpat/shared';
 
+import { ClientAccessList } from '@/components/common/client-access-list';
+import { InputsTable } from '@/components/common/inputs-table';
 import { targetDetail } from '@/components/common/target-icon';
 
 import { ReportTable, SectionHeading, SubHeading } from '../report-primitives';
@@ -44,6 +46,16 @@ export function ScopeMethodologySection({ data, number }: { data: ReportData; nu
           ))}
         </tbody>
       </ReportTable>
+
+      <SubHeading>Inputs received</SubHeading>
+      <InputsTable artifacts={data.artifacts} targets={targets} stages={data.stages} />
+
+      {assessment.clientAccess.length > 0 ? (
+        <>
+          <SubHeading>Client access</SubHeading>
+          <ClientAccessList items={assessment.clientAccess} />
+        </>
+      ) : null}
 
       <SubHeading>Journeys</SubHeading>
       <ReportTable>

@@ -2,15 +2,24 @@
 
 import { PATTERN_IDS, type PatternId } from '@dpat/rules';
 import type { Sector } from '@dpat/shared';
+import { Plus, Trash2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useOrganization, useRulePacks } from '@/lib/data/hooks';
-import { taggedStageIds } from '@/lib/wizard/draft';
+import { draftId, taggedStageIds } from '@/lib/wizard/draft';
 
-import { FieldError } from './field';
+import { Field, FieldError } from './field';
 import { useWizard } from './wizard-context';
 
 const SECTOR_VARIANT: Partial<Record<Sector, 'insurance' | 'banking' | 'lending'>> = {
@@ -157,6 +166,133 @@ export function StepPatterns() {
         </div>
         <FieldError message={errors.stageIds} />
       </fieldset>
+
+      <ExclusionsEditor />
     </div>
+  );
+}
+
+/** Scope exclusions: parts of the scope deliberately not assessed. Saved as coverage gaps. */
+function ExclusionsEditor() {
+  const { draft, update, errors, stages } = useWizard();
+  const { data: packs } = useRulePacks();
+  const inScope = stages.filter((s) => draft.stageIds.includes(s.id));
+  const setExclusion = (id: string, patch: Partial<(typeof draft.exclusions)[number]>) =>
+    update((d) => ({
+      ...d,
+      exclusions: d.exclusions.map((e) => (e.id === id ? { ...e, ...patch } : e)),
+    }));
+
+  return (
+    <fieldset className="grid gap-3">
+      <legend className="text-sm font-medium">Scope exclusions</legend>
+      <p className="text-xs text-muted-foreground">
+        Anything deliberately left out, such as a portal the client cannot give access to. Excluded
+        cells show as not yet assessed in the compliance matrix and are listed in the report.
+      </p>
+      {draft.exclusions.map((e, index) => {
+        const stageError = errors[`exclusion.${e.id}.stageId`];
+        const reasonError = errors[`exclusion.${e.id}.reason`];
+        return (
+          <div key={e.id} className="grid gap-3 rounded-lg border p-3">
+            <div className="grid gap-3 md:grid-cols-[14rem_1fr_auto] md:items-start">
+              <Field id={`exclusion-${e.id}-stage`} label="Stage" error={stageError}>
+                <Select
+                  value={e.stageId}
+                  onValueChange={(stageId) => setExclusion(e.id, { stageId })}
+                >
+                  <SelectTrigger
+                    id={`exclusion-${e.id}-stage`}
+                    className="w-full"
+                    aria-label={`Stage for exclusion ${index + 1}`}
+                  >
+                    <SelectValue placeholder="Choose a stage" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {inScope.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field id={`exclusion-${e.id}-reason`} label="Reason" error={reasonError}>
+                <Input
+                  id={`exclusion-${e.id}-reason`}
+                  value={e.reason}
+                  onChange={(ev) => setExclusion(e.id, { reason: ev.target.value })}
+                  placeholder="Third-party claims portal; access pending"
+                  aria-label={`Reason for exclusion ${index + 1}`}
+                  aria-describedby={`exclusion-${e.id}-reason-message`}
+                />
+              </Field>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="md:mt-6"
+                onClick={() =>
+                  update((d) => ({ ...d, exclusions: d.exclusions.filter((x) => x.id !== e.id) }))
+                }
+              >
+                <Trash2 />
+                Remove
+              </Button>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="text-muted-foreground">Patterns:</span>
+              <button
+                type="button"
+                onClick={() => setExclusion(e.id, { patternIds: [] })}
+                aria-pressed={e.patternIds.length === 0}
+                className="rounded-full border px-2 py-0.5 aria-pressed:border-brand aria-pressed:bg-brand/10"
+              >
+                All in scope
+              </button>
+              {draft.patternIds.map((pid) => {
+                const on = e.patternIds.includes(pid);
+                return (
+                  <button
+                    key={pid}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() =>
+                      setExclusion(e.id, {
+                        patternIds: on
+                          ? e.patternIds.filter((x) => x !== pid)
+                          : [...e.patternIds, pid],
+                      })
+                    }
+                    className="rounded-full border px-2 py-0.5 aria-pressed:border-brand aria-pressed:bg-brand/10"
+                  >
+                    {packs?.find((p) => p.pattern_id === pid)?.name ?? pid}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+      <div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            update((d) => ({
+              ...d,
+              exclusions: [
+                ...d.exclusions,
+                { id: draftId('ex'), stageId: '', patternIds: [], reason: '' },
+              ],
+            }))
+          }
+        >
+          <Plus />
+          Add exclusion
+        </Button>
+      </div>
+    </fieldset>
   );
 }

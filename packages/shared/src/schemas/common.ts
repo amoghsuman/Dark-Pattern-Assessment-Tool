@@ -20,7 +20,12 @@ export type Regulator = z.infer<typeof RegulatorSchema>;
 export const RoleSchema = z.enum(['admin', 'assessor', 'reviewer', 'viewer']);
 export type Role = z.infer<typeof RoleSchema>;
 
-export const TargetTypeSchema = z.enum(['website', 'mobile_app', 'code_repository']);
+export const TargetTypeSchema = z.enum([
+  'website',
+  'mobile_app',
+  'code_repository',
+  'backend_config',
+]);
 export type TargetType = z.infer<typeof TargetTypeSchema>;
 
 /** Analysis engines, in pipeline order. */

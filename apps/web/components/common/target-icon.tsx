@@ -1,5 +1,5 @@
 import { TARGET_TYPE_LABELS, type Target, type TargetType } from '@dpat/shared';
-import { Code2, Globe, Smartphone, type LucideIcon } from 'lucide-react';
+import { Code2, Globe, Server, Smartphone, type LucideIcon } from 'lucide-react';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -7,18 +7,21 @@ export const TARGET_ICONS: Record<TargetType, LucideIcon> = {
   website: Globe,
   mobile_app: Smartphone,
   code_repository: Code2,
+  backend_config: Server,
 };
 
 export function targetDetail(target: Target): string {
   switch (target.type) {
     case 'website':
-      return `${target.baseUrl} (${target.environment})`;
+      return `${target.baseUrl} (${target.environmentLabel ?? target.environment})`;
     case 'mobile_app':
       return `${target.appId} v${target.version} (${target.platform}, ${target.environment})`;
     case 'code_repository':
-      return (
-        [target.branch, target.commitSha].filter(Boolean).join(' @ ') || target.languages.join(', ')
-      );
+      return target.source.kind === 'repository'
+        ? `${target.source.branch} @ ${target.source.commitSha.slice(0, 7)} (read-only)`
+        : `Source archive · ${target.languages.join(', ')}`;
+    case 'backend_config':
+      return `${target.configArtifactIds.length} configuration files`;
   }
 }
 

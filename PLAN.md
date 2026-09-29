@@ -1,6 +1,6 @@
 # Dark Pattern Assessment Tool: Build Plan (Stage A)
 
-Status: **approved 2026-09-29**. Decisions on the open questions are recorded in section 9.
+Status: **approved 2026-09-29; Stage A (M0 to M10) complete**. Decisions on the open questions are recorded in section 9.
 
 This tool assesses websites, mobile apps and code repositories of Indian regulated entities (banks, insurers, fintechs) against the 13 specified dark patterns in the CCPA _Guidelines for Prevention and Regulation of Dark Patterns, 2023_. It produces audit-grade findings with evidence, rule traceability and remediation guidance.
 

@@ -21,6 +21,8 @@ import type { ReactNode } from 'react';
 
 import { BarList } from '@/components/charts/bar-list';
 import { SEVERITY_DOT } from '@/components/common/badges';
+import { ClientAccessList } from '@/components/common/client-access-list';
+import { InputsTable } from '@/components/common/inputs-table';
 import { ErrorState } from '@/components/common/page-states';
 import { TARGET_ICONS, targetDetail } from '@/components/common/target-icon';
 import { CompactMatrix } from '@/components/matrix/compliance-matrix';
@@ -34,6 +36,7 @@ import {
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useArtifacts } from '@/lib/data/hooks';
 import { useAssessmentAnalysis } from '@/lib/data/use-assessment-analysis';
 import { formatPercent } from '@/lib/format';
 
@@ -63,6 +66,7 @@ function openClosedTooltip(findings: Finding[], label: string) {
 
 export function AssessmentOverview({ assessmentId }: { assessmentId: string }) {
   const { data, isPending, error } = useAssessmentAnalysis(assessmentId);
+  const { data: artifacts } = useArtifacts(assessmentId);
 
   if (error) return <ErrorState error={error} />;
   if (isPending || !data) {
@@ -249,6 +253,39 @@ export function AssessmentOverview({ assessmentId }: { assessmentId: string }) {
                 </ul>
               </div>
             ) : null}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Client access</CardTitle>
+            <CardDescription>
+              {detail.assessment.launchedWithOutstanding
+                ? 'Launched with outstanding items.'
+                : 'Recorded at launch.'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {detail.assessment.clientAccess.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No checklist recorded.</p>
+            ) : (
+              <ClientAccessList items={detail.assessment.clientAccess} compact />
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Inputs received</CardTitle>
+            <CardDescription>Uploads and manual captures, with SHA-256 checksums.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <InputsTable
+              artifacts={artifacts ?? []}
+              targets={detail.targets}
+              stages={data.stages}
+            />
           </CardContent>
         </Card>
       </div>

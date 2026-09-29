@@ -74,3 +74,44 @@ test('non-admins see settings read-only', async ({ page }) => {
   await expect(page.getByLabel('Name', { exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Save changes' })).toHaveCount(0);
 });
+
+test('test data sets are validated, saved, edited and deleted', async ({ page }) => {
+  await page.goto('/settings?tab=test-data');
+  const list = page.getByRole('list', { name: 'Test data sets' });
+  await expect(list).toContainText('Payment gateway sandbox');
+
+  await page.getByRole('button', { name: 'New test data set' }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Name', { exact: true }).fill('Test customer: NRI, 45');
+  await dialog.getByLabel('Full name').fill('Test Proposer Three');
+  await dialog.getByLabel('Date of birth').fill('1981-05-20');
+  await dialog.getByLabel('Mobile').fill('12345');
+  await dialog.getByLabel('Email').fill('qa.customer03@examplelife.example');
+  await dialog.getByLabel('PAN (dummy)').fill('BAD');
+  await dialog.getByLabel('PIN code').fill('411001');
+  await dialog.getByLabel('City').fill('Pune');
+  await dialog.getByRole('button', { name: 'Save test data set' }).click();
+  await expect(dialog.getByText('A 10-digit Indian mobile number')).toBeVisible();
+  await expect(dialog.getByText('PAN format: ABCDE1234F')).toBeVisible();
+
+  await dialog.getByLabel('Mobile').fill('9000000003');
+  await dialog.getByLabel('PAN (dummy)').fill('LMNOP4321Q');
+  await dialog.getByRole('button', { name: 'Save test data set' }).click();
+  await expect(list).toContainText('Test customer: NRI, 45');
+
+  await page.getByRole('button', { name: 'Delete Test customer: senior citizen, 62' }).click();
+  await expect(list).not.toContainText('Test customer: senior citizen, 62');
+  await page.reload();
+  await expect(page.getByRole('list', { name: 'Test data sets' })).toContainText(
+    'Test customer: NRI, 45',
+  );
+});
+
+test('assessment inputs appear on the overview', async ({ page }) => {
+  await page.goto('/assessments/asm-digital-h1');
+  const inputs = page.getByRole('table', { name: 'Inputs received' });
+  await expect(inputs).toContainText('ExampleLife-4.2.0.apk');
+  await expect(inputs).toContainText('Communication templates');
+  await expect(inputs).toContainText('Captured manually: OTP-gated payment confirmation screen');
+  await expect(page.getByTestId('client-access-summary')).toHaveText('13 provided · 1 outstanding');
+});

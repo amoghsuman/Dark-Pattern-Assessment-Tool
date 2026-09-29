@@ -8,7 +8,7 @@ import { ErrorState } from '@/components/common/page-states';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { brand } from '@/config/brand';
-import { useOrganization, useRulePacks } from '@/lib/data/hooks';
+import { useArtifacts, useOrganization, useRulePacks } from '@/lib/data/hooks';
 import { useAssessmentAnalysis } from '@/lib/data/use-assessment-analysis';
 import { cn } from '@/lib/utils';
 
@@ -19,15 +19,16 @@ export function ReportScreen({ assessmentId }: { assessmentId: string }) {
   const analysis = useAssessmentAnalysis(assessmentId);
   const { data: organization } = useOrganization();
   const { data: packs } = useRulePacks();
+  const { data: artifacts } = useArtifacts(assessmentId);
   const [exporting, setExporting] = useState(false);
   const [generatedAt] = useState(() => new Date());
 
   const data: ReportData | undefined = useMemo(
     () =>
-      analysis.data && organization && packs
-        ? { ...analysis.data, organization, packs, generatedAt }
+      analysis.data && organization && packs && artifacts
+        ? { ...analysis.data, organization, packs, artifacts, generatedAt }
         : undefined,
-    [analysis.data, organization, packs, generatedAt],
+    [analysis.data, organization, packs, artifacts, generatedAt],
   );
 
   if (analysis.error) return <ErrorState error={analysis.error} />;

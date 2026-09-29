@@ -1,6 +1,6 @@
 'use client';
 
-import type { JourneyStage } from '@dpat/shared';
+import type { JourneyStage, TestDataSet } from '@dpat/shared';
 import { createContext, useContext } from 'react';
 
 import type { StepErrors, WizardDraft } from '@/lib/wizard/draft';
@@ -11,6 +11,7 @@ export interface WizardContextValue {
   /** Errors for the current step; empty until the user tries to continue. */
   errors: StepErrors;
   stages: JourneyStage[];
+  testDataSets: TestDataSet[];
 }
 
 export const WizardContext = createContext<WizardContextValue | null>(null);

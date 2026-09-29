@@ -5,6 +5,7 @@ export * from './schemas/organization';
 export * from './schemas/assessment';
 export * from './schemas/analysis';
 export * from './schemas/finding';
+export * from './schemas/inputs';
 
 export * from './domain/finding-workflow';
 export * from './domain/labels';

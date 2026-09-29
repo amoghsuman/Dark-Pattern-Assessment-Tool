@@ -1,125 +1,248 @@
 import { PATTERN_IDS } from '@dpat/rules';
-import { loadSampleFixtures } from '@dpat/shared';
+import { loadSampleFixtures, type StoredUpload } from '@dpat/shared';
 import { describe, expect, it } from 'vitest';
 
 import {
+  deriveClientAccessChecklist,
   emptyDraft,
   taggedStageIds,
   templateJourney,
   toNewAssessmentInput,
-  uploadKindFor,
   validateStep,
   type WizardDraft,
 } from './draft';
 
-const stages = loadSampleFixtures().organization.journeyStages;
+const fx = loadSampleFixtures();
+const stages = fx.organization.journeyStages;
+const context = { stages, testDataSets: fx.testDataSets };
+const SHA = 'a3f9c21e8b4d7c2f5a6e9d0b1c4f7a8e2d5b6c9f';
 
-function validDraft(): WizardDraft {
+const upload = (uploadId: string, fileName: string, kind: StoredUpload['kind']): StoredUpload => ({
+  uploadId,
+  fileName,
+  sizeBytes: 4096,
+  mimeType: 'application/octet-stream',
+  kind,
+  sha256: 'c'.repeat(64),
+  storage: 'metadata_only',
+  completedAt: '2026-09-29T06:00:00Z',
+});
+
+function fullDraft(): WizardDraft {
   const d = emptyDraft(PATTERN_IDS);
-  d.name = 'Motor renewal check';
-  d.targetTypes = ['website', 'code_repository'];
-  d.website.baseUrl = 'https://motor.examplelife.example';
-  d.code = {
-    name: 'Motor platform',
-    repoUrl: '',
-    branch: 'main',
-    commitSha: 'abc1234',
-    languages: 'TypeScript, Kotlin',
+  d.name = 'Motor renewal journeys';
+  d.targetKinds = ['website', 'android', 'ios', 'source', 'backend_config'];
+  d.website = {
+    ...d.website,
+    baseUrl: 'https://uat.motor.examplelife.example',
+    environment: 'uat',
+    environmentLabel: 'UAT-2',
+    credentials: [
+      {
+        id: 'cred-1',
+        label: 'Customer',
+        username: 'qa.user',
+        secretRef: 'not-stored',
+        maskedHint: '••••42',
+        storage: 'not_stored',
+        storedAt: '2026-09-29T06:00:00Z',
+      },
+    ],
+    testDataSetIds: ['tds-customer-anita', 'tds-payment-sandbox'],
+    otp: { mode: 'live_assessor_entry', assessorUserId: 'usr-arjun', timeoutSeconds: 180 },
   };
-  d.uploads = [{ id: 'u1', fileName: 'motor-src.zip', sizeBytes: 2048, kind: 'source_archive' }];
-  d.journeys = [templateJourney('website', stages, d.website.baseUrl)];
-  d.stageIds = taggedStageIds(d, stages);
+  d.android = {
+    ...d.android,
+    appId: 'com.examplelife.motor',
+    version: '2.1.0',
+    build: upload('upl-apk', 'motor.apk', 'apk'),
+    appIdSource: 'read_from_file',
+  };
+  d.ios = {
+    ...d.ios,
+    appId: 'com.examplelife.motor',
+    version: '2.1.0',
+    build: upload('upl-ipa', 'motor.ipa', 'ipa'),
+    decryptedConfirmed: true,
+  };
+  d.source = {
+    ...d.source,
+    name: 'Motor platform',
+    provider: 'gitlab',
+    repoUrl: 'https://git.examplelife.example/motor',
+    commitSha: SHA,
+    readOnlyConfirmed: true,
+  };
+  d.backendConfig = {
+    name: 'Motor configuration',
+    files: [
+      {
+        upload: upload('upl-cfg-1', 'pricing-rules.yaml', 'config_file'),
+        configType: 'pricing_rules',
+      },
+      {
+        upload: upload('upl-cfg-2', 'reminders.yaml', 'config_file'),
+        configType: 'notification_schedule',
+      },
+    ],
+  };
+  d.journeys = [
+    templateJourney('website', stages, d.website.baseUrl),
+    templateJourney('android', stages, ''),
+    templateJourney('ios', stages, ''),
+  ];
+  d.captures = [
+    {
+      id: 'cap-1',
+      upload: upload('upl-shot', 'otp.png', 'screenshot'),
+      journeyId: d.journeys[0]!.id,
+      stageId: 'stg-payment',
+      note: 'Captured manually: OTP-gated screen',
+    },
+  ];
+  d.stageIds = [...taggedStageIds(d, stages), 'stg-payment'];
+  d.exclusions = [
+    {
+      id: 'ex-1',
+      stageId: 'stg-payment',
+      patternIds: ['saas_billing'],
+      reason: 'Billing handled by the gateway',
+    },
+  ];
   return d;
 }
 
 describe('wizard validation', () => {
   it('accepts a complete draft', () => {
-    expect(validateStep(validDraft(), 'review')).toEqual({});
+    expect(validateStep(fullDraft(), 'review')).toEqual({});
   });
 
-  it('requires a name and at least one target type', () => {
-    const d = emptyDraft(PATTERN_IDS);
-    expect(Object.keys(validateStep(d, 'scope')).sort()).toEqual(['name', 'targetTypes']);
+  it('requires a name and at least one target', () => {
+    expect(Object.keys(validateStep(emptyDraft(PATTERN_IDS), 'scope')).sort()).toEqual([
+      'name',
+      'targetKinds',
+    ]);
   });
 
-  it('validates target details per type', () => {
-    const d = validDraft();
-    d.targetTypes = ['website', 'mobile_app', 'code_repository'];
-    d.website.baseUrl = 'examplelife';
-    d.code.commitSha = 'not-a-sha';
+  it('validates each target panel', () => {
+    const d = fullDraft();
+    d.website.baseUrl = 'motor';
+    d.android.appId = 'motor';
+    d.ios.decryptedConfirmed = false;
+    d.source.commitSha = 'a3f9c21';
+    d.backendConfig.files[0]!.configType = '';
     const errors = validateStep(d, 'targets');
     expect(errors['website.baseUrl']).toBeDefined();
-    expect(errors['mobile.appId']).toBeDefined();
-    expect(errors['mobile.version']).toBeDefined();
-    expect(errors['code.commitSha']).toBeDefined();
+    expect(errors['android.appId']).toBeDefined();
+    expect(errors['ios.decrypted']).toMatch(/decrypted build/);
+    expect(errors['source.commitSha']).toMatch(/40-character/);
+    expect(errors['backend.types']).toBeDefined();
   });
 
-  it('needs source for a code target without a repository URL', () => {
-    const d = validDraft();
-    d.uploads = [];
-    expect(validateStep(d, 'uploads').uploads).toMatch(/source archive/);
-    d.code.repoUrl = 'https://git.examplelife.example/motor';
-    expect(validateStep(d, 'uploads')).toEqual({});
+  it('requires an archive when source comes as a ZIP', () => {
+    const d = fullDraft();
+    d.source.mode = 'archive';
+    expect(validateStep(d, 'targets')['source.archive']).toBeDefined();
+    d.source.archive = upload('upl-zip', 'src.zip', 'source_archive');
+    expect(validateStep(d, 'targets')).toEqual({});
   });
 
-  it('requires a journey with a capture step for web and app targets', () => {
-    const d = validDraft();
-    d.journeys = [];
-    expect(validateStep(d, 'journeys')['journeys.website']).toBeDefined();
-
-    const j = templateJourney('website', stages, 'https://x.example');
-    j.steps = j.steps.filter((s) => s.action !== 'capture');
-    j.steps[0]!.target = '';
-    d.journeys = [j];
-    const errors = validateStep(d, 'journeys');
-    expect(errors[`journey.${j.id}.capture`]).toBeDefined();
-    expect(errors[`step.${j.steps[0]!.id}.target`]).toMatch(/Step 1: add a URL/);
+  it('requires journeys with captures for website and app targets', () => {
+    const d = fullDraft();
+    d.journeys = d.journeys.filter((j) => j.targetKind !== 'ios');
+    expect(validateStep(d, 'journeys')['journeys.ios']).toMatch(/ios app/i);
   });
 
-  it('requires patterns and stages', () => {
-    const d = validDraft();
-    d.patternIds = [];
-    d.stageIds = [];
-    expect(Object.keys(validateStep(d, 'patterns')).sort()).toEqual(['patternIds', 'stageIds']);
+  it('requires a stage and a note on manual captures', () => {
+    const d = fullDraft();
+    d.captures[0]!.stageId = '';
+    d.captures[0]!.note = '';
+    expect(Object.keys(validateStep(d, 'captures'))).toHaveLength(2);
+  });
+
+  it('checks exclusions against the stages in scope', () => {
+    const d = fullDraft();
+    d.exclusions[0]!.stageId = 'stg-claims';
+    expect(validateStep(d, 'patterns')['exclusion.ex-1.stageId']).toMatch(/not in scope/);
+  });
+});
+
+describe('client access checklist', () => {
+  it('marks what is provided and what is outstanding', () => {
+    const items = deriveClientAccessChecklist(fullDraft(), context);
+    const byId = Object.fromEntries(items.map((i) => [i.id, i.status]));
+    expect(byId).toMatchObject({
+      'website-url': 'provided',
+      'website-credentials': 'provided',
+      'website-test-data': 'provided',
+      'website-payment-sandbox': 'provided',
+      'website-otp': 'provided',
+      'android-build': 'provided',
+      'ios-build': 'provided',
+      'source-access': 'outstanding', // no read-only token stored yet
+      'source-commit': 'provided',
+      'config-pricing_rules': 'provided',
+      'config-cms_export': 'outstanding',
+    });
+  });
+
+  it('only requires payment sandbox details when the payment stage is in scope', () => {
+    const d = fullDraft();
+    d.website.testDataSetIds = ['tds-customer-anita'];
+    const status = () =>
+      deriveClientAccessChecklist(d, context).find((i) => i.id === 'website-payment-sandbox')
+        ?.status;
+    expect(status()).toBe('outstanding');
+    d.stageIds = d.stageIds.filter((s) => s !== 'stg-payment');
+    expect(status()).toBe('not_required');
   });
 });
 
 describe('toNewAssessmentInput', () => {
-  it('builds targets, journeys and uploads for the repository', () => {
-    const input = toNewAssessmentInput(validDraft());
-    expect(input.targets.map((t) => t.type)).toEqual(['website', 'code_repository']);
-    expect(input.targets[1]).toMatchObject({
-      commitSha: 'abc1234',
-      languages: ['TypeScript', 'Kotlin'],
-    });
-    expect(input.targets[1]).not.toHaveProperty('repoUrl');
-    expect(input.journeys[0]?.targetIndex).toBe(0);
-    const wait = input.journeys[0]?.steps.find((s) => s.action === 'wait');
-    expect(wait).toMatchObject({ waitMs: 2000 });
-    expect(wait).not.toHaveProperty('target');
-    expect(input.uploads).toEqual([
-      { fileName: 'motor-src.zip', sizeBytes: 2048, kind: 'source_archive' },
+  it('builds targets, artifacts, captures, exclusions and the checklist', () => {
+    const input = toNewAssessmentInput(fullDraft(), context);
+    expect(
+      input.targets.map((t) => (t.type === 'mobile_app' ? `mobile_app:${t.platform}` : t.type)),
+    ).toEqual([
+      'website',
+      'mobile_app:android',
+      'mobile_app:ios',
+      'code_repository',
+      'backend_config',
     ]);
+    const ios = input.targets[2];
+    expect(ios?.type === 'mobile_app' && ios.decryptedBuild).toBe(true);
+    expect(input.targets[3]).toMatchObject({
+      source: { kind: 'repository', provider: 'gitlab', commitSha: SHA, access: 'read_only' },
+    });
+    expect(input.targets[4]).toMatchObject({ configUploadIds: ['upl-cfg-1', 'upl-cfg-2'] });
+    expect(input.artifacts.map((a) => a.upload.uploadId)).toEqual([
+      'upl-apk',
+      'upl-ipa',
+      'upl-cfg-1',
+      'upl-cfg-2',
+      'upl-shot',
+    ]);
+    expect(input.artifacts.at(-1)).toMatchObject({
+      targetIndex: 0,
+      manual: { journeyIndex: 0, stageId: 'stg-payment' },
+    });
+    expect(input.coverageGaps).toEqual([
+      {
+        stageId: 'stg-payment',
+        patternIds: ['saas_billing'],
+        reason: 'Billing handled by the gateway',
+      },
+    ]);
+    expect(input.launchedWithOutstanding).toBe(true);
   });
 
-  it('drops journeys for target types that were deselected', () => {
-    const d = validDraft();
-    d.journeys.push(templateJourney('mobile_app', stages, ''));
-    expect(toNewAssessmentInput(d).journeys).toHaveLength(1);
-  });
-});
-
-describe('helpers', () => {
-  it('suggests upload kinds from file names', () => {
-    expect(uploadKindFor('ExampleLife-5.0.apk')).toBe('apk');
-    expect(uploadKindFor('App.ipa')).toBe('ipa');
-    expect(uploadKindFor('src.tar.gz')).toBe('source_archive');
-    expect(uploadKindFor('payments-openapi.yaml')).toBe('api_spec');
-    expect(uploadKindFor('pricing-rules.yaml')).toBe('config_file');
-  });
-
-  it('lists tagged stages in stage order', () => {
-    const d = validDraft();
-    expect(taggedStageIds(d, stages)).toEqual(['stg-quote', 'stg-proposal']);
+  it('records an archive source as an artifact of the code target', () => {
+    const d = fullDraft();
+    d.source.mode = 'archive';
+    d.source.archive = upload('upl-zip', 'src.zip', 'source_archive');
+    const input = toNewAssessmentInput(d, context);
+    expect(input.targets[3]).toMatchObject({ source: { kind: 'archive', artifactId: 'upl-zip' } });
+    expect(input.artifacts.find((a) => a.upload.uploadId === 'upl-zip')?.targetIndex).toBe(3);
   });
 });

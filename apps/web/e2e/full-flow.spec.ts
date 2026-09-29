@@ -22,11 +22,12 @@ test('complete walkthrough from access gate to report export', async ({ page }) 
   await page.getByText('Website', { exact: true }).click();
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByLabel('Base URL').fill('https://health.examplelife.example');
-  await page.getByRole('button', { name: 'Next' }).click();
-  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByRole('button', { name: 'Next' }).click(); // targets
   await page.getByRole('button', { name: 'Website template' }).click();
-  await page.getByRole('button', { name: 'Next' }).click();
-  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByRole('button', { name: 'Next' }).click(); // journeys
+  await page.getByRole('button', { name: 'Next' }).click(); // captures
+  await page.getByRole('button', { name: 'Next' }).click(); // patterns
+  await page.getByRole('checkbox', { name: 'Launch with outstanding items' }).click();
   await page.getByRole('button', { name: 'Launch assessment' }).click();
 
   // Run view completes

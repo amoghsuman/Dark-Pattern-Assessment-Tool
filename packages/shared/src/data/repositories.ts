@@ -3,7 +3,9 @@ import type { RulePack } from '@dpat/rules';
 import type { AnalysisRun } from '../schemas/analysis';
 import type {
   Artifact,
+  ArtifactKind,
   Assessment,
+  BackendConfigTarget,
   CodeRepositoryTarget,
   Journey,
   JourneyStep,
@@ -21,6 +23,7 @@ import type {
   Severity,
 } from '../schemas/common';
 import type { Finding, Review } from '../schemas/finding';
+import type { ClientAccessItem, ConfigType, CredentialRef, TestDataSet } from '../schemas/inputs';
 import type { JourneyStage, Organization, User } from '../schemas/organization';
 
 /**
@@ -58,13 +61,26 @@ export interface AssessmentDetail {
 type WithoutIds<T> = Omit<T, 'id' | 'assessmentId'>;
 
 export type NewTargetInput =
-  WithoutIds<WebsiteTarget> | WithoutIds<MobileAppTarget> | WithoutIds<CodeRepositoryTarget>;
+  | WithoutIds<WebsiteTarget>
+  | WithoutIds<MobileAppTarget>
+  | WithoutIds<CodeRepositoryTarget>
+  | (Omit<WithoutIds<BackendConfigTarget>, 'configArtifactIds'> & { configUploadIds: string[] });
 
 export interface NewJourneyInput {
   /** Index into `targets`. */
   targetIndex: number;
   name: string;
   steps: Omit<JourneyStep, 'id' | 'screenArtifactId'>[];
+}
+
+/** An upload completed through the UploadRepository, plus how it is used. */
+export interface NewArtifactInput {
+  upload: StoredUpload;
+  /** Index into `targets`, when the file belongs to one (build, source archive, config file). */
+  targetIndex?: number;
+  configType?: ConfigType;
+  /** Manual captures only. */
+  manual?: { journeyIndex?: number; stageId: string; note: string };
 }
 
 export interface NewAssessmentInput {
@@ -74,9 +90,80 @@ export interface NewAssessmentInput {
   journeys: NewJourneyInput[];
   patternIds: PatternId[];
   stageIds: string[];
-  /** File names chosen in the upload step (metadata only in Stage A). */
-  uploads: { fileName: string; sizeBytes: number; kind: Artifact['kind'] }[];
+  artifacts: NewArtifactInput[];
+  /** Scope exclusions; recorded as coverage gaps. */
+  coverageGaps: Assessment['coverageGaps'];
+  clientAccess: ClientAccessItem[];
+  launchedWithOutstanding: boolean;
 }
+
+// ---------------------------------------------------------------- uploads
+
+/**
+ * Resumable, chunked uploads. The web client hashes each chunk as it sends it and completes the
+ * session with the SHA-256. Sample mode records metadata only; Stage C implements this with
+ * Supabase Storage resumable (TUS) uploads.
+ */
+export interface StartUploadInput {
+  fileName: string;
+  sizeBytes: number;
+  mimeType: string;
+  kind: ArtifactKind;
+}
+
+export interface UploadSession {
+  id: string;
+  fileName: string;
+  sizeBytes: number;
+  mimeType: string;
+  kind: ArtifactKind;
+  /** Bytes per chunk the client should send. */
+  chunkSize: number;
+  uploadedBytes: number;
+  status: 'in_progress' | 'completed' | 'aborted';
+}
+
+export interface StoredUpload {
+  uploadId: string;
+  fileName: string;
+  sizeBytes: number;
+  mimeType: string;
+  kind: ArtifactKind;
+  sha256: string;
+  storage: 'metadata_only' | 'object_storage';
+  completedAt: string;
+}
+
+export interface UploadRepository {
+  start(input: StartUploadInput): Promise<UploadSession>;
+  /** Stage C sends `data`; sample mode only records progress. Resumes from `uploadedBytes`. */
+  appendChunk(
+    sessionId: string,
+    chunk: { offset: number; size: number; data?: Blob },
+  ): Promise<UploadSession>;
+  complete(sessionId: string, sha256: string): Promise<StoredUpload>;
+  abort(sessionId: string): Promise<void>;
+  /** Resume an interrupted session, e.g. after a network drop. */
+  getSession(sessionId: string): Promise<UploadSession>;
+}
+
+// ---------------------------------------------------------------- secrets
+
+export interface StoreSecretInput {
+  label: string;
+  username: string;
+  secret: string;
+}
+
+/** Test credentials, OTPs and repository tokens go to a vault; only references are kept. */
+export interface CredentialRepository {
+  store(input: StoreSecretInput): Promise<CredentialRef>;
+  remove(id: string): Promise<void>;
+}
+
+export type TestDataSetInput = Omit<TestDataSet, 'id' | 'organizationId' | 'createdAt'> & {
+  id?: string;
+};
 
 export interface FindingFilter {
   patternIds?: PatternId[];
@@ -116,6 +203,10 @@ export interface OrganizationRepository {
   saveJourneyStages(stages: JourneyStage[]): Promise<JourneyStage[]>;
   /** The signed-in user (sample mode: the selected role's user). */
   getCurrentUser(): Promise<User>;
+  /** Reusable test data (dummy customers, payment sandbox details) shared across assessments. */
+  listTestDataSets(): Promise<TestDataSet[]>;
+  saveTestDataSet(input: TestDataSetInput): Promise<TestDataSet>;
+  deleteTestDataSet(id: string): Promise<void>;
 }
 
 export interface AssessmentRepository {
@@ -153,6 +244,8 @@ export interface Repositories {
   assessments: AssessmentRepository;
   findings: FindingRepository;
   rules: RuleRepository;
+  uploads: UploadRepository;
+  credentials: CredentialRepository;
 }
 
 /** Sample-mode only controls, surfaced by the Sample data badge. */

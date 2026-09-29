@@ -1,10 +1,11 @@
 import type { RulePack } from '@dpat/rules';
 import type { AssessmentAnalysis } from '@/lib/data/use-assessment-analysis';
-import type { Organization } from '@dpat/shared';
+import type { Artifact, Organization } from '@dpat/shared';
 import type { ComponentType } from 'react';
 
 export interface ReportData extends AssessmentAnalysis {
   organization: Organization;
+  artifacts: Artifact[];
   packs: RulePack[];
   generatedAt: Date;
 }

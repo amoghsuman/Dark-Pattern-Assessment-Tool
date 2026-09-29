@@ -86,7 +86,10 @@ export function deriveMatrix(input: MatrixInput): ComplianceMatrix {
   const { assessment, journeys, targets, findings, run } = input;
   const stages = [...input.stages].sort((a, b) => a.order - b.order);
   const runComplete = run?.status === 'succeeded';
-  const hasCodeTarget = targets.some((t) => t.type === 'code_repository');
+  // Code and backend configuration are analysed across every journey stage.
+  const hasCodeTarget = targets.some(
+    (t) => t.type === 'code_repository' || t.type === 'backend_config',
+  );
   const coveredByJourney = new Set(journeys.flatMap((j) => j.stageIds));
 
   const cells: MatrixCell[] = [];

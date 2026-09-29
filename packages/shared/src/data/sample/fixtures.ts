@@ -8,6 +8,7 @@ import journeysJson from '../../../fixtures/journeys.json';
 import organizationJson from '../../../fixtures/organization.json';
 import reviewsJson from '../../../fixtures/reviews.json';
 import targetsJson from '../../../fixtures/targets.json';
+import testDataSetsJson from '../../../fixtures/test-data-sets.json';
 import usersJson from '../../../fixtures/users.json';
 import { AnalysisRunSchema } from '../../schemas/analysis';
 import {
@@ -17,6 +18,7 @@ import {
   TargetSchema,
 } from '../../schemas/assessment';
 import { FindingSchema, ReviewSchema } from '../../schemas/finding';
+import { TestDataSetSchema } from '../../schemas/inputs';
 import { OrganizationSchema, UserSchema } from '../../schemas/organization';
 
 /** Validated sample data for the fictitious insurer "Example Life Insurance". */
@@ -30,6 +32,7 @@ export interface SampleFixtures {
   analysisRuns: z.infer<typeof AnalysisRunSchema>[];
   findings: z.infer<typeof FindingSchema>[];
   reviews: z.infer<typeof ReviewSchema>[];
+  testDataSets: z.infer<typeof TestDataSetSchema>[];
 }
 
 let cached: SampleFixtures | undefined;
@@ -46,6 +49,7 @@ export function loadSampleFixtures(): SampleFixtures {
     analysisRuns: z.array(AnalysisRunSchema).parse(analysisRunsJson),
     findings: z.array(FindingSchema).parse(findingsJson),
     reviews: z.array(ReviewSchema).parse(reviewsJson),
+    testDataSets: z.array(TestDataSetSchema).parse(testDataSetsJson),
   };
   return cached;
 }

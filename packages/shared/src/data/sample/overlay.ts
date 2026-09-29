@@ -2,6 +2,7 @@ import type { AnalysisRun } from '../../schemas/analysis';
 import type { Artifact, Assessment, Journey, Target } from '../../schemas/assessment';
 import type { FindingStatus, Regulator, Role, Sector } from '../../schemas/common';
 import type { ReviewComment, StatusChange } from '../../schemas/finding';
+import type { TestDataSet } from '../../schemas/inputs';
 import type { JourneyStage, User } from '../../schemas/organization';
 
 /**
@@ -23,6 +24,9 @@ export interface OverlayState {
   organization?: { name: string; sector: Sector; regulator?: Regulator };
   journeyStages?: JourneyStage[];
   users: Record<string, User>;
+  /** Created or edited test data sets, and IDs of deleted fixture sets. */
+  testDataSets: Record<string, TestDataSet>;
+  deletedTestDataSetIds: string[];
 }
 
 export function emptyOverlay(role: Role = 'admin'): OverlayState {
@@ -33,6 +37,8 @@ export function emptyOverlay(role: Role = 'admin'): OverlayState {
     reviewAdditions: {},
     createdAssessments: [],
     users: {},
+    testDataSets: {},
+    deletedTestDataSetIds: [],
   };
 }
 

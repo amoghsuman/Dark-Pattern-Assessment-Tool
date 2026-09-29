@@ -1,7 +1,16 @@
 'use client';
 
 import { JOURNEY_STEP_ACTION_LABELS, type JourneyStepAction } from '@dpat/shared';
-import { ArrowDown, ArrowUp, Globe, Plus, Smartphone, Trash2, Wand2 } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowUp,
+  Globe,
+  Plus,
+  Smartphone,
+  TabletSmartphone,
+  Trash2,
+  Wand2,
+} from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,24 +25,27 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import {
-  journeyTargetTypes,
+  journeyTargetKinds,
   newStep,
   templateJourney,
   type JourneyDraft,
-  type JourneyTargetType,
+  type JourneyTargetKind,
   type StepDraft,
+  TARGET_KIND_LABELS,
+  TEST_DATA_TOKENS,
 } from '@/lib/wizard/draft';
 
 import { FieldError } from './field';
 import { useWizard } from './wizard-context';
 
 const ACTIONS = Object.keys(JOURNEY_STEP_ACTION_LABELS) as JourneyStepAction[];
-const TARGET_LABEL: Record<JourneyTargetType, string> = {
-  website: 'Website',
-  mobile_app: 'Mobile app',
+const TARGET_LABEL: Record<JourneyTargetKind, string> = {
+  website: TARGET_KIND_LABELS.website,
+  android: TARGET_KIND_LABELS.android,
+  ios: TARGET_KIND_LABELS.ios,
 };
 
-function targetPlaceholder(action: JourneyStepAction, type: JourneyTargetType): string {
+function targetPlaceholder(action: JourneyStepAction, type: JourneyTargetKind): string {
   if (action === 'navigate')
     return type === 'website' ? 'https://www.example.com/quote' : 'app://renewal';
   if (action === 'click')
@@ -43,7 +55,7 @@ function targetPlaceholder(action: JourneyStepAction, type: JourneyTargetType): 
 
 export function StepJourneys() {
   const { draft, update, errors, stages } = useWizard();
-  const types = journeyTargetTypes(draft);
+  const types = journeyTargetKinds(draft);
 
   const setJourney = (id: string, fn: (j: JourneyDraft) => JourneyDraft) =>
     update((d) => ({ ...d, journeys: d.journeys.map((j) => (j.id === id ? fn(j) : j)) }));
@@ -108,8 +120,13 @@ export function StepJourneys() {
         <FieldError key={type} message={errors[`journeys.${type}`]} />
       ))}
 
+      <datalist id="test-data-tokens">
+        {TEST_DATA_TOKENS.map((t) => (
+          <option key={t} value={t} />
+        ))}
+      </datalist>
       {draft.journeys
-        .filter((j) => types.includes(j.targetType))
+        .filter((j) => types.includes(j.targetKind))
         .map((journey) => (
           <JourneyCard
             key={journey.id}
@@ -134,7 +151,12 @@ function JourneyCard({
   onRemove: () => void;
 }) {
   const { errors, stages } = useWizard();
-  const Icon = journey.targetType === 'website' ? Globe : Smartphone;
+  const Icon =
+    journey.targetKind === 'website'
+      ? Globe
+      : journey.targetKind === 'android'
+        ? Smartphone
+        : TabletSmartphone;
   const setStep = (id: string, patch: Partial<StepDraft>) =>
     onChange((j) => ({ ...j, steps: j.steps.map((s) => (s.id === id ? { ...s, ...patch } : s)) }));
   const move = (index: number, delta: -1 | 1) =>
@@ -160,7 +182,7 @@ function JourneyCard({
       <CardHeader className="flex flex-row items-center gap-3">
         <Badge variant="secondary" className="gap-1">
           <Icon className="size-3.5" aria-hidden />
-          {TARGET_LABEL[journey.targetType]}
+          {TARGET_LABEL[journey.targetKind]}
         </Badge>
         <Input
           value={journey.name}
@@ -246,7 +268,7 @@ function JourneyCard({
                       <Input
                         value={step.target}
                         onChange={(e) => setStep(step.id, { target: e.target.value })}
-                        placeholder={targetPlaceholder(step.action, journey.targetType)}
+                        placeholder={targetPlaceholder(step.action, journey.targetKind)}
                         aria-label={`Step ${index + 1} ${step.action === 'navigate' ? 'URL' : 'selector'}`}
                         className={cn(
                           'h-8 font-mono text-xs',
@@ -258,7 +280,8 @@ function JourneyCard({
                       <Input
                         value={step.value}
                         onChange={(e) => setStep(step.id, { value: e.target.value })}
-                        placeholder="Value"
+                        placeholder="Value or {{token}}"
+                        list="test-data-tokens"
                         aria-label={`Step ${index + 1} value`}
                         className={cn('h-8 w-28', err('value') && 'border-destructive')}
                       />

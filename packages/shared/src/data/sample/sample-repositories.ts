@@ -6,6 +6,7 @@ import type { AnalysisRun, EngineRun } from '../../schemas/analysis';
 import type { Artifact, Assessment, Journey, Target } from '../../schemas/assessment';
 import type { FindingStatus, Role } from '../../schemas/common';
 import type { Finding, Review } from '../../schemas/finding';
+import { TestDataSetSchema, type CredentialRef, type TestDataSet } from '../../schemas/inputs';
 import type { JourneyStage, Organization, User } from '../../schemas/organization';
 import { deriveRiskSummary } from '../derive/summary';
 import { filterFindings } from '../derive/filter';
@@ -17,7 +18,11 @@ import type {
   NewAssessmentInput,
   Repositories,
   SampleControls,
+  StartUploadInput,
   StatusUpdateResult,
+  StoredUpload,
+  TestDataSetInput,
+  UploadSession,
   UserInput,
 } from '../repositories';
 import { loadSampleFixtures, SYSTEM_USER_ID } from './fixtures';
@@ -109,6 +114,26 @@ export function createSampleRepositories(
     return user;
   };
 
+  const testDataSets = (): TestDataSet[] => {
+    const o = overlay();
+    const merged = fixtures.testDataSets
+      .filter((t) => !o.deletedTestDataSetIds.includes(t.id))
+      .map((t) => o.testDataSets[t.id] ?? t);
+    for (const t of Object.values(o.testDataSets)) {
+      if (!merged.some((m) => m.id === t.id)) merged.push(t);
+    }
+    return merged;
+  };
+
+  /** Upload sessions live in memory: an interrupted sample upload restarts from the beginning. */
+  const sessions = new Map<string, UploadSession>();
+  const UPLOAD_CHUNK_SIZE = 8 * 1024 * 1024;
+  const findSession = (sessionId: string) => {
+    const session = sessions.get(sessionId);
+    if (!session) throw new NotFoundError('Upload session', sessionId);
+    return session;
+  };
+
   const created = () => overlay().createdAssessments;
   const assessments = (): Assessment[] => [
     ...fixtures.assessments,
@@ -174,7 +199,9 @@ export function createSampleRepositories(
       .filter((s) => s.action === 'capture').length;
     const startMs = new Date(run.startedAt ?? timestamp()).getTime();
     const at = (minutes: number) => new Date(startMs + minutes * 60_000).toISOString();
-    const hasCode = (entry?.targets ?? []).some((t) => t.type === 'code_repository');
+    const hasCode = (entry?.targets ?? []).some(
+      (t) => t.type === 'code_repository' || t.type === 'backend_config',
+    );
     const hasApp = (entry?.targets ?? []).some((t) => t.type === 'mobile_app');
     const messages: Record<EngineRun['engine'], [string, string]> = {
       screen_capture: [
@@ -268,6 +295,34 @@ export function createSampleRepositories(
         await delay();
         return clone(currentUser());
       },
+      async listTestDataSets() {
+        await delay();
+        return clone(testDataSets());
+      },
+      async saveTestDataSet(input: TestDataSetInput) {
+        await delay();
+        requireRole(['admin', 'assessor'], 'manage test data');
+        const existing = input.id ? testDataSets().find((t) => t.id === input.id) : undefined;
+        const saved = TestDataSetSchema.parse({
+          ...input,
+          id: existing?.id ?? newId('tds'),
+          organizationId: fixtures.organization.id,
+          createdAt: existing?.createdAt ?? timestamp(),
+        });
+        mutate((s) => {
+          s.testDataSets[saved.id] = saved;
+          s.deletedTestDataSetIds = s.deletedTestDataSetIds.filter((d) => d !== saved.id);
+        });
+        return clone(saved);
+      },
+      async deleteTestDataSet(id) {
+        await delay();
+        requireRole(['admin', 'assessor'], 'manage test data');
+        mutate((s) => {
+          delete s.testDataSets[id];
+          if (!s.deletedTestDataSetIds.includes(id)) s.deletedTestDataSetIds.push(id);
+        });
+      },
     },
 
     assessments: {
@@ -299,11 +354,42 @@ export function createSampleRepositories(
         requireRole(['admin', 'assessor'], 'create assessments');
         const id = newId('asm');
         const at = timestamp();
-        const newTargets: Target[] = input.targets.map((t) => ({
-          ...t,
-          id: newId('tgt'),
-          assessmentId: id,
-        }));
+        // Upload IDs in the input (builds, archives, config files) become artifact IDs here.
+        const artifactIdFor = new Map(
+          input.artifacts.map((a) => [a.upload.uploadId, newId('art')]),
+        );
+        const toArtifactId = (uploadId: string) => {
+          const artifactId = artifactIdFor.get(uploadId);
+          if (!artifactId) throw new Error(`Upload ${uploadId} is not part of this assessment`);
+          return artifactId;
+        };
+        const targetIds = input.targets.map(() => newId('tgt'));
+        const newTargets: Target[] = input.targets.map((t, i) => {
+          const base = { id: targetIds[i] ?? newId('tgt'), assessmentId: id };
+          switch (t.type) {
+            case 'backend_config': {
+              const { configUploadIds, ...rest } = t;
+              return { ...rest, ...base, configArtifactIds: configUploadIds.map(toArtifactId) };
+            }
+            case 'mobile_app':
+              return {
+                ...t,
+                ...base,
+                ...(t.buildArtifactId ? { buildArtifactId: toArtifactId(t.buildArtifactId) } : {}),
+              };
+            case 'code_repository':
+              return {
+                ...t,
+                ...base,
+                source:
+                  t.source.kind === 'archive'
+                    ? { kind: 'archive' as const, artifactId: toArtifactId(t.source.artifactId) }
+                    : t.source,
+              };
+            case 'website':
+              return { ...t, ...base };
+          }
+        });
         const newJourneys: Journey[] = input.journeys.map((j) => {
           const target = newTargets[j.targetIndex];
           if (!target) throw new Error(`Journey "${j.name}" refers to a missing target`);
@@ -327,23 +413,45 @@ export function createSampleRepositories(
           patternIds: input.patternIds,
           stageIds: input.stageIds,
           rulePackSetVersion: RULE_PACK_SET_VERSION,
-          coverageGaps: [],
+          coverageGaps: input.coverageGaps,
+          clientAccess: input.clientAccess,
+          launchedWithOutstanding: input.launchedWithOutstanding,
           progress: { completedSteps: 0, totalSteps },
           createdBy: currentUser().id,
           createdAt: at,
           updatedAt: at,
           startedAt: at,
         };
-        const newArtifacts: Artifact[] = input.uploads.map((u) => ({
-          id: newId('art'),
-          assessmentId: id,
-          kind: u.kind,
-          uri: `sample://uploads/${u.fileName}`,
-          mimeType: 'application/octet-stream',
-          fileName: u.fileName,
-          sizeBytes: u.sizeBytes,
-          capturedAt: at,
-        }));
+        const newArtifacts: Artifact[] = input.artifacts.map((a) => {
+          const { upload } = a;
+          const targetId = a.targetIndex !== undefined ? targetIds[a.targetIndex] : undefined;
+          const journeyId =
+            a.manual?.journeyIndex !== undefined
+              ? newJourneys[a.manual.journeyIndex]?.id
+              : undefined;
+          return {
+            id: toArtifactId(upload.uploadId),
+            assessmentId: id,
+            ...(targetId ? { targetId } : {}),
+            kind: upload.kind,
+            origin: a.manual ? ('manual_capture' as const) : ('uploaded' as const),
+            uri: `sample://uploads/${upload.fileName}`,
+            storage: upload.storage,
+            mimeType: upload.mimeType,
+            fileName: upload.fileName,
+            sizeBytes: upload.sizeBytes,
+            sha256: upload.sha256,
+            capturedAt: upload.completedAt,
+            ...(a.configType ? { configType: a.configType } : {}),
+            ...(a.manual
+              ? {
+                  stageId: a.manual.stageId,
+                  note: a.manual.note,
+                  ...(journeyId ? { journeyId } : {}),
+                }
+              : {}),
+          };
+        });
         const run: AnalysisRun = {
           id: newId('run'),
           assessmentId: id,
@@ -490,6 +598,87 @@ export function createSampleRepositories(
           additions.comments.push({ id: newId('cmt'), by: actor.id, at: timestamp(), body: text });
         });
         return clone(review(findingId));
+      },
+    },
+
+    uploads: {
+      start(input: StartUploadInput) {
+        const session: UploadSession = {
+          id: newId('upl'),
+          ...input,
+          chunkSize: UPLOAD_CHUNK_SIZE,
+          uploadedBytes: 0,
+          status: 'in_progress',
+        };
+        sessions.set(session.id, session);
+        return Promise.resolve(clone(session));
+      },
+      appendChunk(sessionId, chunk) {
+        const session = findSession(sessionId);
+        if (session.status !== 'in_progress') {
+          return Promise.reject(new Error('Upload session is not in progress'));
+        }
+        if (chunk.offset !== session.uploadedBytes) {
+          return Promise.reject(
+            new Error(
+              `Expected a chunk at byte ${session.uploadedBytes}, received ${chunk.offset}`,
+            ),
+          );
+        }
+        // Sample mode keeps metadata only: the chunk data is not stored.
+        session.uploadedBytes = Math.min(session.sizeBytes, chunk.offset + chunk.size);
+        return Promise.resolve(clone(session));
+      },
+      complete(sessionId, sha256) {
+        const session = findSession(sessionId);
+        if (session.uploadedBytes !== session.sizeBytes) {
+          return Promise.reject(
+            new Error(`Upload incomplete: ${session.uploadedBytes} of ${session.sizeBytes} bytes`),
+          );
+        }
+        if (!/^[0-9a-f]{64}$/.test(sha256))
+          return Promise.reject(new Error('Invalid SHA-256 checksum'));
+        session.status = 'completed';
+        const stored: StoredUpload = {
+          uploadId: session.id,
+          fileName: session.fileName,
+          sizeBytes: session.sizeBytes,
+          mimeType: session.mimeType,
+          kind: session.kind,
+          sha256,
+          storage: 'metadata_only',
+          completedAt: timestamp(),
+        };
+        return Promise.resolve(clone(stored));
+      },
+      abort(sessionId) {
+        const session = sessions.get(sessionId);
+        if (session) session.status = 'aborted';
+        return Promise.resolve();
+      },
+      getSession(sessionId) {
+        return Promise.resolve(clone(findSession(sessionId)));
+      },
+    },
+
+    credentials: {
+      async store(input) {
+        await delay();
+        if (!input.secret) throw new Error('Secret cannot be empty');
+        // Sample mode never persists secrets: only a masked hint is kept.
+        const ref: CredentialRef = {
+          id: newId('cred'),
+          label: input.label.trim(),
+          username: input.username.trim(),
+          secretRef: 'not-stored',
+          maskedHint: `\u2022\u2022\u2022\u2022${input.secret.slice(-2)}`,
+          storage: 'not_stored',
+          storedAt: timestamp(),
+        };
+        return clone(ref);
+      },
+      async remove() {
+        await delay();
       },
     },
 

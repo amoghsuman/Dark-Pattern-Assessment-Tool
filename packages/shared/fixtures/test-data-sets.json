@@ -1,0 +1,52 @@
+[
+  {
+    "id": "tds-customer-anita",
+    "organizationId": "org-example-life",
+    "kind": "customer",
+    "name": "Test customer: salaried, 34",
+    "description": "Default proposer for term and health journeys.",
+    "fields": {
+      "fullName": "Test Proposer One",
+      "dateOfBirth": "1992-03-14",
+      "gender": "female",
+      "mobile": "9000000001",
+      "email": "qa.customer01@examplelife.example",
+      "pan": "ABCDE1234F",
+      "pincode": "400001",
+      "city": "Mumbai"
+    },
+    "createdAt": "2026-07-20T05:00:00Z"
+  },
+  {
+    "id": "tds-customer-senior",
+    "organizationId": "org-example-life",
+    "kind": "customer",
+    "name": "Test customer: senior citizen, 62",
+    "fields": {
+      "fullName": "Test Proposer Two",
+      "dateOfBirth": "1964-11-02",
+      "gender": "male",
+      "mobile": "9000000002",
+      "email": "qa.customer02@examplelife.example",
+      "pan": "PQRSX6789K",
+      "pincode": "560001",
+      "city": "Bengaluru"
+    },
+    "createdAt": "2026-07-20T05:05:00Z"
+  },
+  {
+    "id": "tds-payment-sandbox",
+    "organizationId": "org-example-life",
+    "kind": "payment_sandbox",
+    "name": "Payment gateway sandbox",
+    "description": "Test-mode card, UPI and netbanking details from the gateway sandbox.",
+    "fields": {
+      "gateway": "Payment gateway (test mode)",
+      "cardNumber": "4111111111111111",
+      "cardExpiry": "12/30",
+      "upiId": "success@razorpay",
+      "netbankingBank": "Test Bank"
+    },
+    "createdAt": "2026-07-20T05:10:00Z"
+  }
+]

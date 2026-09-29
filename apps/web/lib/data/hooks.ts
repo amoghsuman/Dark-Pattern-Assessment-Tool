@@ -9,6 +9,8 @@ import type {
   OrganizationSettingsInput,
   PatternId,
   Role,
+  StoreSecretInput,
+  TestDataSetInput,
   UserInput,
 } from '@dpat/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -243,4 +245,42 @@ export function useSampleMode() {
       void qc.resetQueries();
     },
   };
+}
+
+// ------------------------------------------------------------------ assessment inputs
+
+export function useTestDataSets() {
+  const repos = useRepositories();
+  return useQuery({
+    queryKey: ['test-data-sets'],
+    queryFn: () => repos.organizations.listTestDataSets(),
+  });
+}
+
+export function useSaveTestDataSet() {
+  const repos = useRepositories();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: TestDataSetInput) => repos.organizations.saveTestDataSet(input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['test-data-sets'] }),
+  });
+}
+
+export function useDeleteTestDataSet() {
+  const repos = useRepositories();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => repos.organizations.deleteTestDataSet(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['test-data-sets'] }),
+  });
+}
+
+/** Sends a secret to the vault and returns only its reference. */
+export function useStoreSecret() {
+  const repos = useRepositories();
+  return useMutation({ mutationFn: (input: StoreSecretInput) => repos.credentials.store(input) });
+}
+
+export function useUploadRepository() {
+  return useRepositories().uploads;
 }

@@ -8,9 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { OrganisationSettings } from './organisation-settings';
 import { StageSettings } from './stage-settings';
+import { TestDataSettings } from './test-data-settings';
 import { UserSettings } from './user-settings';
 
-const TABS = ['organisation', 'users', 'stages'] as const;
+const TABS = ['organisation', 'users', 'stages', 'test-data'] as const;
 type Tab = (typeof TABS)[number];
 
 export function SettingsScreen() {
@@ -24,7 +25,7 @@ export function SettingsScreen() {
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
         title="Settings"
-        description="Organisation details, users and roles, and the journey stages used as compliance matrix columns."
+        description="Organisation details, users and roles, journey stages (the compliance matrix columns) and reusable test data."
       />
       <Tabs
         value={tab}
@@ -36,6 +37,7 @@ export function SettingsScreen() {
           <TabsTrigger value="organisation">Organisation</TabsTrigger>
           <TabsTrigger value="users">Users and roles</TabsTrigger>
           <TabsTrigger value="stages">Journey stages</TabsTrigger>
+          <TabsTrigger value="test-data">Test data</TabsTrigger>
         </TabsList>
         <TabsContent value="organisation" className="mt-4">
           <OrganisationSettings />
@@ -45,6 +47,9 @@ export function SettingsScreen() {
         </TabsContent>
         <TabsContent value="stages" className="mt-4">
           <StageSettings />
+        </TabsContent>
+        <TabsContent value="test-data" className="mt-4">
+          <TestDataSettings />
         </TabsContent>
       </Tabs>
     </div>

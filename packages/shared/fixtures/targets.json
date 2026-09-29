@@ -5,7 +5,35 @@
     "type": "website",
     "name": "Public website",
     "baseUrl": "https://www.examplelife.example",
-    "environment": "production"
+    "environment": "production",
+    "environmentLabel": "Production",
+    "credentials": [
+      {
+        "id": "cred-web-customer",
+        "label": "Test customer login",
+        "username": "qa.customer01@examplelife.example",
+        "secretRef": "vault://assessments/asm-digital-h1/cred-web-customer",
+        "maskedHint": "••••41",
+        "storage": "vault",
+        "storedAt": "2026-08-03T06:20:00Z"
+      },
+      {
+        "id": "cred-web-agent",
+        "label": "Assisted-sales agent login",
+        "username": "qa.agent07",
+        "secretRef": "vault://assessments/asm-digital-h1/cred-web-agent",
+        "maskedHint": "••••x9",
+        "storage": "vault",
+        "storedAt": "2026-08-03T06:21:00Z"
+      }
+    ],
+    "testDataSetIds": ["tds-customer-anita", "tds-payment-sandbox"],
+    "otpHandling": {
+      "mode": "fixed_test_otp",
+      "otpLength": 6,
+      "secretRef": "vault://assessments/asm-digital-h1/otp-web",
+      "maskedHint": "••••56"
+    }
   },
   {
     "id": "tgt-android",
@@ -16,18 +44,45 @@
     "appId": "com.examplelife.app",
     "version": "4.2.0",
     "environment": "production",
-    "buildArtifactId": "art-apk-420"
+    "buildArtifactId": "art-apk-420",
+    "appIdSource": "read_from_file"
   },
   {
     "id": "tgt-repo",
     "assessmentId": "asm-digital-h1",
     "type": "code_repository",
     "name": "Policy administration platform",
-    "repoUrl": "https://git.examplelife.example/digital/policy-admin-platform",
-    "branch": "release/2026.08",
-    "commitSha": "a3f9c21",
-    "sourceArtifactId": "art-src-a3f9c21",
-    "languages": ["TypeScript", "Java", "Kotlin", "YAML"]
+    "languages": ["TypeScript", "Java", "Kotlin", "YAML"],
+    "source": {
+      "kind": "repository",
+      "provider": "gitlab",
+      "repoUrl": "https://git.examplelife.example/digital/policy-admin-platform",
+      "branch": "release/2026.08",
+      "commitSha": "a3f9c21e8b4d7c2f5a6e9d0b1c4f7a8e2d5b6c9f",
+      "access": "read_only",
+      "tokenRef": {
+        "id": "cred-repo-token",
+        "label": "Read-only deploy token",
+        "username": "dpat-readonly",
+        "secretRef": "vault://assessments/asm-digital-h1/cred-repo-token",
+        "maskedHint": "••••Qz",
+        "storage": "vault",
+        "storedAt": "2026-08-03T06:24:00Z"
+      }
+    }
+  },
+  {
+    "id": "tgt-config",
+    "assessmentId": "asm-digital-h1",
+    "type": "backend_config",
+    "name": "Backend configuration exports",
+    "configArtifactIds": [
+      "art-cfg-notify",
+      "art-cfg-pricing",
+      "art-cfg-cms",
+      "art-cfg-flags",
+      "art-cfg-templates"
+    ]
   },
   {
     "id": "tgt-uat-app",
@@ -38,6 +93,7 @@
     "appId": "com.examplelife.app.uat",
     "version": "5.0.0-rc2",
     "environment": "uat",
-    "buildArtifactId": "art-apk-500rc2"
+    "buildArtifactId": "art-apk-500rc2",
+    "appIdSource": "entered"
   }
 ]

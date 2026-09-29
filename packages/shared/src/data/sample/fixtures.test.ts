@@ -114,6 +114,84 @@ describe('sample fixtures', () => {
     }
   });
 
+  it('link assessment inputs: credentials, test data, builds, source and configuration', () => {
+    const testDataIds = new Set(fx.testDataSets.map((t) => t.id));
+    for (const t of fx.targets) {
+      const artifact = (id: string) => artifactById.get(id);
+      switch (t.type) {
+        case 'website':
+          for (const c of t.credentials) expect(c.storage).toBe('vault');
+          for (const id of t.testDataSetIds) expect(testDataIds.has(id), id).toBe(true);
+          if (t.otpHandling.mode === 'live_assessor_entry')
+            expect(userIds.has(t.otpHandling.assessorUserId)).toBe(true);
+          break;
+        case 'mobile_app': {
+          if (!t.buildArtifactId) break;
+          const build = artifact(t.buildArtifactId);
+          expect(build?.assessmentId).toBe(t.assessmentId);
+          expect(build?.targetId).toBe(t.id);
+          expect(['apk', 'aab', 'ipa']).toContain(build?.kind);
+          if (t.platform === 'ios') expect(t.decryptedBuild).toBe(true);
+          break;
+        }
+        case 'code_repository': {
+          if (t.source.kind === 'archive') {
+            expect(artifact(t.source.artifactId)?.kind).toBe('source_archive');
+            break;
+          }
+          const { commitSha } = t.source;
+          for (const f of fx.findings.filter((x) => x.targetId === t.id)) {
+            for (const e of f.evidence) {
+              if (e.kind === 'code_snippet' && e.commitSha)
+                expect(commitSha.startsWith(e.commitSha), f.reference).toBe(true);
+            }
+          }
+          break;
+        }
+        case 'backend_config':
+          for (const id of t.configArtifactIds) {
+            const a = artifact(id);
+            expect(a?.kind).toBe('config_file');
+            expect(a?.targetId).toBe(t.id);
+          }
+          break;
+      }
+    }
+  });
+
+  it('tag manual captures to a journey and stage of their assessment', () => {
+    const manual = fx.artifacts.filter((a) => a.origin === 'manual_capture');
+    expect(manual.length).toBeGreaterThan(0);
+    for (const a of manual) {
+      expect(assessmentById.get(a.assessmentId)?.stageIds).toContain(a.stageId);
+      if (a.journeyId)
+        expect(fx.journeys.find((j) => j.id === a.journeyId)?.assessmentId).toBe(a.assessmentId);
+    }
+  });
+
+  it('record a client access checklist that matches the inputs', () => {
+    for (const a of fx.assessments) {
+      const ids = a.clientAccess.map((c) => c.id);
+      expect(new Set(ids).size).toBe(ids.length);
+      const outstanding = a.clientAccess.some((c) => c.status === 'outstanding');
+      expect(a.launchedWithOutstanding ?? false).toBe(outstanding);
+    }
+    const h1 = assessmentById.get('asm-digital-h1')!;
+    const configTypes = fx.artifacts
+      .filter((x) => x.assessmentId === h1.id && x.kind === 'config_file')
+      .map((x) => x.configType);
+    for (const type of [
+      'notification_schedule',
+      'pricing_rules',
+      'cms_export',
+      'feature_flags',
+      'communication_template',
+    ]) {
+      expect(configTypes).toContain(type);
+      expect(h1.clientAccess.find((c) => c.id === `config-${type}`)?.status).toBe('provided');
+    }
+  });
+
   it('spread findings across every status, severity, engine and pattern', () => {
     const h1 = fx.findings.filter((f) => f.assessmentId === 'asm-digital-h1');
     expect(new Set(h1.map((f) => f.status)).size).toBe(6);

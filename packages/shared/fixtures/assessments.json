@@ -5,7 +5,7 @@
     "name": "Digital Journeys Review, H1 FY2026-27",
     "description": "Half-yearly assessment of the public website, the Android app (v4.2.0) and the policy administration platform against all 13 specified dark patterns.",
     "status": "in_review",
-    "targetIds": ["tgt-web", "tgt-android", "tgt-repo"],
+    "targetIds": ["tgt-web", "tgt-android", "tgt-repo", "tgt-config"],
     "patternIds": [
       "false_urgency",
       "basket_sneaking",
@@ -62,7 +62,108 @@
     "createdAt": "2026-08-03T06:10:00Z",
     "updatedAt": "2026-09-24T11:42:00Z",
     "startedAt": "2026-08-04T03:30:00Z",
-    "completedAt": "2026-08-04T09:12:00Z"
+    "completedAt": "2026-08-04T09:12:00Z",
+    "clientAccess": [
+      {
+        "id": "website-url",
+        "category": "website",
+        "label": "Website URL and environment",
+        "status": "provided",
+        "detail": "https://www.examplelife.example (Production)"
+      },
+      {
+        "id": "website-credentials",
+        "category": "website",
+        "label": "Test credentials",
+        "status": "provided",
+        "detail": "2 credentials in the vault"
+      },
+      {
+        "id": "website-test-data",
+        "category": "website",
+        "label": "Test customer data",
+        "status": "provided",
+        "detail": "Test customer: salaried, 34"
+      },
+      {
+        "id": "website-payment-sandbox",
+        "category": "website",
+        "label": "Payment sandbox details",
+        "status": "provided",
+        "detail": "Payment gateway sandbox"
+      },
+      {
+        "id": "website-otp",
+        "category": "website",
+        "label": "OTP handling",
+        "status": "provided",
+        "detail": "Fixed test OTP (6 digits)"
+      },
+      {
+        "id": "android-build",
+        "category": "android",
+        "label": "Android build (APK or AAB)",
+        "status": "provided",
+        "detail": "ExampleLife-4.2.0.apk"
+      },
+      {
+        "id": "source-access",
+        "category": "source",
+        "label": "Read-only repository access",
+        "status": "provided",
+        "detail": "GitLab, release/2026.08"
+      },
+      {
+        "id": "source-commit",
+        "category": "source",
+        "label": "Pinned commit",
+        "status": "provided",
+        "detail": "a3f9c21e8b4d"
+      },
+      {
+        "id": "config-notification_schedule",
+        "category": "backend_config",
+        "label": "Notification schedules",
+        "status": "provided",
+        "detail": "notification-scheduler.yaml"
+      },
+      {
+        "id": "config-pricing_rules",
+        "category": "backend_config",
+        "label": "Pricing and fee rules",
+        "status": "provided",
+        "detail": "pricing-rules.yaml"
+      },
+      {
+        "id": "config-cms_export",
+        "category": "backend_config",
+        "label": "CMS export",
+        "status": "provided",
+        "detail": "cms-export-2026-08-01.json"
+      },
+      {
+        "id": "config-feature_flags",
+        "category": "backend_config",
+        "label": "Feature flags",
+        "status": "provided",
+        "detail": "feature-flags.json"
+      },
+      {
+        "id": "config-communication_template",
+        "category": "backend_config",
+        "label": "Communication templates",
+        "status": "provided",
+        "detail": "communication-templates.zip"
+      },
+      {
+        "id": "general-claims-portal",
+        "category": "general",
+        "label": "Claims settlement portal access (third-party administrator)",
+        "status": "outstanding",
+        "detail": "Recorded as a coverage gap for the Claims stage"
+      }
+    ],
+    "launchedWithOutstanding": true
   },
   {
     "id": "asm-renewal-prelaunch",
@@ -91,6 +192,30 @@
     "createdBy": "usr-arjun",
     "createdAt": "2026-09-27T10:05:00Z",
     "updatedAt": "2026-09-28T04:52:00Z",
-    "startedAt": "2026-09-28T04:30:00Z"
+    "startedAt": "2026-09-28T04:30:00Z",
+    "clientAccess": [
+      {
+        "id": "android-build",
+        "category": "android",
+        "label": "Android build (APK or AAB)",
+        "status": "provided",
+        "detail": "ExampleLife-5.0.0-rc2.apk"
+      },
+      {
+        "id": "website-credentials",
+        "category": "general",
+        "label": "UAT test credentials",
+        "status": "outstanding",
+        "detail": "UAT login times out; client to reissue test accounts"
+      },
+      {
+        "id": "website-test-data",
+        "category": "general",
+        "label": "Test customer data",
+        "status": "provided",
+        "detail": "Test customer: senior citizen, 62"
+      }
+    ],
+    "launchedWithOutstanding": true
   }
 ]

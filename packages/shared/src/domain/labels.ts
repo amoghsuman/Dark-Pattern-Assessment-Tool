@@ -9,6 +9,7 @@ import type {
   Severity,
   TargetType,
 } from '../schemas/common';
+import type { ConfigType, RepositoryProvider } from '../schemas/inputs';
 
 /** Display labels. Screens use these rather than formatting enum values themselves. */
 
@@ -59,6 +60,21 @@ export const TARGET_TYPE_LABELS: Record<TargetType, string> = {
   website: 'Website',
   mobile_app: 'Mobile app',
   code_repository: 'Code repository',
+  backend_config: 'Backend configuration',
+};
+
+export const CONFIG_TYPE_LABELS: Record<ConfigType, string> = {
+  notification_schedule: 'Notification schedule',
+  pricing_rules: 'Pricing and fee rules',
+  cms_export: 'CMS export',
+  feature_flags: 'Feature flags',
+  communication_template: 'Communication templates',
+};
+
+export const REPOSITORY_PROVIDER_LABELS: Record<RepositoryProvider, string> = {
+  github: 'GitHub',
+  gitlab: 'GitLab',
+  bitbucket: 'Bitbucket',
 };
 
 export const ROLE_LABELS: Record<Role, string> = {

@@ -11,7 +11,7 @@ import { ErrorState, PageHeader } from '@/components/common/page-states';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useCreateAssessment, useOrganization } from '@/lib/data/hooks';
+import { useCreateAssessment, useOrganization, useTestDataSets } from '@/lib/data/hooks';
 import { can, useRole } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
 import {
@@ -31,7 +31,7 @@ import { StepPatterns } from './step-patterns';
 import { StepReview } from './step-review';
 import { StepScope } from './step-scope';
 import { StepTargets } from './step-targets';
-import { StepUploads } from './step-uploads';
+import { StepCaptures } from './step-captures';
 import { WizardContext } from './wizard-context';
 
 const noopSubscribe = () => () => {};
@@ -49,6 +49,7 @@ export function NewAssessmentWizard() {
 
 function WizardBody() {
   const { data: organization, error } = useOrganization();
+  const { data: testDataSetsData } = useTestDataSets();
   const role = useRole();
   const router = useRouter();
   const create = useCreateAssessment();
@@ -57,7 +58,7 @@ function WizardBody() {
   const [draft, setDraft] = useState<WizardDraft | null>(() => initial ?? emptyDraft(PATTERN_IDS));
   const [errors, setErrors] = useState<StepErrors>({});
   const [restored, setRestored] = useState(
-    () => initial !== null && (initial.name !== '' || initial.targetTypes.length > 0),
+    () => initial !== null && (initial.name !== '' || initial.targetKinds.length > 0),
   );
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -72,9 +73,10 @@ function WizardBody() {
   );
 
   const stages = useMemo(() => organization?.journeyStages ?? [], [organization]);
+  const testDataSets = useMemo(() => testDataSetsData ?? [], [testDataSetsData]);
   const context = useMemo(
-    () => (draft ? { draft, update, errors, stages } : null),
-    [draft, update, errors, stages],
+    () => (draft ? { draft, update, errors, stages, testDataSets } : null),
+    [draft, update, errors, stages, testDataSets],
   );
 
   if (error) return <ErrorState error={error} />;
@@ -127,7 +129,14 @@ function WizardBody() {
       setErrors(validateStep(draft, WIZARD_STEPS[firstBad]?.id ?? 'scope'));
       return;
     }
-    create.mutate(toNewAssessmentInput(draft), {
+    const input = toNewAssessmentInput(draft, { stages, testDataSets });
+    if (input.launchedWithOutstanding && !draft.acknowledgeOutstanding) {
+      toast.error('Some client access items are outstanding', {
+        description: 'Tick "Launch with outstanding items" to continue.',
+      });
+      return;
+    }
+    create.mutate(input, {
       onSuccess: (assessment) => {
         clearDraft();
         toast.success('Assessment launched');
@@ -213,7 +222,7 @@ function WizardBody() {
 
               {current.id === 'scope' ? <StepScope /> : null}
               {current.id === 'targets' ? <StepTargets /> : null}
-              {current.id === 'uploads' ? <StepUploads /> : null}
+              {current.id === 'captures' ? <StepCaptures /> : null}
               {current.id === 'journeys' ? <StepJourneys /> : null}
               {current.id === 'patterns' ? <StepPatterns /> : null}
               {current.id === 'review' ? <StepReview goTo={goTo} /> : null}
